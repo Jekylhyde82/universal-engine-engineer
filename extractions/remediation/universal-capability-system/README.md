@@ -14,3 +14,7 @@ Corrects double-escaped regular-expression tokens in capability semantic-version
 
 ## Validation boundary
 The overlay must pass its targeted tests in GitHub Actions before further review. A passing unit test does not establish persistence security, authenticated evidence, independent verification, deployment readiness, or integration compatibility.
+
+
+## Test execution
+The targeted registry-chain contract suite is included in the master repository's Quarantine Validation workflow. The original quarantined tests remain unchanged and are run separately to preserve source-defect visibility.
