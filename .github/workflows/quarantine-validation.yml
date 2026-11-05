@@ -1,0 +1,93 @@
+name: Quarantine Validation
+
+on:
+  push:
+    branches:
+      - genius-engineer/quarantine-ci-baseline
+  pull_request:
+    branches:
+      - main
+      - extraction/syphon-runtime-hardening
+      - genius-engineer/quarantine-ci-baseline
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quarantine-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-preserved-extractions:
+    name: Validate preserved extraction snapshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.1
+
+      - name: Install capability snapshot test dependencies
+        working-directory: extractions/quarantine/universal-capability-system
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Prepare isolated snapshot test context
+        shell: bash
+        run: |
+          # Recreate original source-relative paths only in the ephemeral CI workspace.
+          ln -s "$GITHUB_WORKSPACE/extractions/quarantine/universal-capability-system/node_modules" "$GITHUB_WORKSPACE/node_modules"
+          mkdir -p extractions/quarantine/syphon-provider-foundation/src/lib/allsparxPrime
+          cp extractions/quarantine/syphon-provider-foundation/providers.ts extractions/quarantine/syphon-provider-foundation/src/lib/allsparxPrime/providers.ts
+          cp extractions/quarantine/syphon-provider-foundation/runtime.ts extractions/quarantine/syphon-provider-foundation/src/lib/allsparxPrime/runtime.ts
+          mkdir -p extractions/quarantine/syphon-gateway-security/src/lib/allsparxPrime extractions/quarantine/syphon-gateway-security/src
+          cp extractions/quarantine/syphon-gateway-security/auth.ts extractions/quarantine/syphon-gateway-security/src/lib/allsparxPrime/auth.ts
+          cp extractions/quarantine/syphon-gateway-security/worker.mjs extractions/quarantine/syphon-gateway-security/src/worker.mjs
+          mkdir -p extractions/quarantine/syphon-evidence-and-pipeline/scripts
+          cp extractions/quarantine/syphon-evidence-and-pipeline/verify-evidence-export.mjs extractions/quarantine/syphon-evidence-and-pipeline/scripts/verify-evidence-export.mjs
+          cp extractions/quarantine/syphon-full-gateway-checkpoints/scripts/evidence-checkpoint.mjs extractions/quarantine/syphon-evidence-and-pipeline/scripts/evidence-checkpoint.mjs
+
+      - name: Run all preserved Node.js contract tests
+        shell: bash
+        run: |
+          mapfile -t tests < <(find extractions/quarantine -type f -path '*/tests/*.test.mjs' -print | sort)
+          if [ "${#tests[@]}" -eq 0 ]; then
+            echo "No quarantined contract tests were found."
+            exit 1
+          fi
+          printf 'Running %s preserved test files\n' "${#tests[@]}"
+          status=0
+          for test_file in "${tests[@]}"; do
+            group_root="${test_file%/tests/*}"
+            echo "::group::${test_file}"
+            if ! (cd "$group_root" && node --test "tests/$(basename "$test_file")"); then
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$status"
+
+      - name: Run targeted remediation overlay tests
+        if: always()
+        run: |
+          if [ -f extractions/remediation/universal-capability-system/tests/capability-registry-chain.test.mjs ]; then
+            node --test extractions/remediation/universal-capability-system/tests/capability-registry-chain.test.mjs
+          else
+            echo "No remediation overlay tests are present on this commit."
+          fi
+
+      - name: Record validation boundary
+        if: always()
+        run: |
+          echo "This workflow tests preserved snapshots and isolated remediation overlays only." >> "$GITHUB_STEP_SUMMARY"
+          echo "Original source snapshots remain unchanged; compatibility paths exist only in the ephemeral runner." >> "$GITHUB_STEP_SUMMARY"
+          echo "A passing result does not approve integration, deployment, live provider connectivity, or independent verification." >> "$GITHUB_STEP_SUMMARY"
