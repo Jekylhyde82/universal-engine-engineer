@@ -74,6 +74,10 @@ jobs:
           done
           exit "$status"
 
+      - name: Run targeted remediation overlay tests
+        if: always()
+        run: node --test extractions/remediation/universal-capability-system/tests/capability-registry-chain.test.mjs
+
       - name: Record validation boundary
         if: always()
         run: |
