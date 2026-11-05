@@ -99,9 +99,39 @@ All 33 changed source files were preserved, retaining their relative paths:
 
 The PR description calls this architecture/documentation only, but the changed-file list includes executable modules and tests. The architecture document contains mixed status statements. Source CI run #142 on this exact PR head failed at the append-only registry service test step: three subtests threw `Invalid capability semantic version.` Job logs point to `capability-registry-chain.mjs`. Static JavaScript checks confirm double-escaped semver and timestamp regex patterns reject valid fixtures `0.1.0` and `2026-10-30T03:00:00.000Z`. The semver defect explains the observed failures; the timestamp defect is separately confirmed. The snapshot is quarantined pending a full source review and target-specific tests.
 
+## Package 5 — SYPHON full gateway and evidence checkpoints
+
+**Destination:** `extractions/quarantine/syphon-full-gateway-checkpoints/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `allsparx/universal-core-integration`  
+**Source commit:** `91f0680f4d6828bf4374423a7abc49e7c0a28509`  
+**Related source work:** [PR #15](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/15) and [PR #19](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/19)
+
+Preserved 18 source files plus this package's provenance README:
+- `.github/workflows/allsparx-dependency-remediation.yml`
+- `.github/workflows/syphon-live-endpoint-verification.yml`
+- `docs/ALLSPARX-9-STAGE-PIPELINE.md`
+- `docs/ALLSPARX-DEPLOYMENT-READINESS.md`
+- `docs/ALLSPARX-PIPELINE-AUTOMATION.md`
+- `docs/ALLSPARX-PRIME-MULTI-PROVIDER-ARCHITECTURE.md`
+- `docs/ALLSPARX-UNIFIED-PLATFORM-ARCHITECTURE.md`
+- `docs/ELEPHANT-BRAIN-SYPHON-AUDIT-2026-10-30.md`
+- `docs/security/dependency-remediation-ledger.json`
+- `scripts/evidence-checkpoint.mjs`
+- `scripts/sign-evidence-checkpoint.mjs`
+- `scripts/verify-evidence-checkpoint.mjs`
+- `tests/allsparx-gateway.test.mjs`
+- `workers/allsparx-gateway/README.md`
+- `workers/allsparx-gateway/package.json`
+- `workers/allsparx-gateway/src/index.js`
+- `workers/allsparx-gateway/src/evidence-ledger.js`
+- `workers/allsparx-gateway/wrangler.toml`
+
+The gateway is Cloudflare/product-specific, not a generic master gateway. The source accepts `ollama` in request validation but only implements OpenAI, Anthropic and Google routing. Provider spend reservations are not actual usage settlement; the source PR explicitly leaves billing reconciliation outstanding. The source PR #15 records a NO-GO deployment decision and outstanding security/operational gates. The source PR #19 workflow passed but deliberately holds at Stage 9. Preserve as legacy reference and quarantine pending adaptation and independent review.
+
 ## Integrity evidence
 
-All 46 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
+All 64 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
 - source Git blob SHA equals destination Git blob SHA;
 - fetched file contents are identical.
 
