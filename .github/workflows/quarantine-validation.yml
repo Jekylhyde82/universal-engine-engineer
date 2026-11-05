@@ -21,7 +21,7 @@ jobs:
   validate-preserved-extractions:
     name: Validate preserved extraction snapshots
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Check out exact commit
         uses: actions/checkout@v4
@@ -40,6 +40,20 @@ jobs:
         working-directory: extractions/quarantine/universal-capability-system
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      - name: Prepare isolated snapshot test context
+        shell: bash
+        run: |
+          # The source tests use their original application-relative paths.
+          # Recreate only those paths inside the ephemeral CI workspace.
+          ln -s "$GITHUB_WORKSPACE/extractions/quarantine/universal-capability-system/node_modules" "$GITHUB_WORKSPACE/node_modules"
+          mkdir -p extractions/quarantine/syphon-provider-foundation/src/lib/allsparxPrime
+          cp extractions/quarantine/syphon-provider-foundation/providers.ts extractions/quarantine/syphon-provider-foundation/src/lib/allsparxPrime/providers.ts
+          cp extractions/quarantine/syphon-provider-foundation/runtime.ts extractions/quarantine/syphon-provider-foundation/src/lib/allsparxPrime/runtime.ts
+          mkdir -p extractions/quarantine/syphon-gateway-security/src/lib/allsparxPrime
+          cp extractions/quarantine/syphon-gateway-security/auth.ts extractions/quarantine/syphon-gateway-security/src/lib/allsparxPrime/auth.ts
+          mkdir -p extractions/quarantine/syphon-evidence-and-pipeline/scripts
+          cp extractions/quarantine/syphon-evidence-and-pipeline/verify-evidence-export.mjs extractions/quarantine/syphon-evidence-and-pipeline/scripts/verify-evidence-export.mjs
+
       - name: Run all preserved Node.js contract tests
         shell: bash
         run: |
@@ -49,10 +63,20 @@ jobs:
             exit 1
           fi
           printf 'Running %s preserved test files\n' "${#tests[@]}"
-          node --test "${tests[@]}"
+          status=0
+          for test_file in "${tests[@]}"; do
+            group_root="${test_file%/tests/*}"
+            echo "::group::${test_file}"
+            if ! (cd "$group_root" && node --test "tests/$(basename "$test_file")"); then
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$status"
 
       - name: Record validation boundary
         if: always()
         run: |
           echo "This workflow tests preserved snapshots only." >> "$GITHUB_STEP_SUMMARY"
+          echo "The original source snapshots remain unchanged; compatibility paths exist only in the ephemeral runner." >> "$GITHUB_STEP_SUMMARY"
           echo "A passing result does not approve integration, deployment, live provider connectivity, or independent verification." >> "$GITHUB_STEP_SUMMARY"
