@@ -1,0 +1,106 @@
+{
+  "evaluation_id": "UCEE-EVAL-0001",
+  "specification_id": "UCEE-SPEC-001",
+  "candidate_record_id": "UCA-GOV-001",
+  "candidate_name": "Open Policy Agent",
+  "status": "DISCOVERED",
+  "source": {
+    "canonical_url": "https://github.com/open-policy-agent/opa",
+    "owner": "open-policy-agent",
+    "repository": "opa",
+    "immutable_revision": null,
+    "release_tag": null,
+    "retrieved_at": null,
+    "evidence": []
+  },
+  "intended_capability_claim": "",
+  "target_environment": {
+    "runtime": null,
+    "operating_system": null,
+    "architecture": null,
+    "cpu_limit": null,
+    "memory_limit_mb": null,
+    "storage_limit_mb": null,
+    "network_policy": null,
+    "deployment_location": null
+  },
+  "gates": {
+    "G0_SOURCE_IDENTITY": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G1_LICENCE_AND_PROVENANCE": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G2_MAINTENANCE_AND_COMPATIBILITY": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G3_SECURITY_AND_GOVERNANCE": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G4_RESOURCE_AND_DEPLOYMENT": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G5_PROOF_OF_CAPABILITY": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G6_INTEGRATION_APPROVAL": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    },
+    "G7_OPERATIONAL_VERIFICATION": {
+      "status": "NOT_ASSESSED",
+      "evidence": [],
+      "notes": ""
+    }
+  },
+  "scores": {
+    "capability_value": "NOT_ASSESSED",
+    "maturity_and_maintenance": "NOT_ASSESSED",
+    "integration_fit": "NOT_ASSESSED",
+    "security_and_governance_fit": "NOT_ASSESSED",
+    "licence_and_distribution_fit": "NOT_ASSESSED",
+    "resource_and_deployment_fit": "NOT_ASSESSED",
+    "proof_quality_and_reproducibility": "NOT_ASSESSED",
+    "scoring_notes": ""
+  },
+  "proof_plan": {
+    "acceptance_criteria": [],
+    "positive_tests": [],
+    "negative_tests": [],
+    "boundary_tests": [],
+    "recovery_tests": [],
+    "environment_description": "",
+    "reproducibility_steps": [],
+    "test_data_provenance": []
+  },
+  "decision": {
+    "disposition": "NO_DECISION",
+    "rationale": "",
+    "authorised_reviewer": null,
+    "approval_scope": null,
+    "decided_at": null,
+    "review_or_expiry_date": null
+  },
+  "risks": [],
+  "limitations": [],
+  "rollback_plan": "",
+  "next_actions": [],
+  "evidence_artifacts": [],
+  "non_claims": [
+    "This template is not evidence that the candidate has been evaluated.",
+    "No licence, security, compatibility, performance, or operational approval is implied."
+  ]
+}
