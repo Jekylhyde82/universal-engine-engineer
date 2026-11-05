@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - genius-engineer/quarantine-ci-baseline
+      - genius-engineer/capability-registry-remediation
   pull_request:
     branches:
       - main
