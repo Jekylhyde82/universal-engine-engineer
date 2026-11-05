@@ -1,0 +1,74 @@
+# Extraction Register
+
+**Destination:** `Jekylhyde82/universal-engine-engineer`  
+**Working branch:** `foundation/master-repository-charter`  
+**Disposition:** Source-preserved snapshots only; all packages quarantined.
+
+## Package 1 — SYPHON provider foundation
+
+**Destination:** `extractions/quarantine/syphon-provider-foundation/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `syphon/multi-provider-foundation`  
+**Source commit:** `5cf52325c9ff4e56a891cee1d3139b13a0e3ffa2`  
+**Source PR:** [#13](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/13)
+
+| Destination file | Original source path |
+|---|---|
+| `providers.ts` | `src/lib/allsparxPrime/providers.ts` |
+| `runtime.ts` | `src/lib/allsparxPrime/runtime.ts` |
+| `tests/provider-routing.test.mjs` | `tests/syphon-provider-routing.test.mjs` |
+| `tests/runtime.test.mjs` | `tests/syphon-runtime.test.mjs` |
+| `README.md` | Authored provenance and quarantine record |
+| `LICENSE.source` | Original source MIT licence notice |
+
+## Package 2 — SYPHON gateway security
+
+**Destination:** `extractions/quarantine/syphon-gateway-security/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `syphon/server-gateway-security`  
+**Source commit:** `8ac4095cfc83eb26f282b387a7d0c25792c40a42`  
+**Source PR:** [#17](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/17)
+
+| Destination file | Original source path |
+|---|---|
+| `worker.mjs` | `src/worker.mjs` |
+| `auth.ts` | `src/lib/allsparxPrime/auth.ts` |
+| `tests/auth.test.mjs` | `tests/syphon-auth.test.mjs` |
+| `tests/gateway.test.mjs` | `tests/syphon-gateway.test.mjs` |
+| `README.md` | Authored provenance and quarantine record |
+
+## Package 3 — SYPHON evidence and assurance pipeline
+
+**Destination:** `extractions/quarantine/syphon-evidence-and-pipeline/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `syphon/9-stage-independent-gates`  
+**Source commit:** `91f0680f4d6828bf4374423a7abc49e7c0a28509`  
+**Related source work:** [PR #15](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/15) and [PR #19](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/19)
+
+| Destination file | Original source path |
+|---|---|
+| `evidence-ledger.js` | `workers/allsparx-gateway/src/evidence-ledger.js` |
+| `verify-evidence-export.mjs` | `scripts/verify-evidence-export.mjs` |
+| `tests/evidence-export.test.mjs` | `tests/syphon-evidence-export.test.mjs` |
+| `allsparx-pipeline-evidence.mjs` | `scripts/allsparx-pipeline-evidence.mjs` |
+| `allsparx-prime-9-stage.yml` | `.github/workflows/allsparx-prime-9-stage.yml` |
+| `README.md` | Authored provenance and quarantine record |
+
+The source MIT notice is preserved at `../syphon-provider-foundation/LICENSE.source`.
+
+## Integrity evidence
+
+All 13 copied code, test and workflow artifacts were fetched again from their source commit and destination branch. For every pair:
+- source Git blob SHA equals destination Git blob SHA;
+- fetched file contents are identical.
+
+This proves byte-identical preservation of those files at inspection time. It does not prove correctness, safety, compatibility or operational readiness.
+
+## Mandatory quarantine rules
+
+- Do not import snapshots directly into production runtime.
+- Do not activate copied workflows in the master repository without reviewing their permissions, secrets, triggers, branch protections and external side effects.
+- Do not assume Cloudflare, Supabase, provider accounts, Durable Objects, secrets, budgets, signing keys or external checkpoints exist in the destination.
+- Do not promote source CI results to destination verification.
+- Preserve source commit, branch, PR and licence provenance through any future adaptation.
+- Require target-side tests, security review, rollback plan and independent verification before promotion.
