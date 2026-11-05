@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "reviewed_at": "2026-11-06",
+  "status": "source-reconnaissance-only",
+  "sources": [
+    {
+      "id": "langgraph",
+      "name": "LangGraph",
+      "repository": "https://github.com/langchain-ai/langgraph",
+      "default_branch": "main",
+      "reviewed_head": "60cbb4af560d71fc5b9cd81dbb5ed46b5525d09b",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "proposed_role": "Stateful workflow orchestration, durable execution and human-in-the-loop checkpoints",
+      "integration_mode": "optional-adapter",
+      "status": "candidate"
+    },
+    {
+      "id": "llama-cpp",
+      "name": "llama.cpp",
+      "repository": "https://github.com/ggml-org/llama.cpp",
+      "default_branch": "master",
+      "reviewed_head": "186eab1cb83899282bec44b837270959b56ee8f3",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "proposed_role": "Optional local LLM inference runtime; model artifacts governed separately",
+      "integration_mode": "optional-endpoint-adapter",
+      "status": "candidate"
+    },
+    {
+      "id": "llama-index",
+      "name": "LlamaIndex",
+      "repository": "https://github.com/run-llama/llama_index",
+      "default_branch": "main",
+      "reviewed_head": "444fdf0684707de62ebb447d658dba137dd9cb99",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "proposed_role": "Document ingestion, parsing, indexing and retrieval",
+      "integration_mode": "optional-adapter",
+      "status": "candidate",
+      "caveat": "Upstream README indicates strategic emphasis has shifted toward LlamaParse and related parsing/extraction products; revalidate OSS framework maintenance and package scope."
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "repository": "https://github.com/qdrant/qdrant",
+      "default_branch": "master",
+      "reviewed_head": "222b2e44ab1c3f17e8246396ead6558e45041df7",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE",
+      "proposed_role": "Optional vector database and filtered similarity search",
+      "integration_mode": "optional-service-adapter",
+      "status": "candidate"
+    },
+    {
+      "id": "promptfoo",
+      "name": "Promptfoo",
+      "repository": "https://github.com/promptfoo/promptfoo",
+      "default_branch": "main",
+      "reviewed_head": "0d802f6e2678eced6bd9c45f56a6b201a28b99c8",
+      "license": "MIT",
+      "license_file": "LICENSE",
+      "proposed_role": "Black-box LLM/prompt regression evaluation and red-team testing",
+      "integration_mode": "development-test-tool",
+      "status": "candidate",
+      "caveat": "Upstream README states Promptfoo is now part of OpenAI and remains open source/MIT licensed; monitor upstream governance and license notices."
+    },
+    {
+      "id": "deepeval",
+      "name": "DeepEval",
+      "repository": "https://github.com/confident-ai/deepeval",
+      "default_branch": "main",
+      "reviewed_head": "fec0da671d861ba8a8b15c7679bad380be1945f6",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE.md",
+      "proposed_role": "Python-native metric-based LLM and RAG evaluation",
+      "integration_mode": "development-test-tool",
+      "status": "candidate"
+    }
+  ],
+  "notices": [
+    "Branch-head SHAs are point-in-time review anchors, not permanent dependency pins.",
+    "License observations are based on upstream repository license files fetched on the review date; verify notices and dependency licenses before redistribution.",
+    "Transitive dependencies, optional extras, model weights, datasets, container images and hosted services have separate license and security requirements.",
+    "No upstream source code has been copied or vendored into this project by this change."
+  ]
+}
