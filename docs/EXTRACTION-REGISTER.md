@@ -97,7 +97,7 @@ All 33 changed source files were preserved, retaining their relative paths:
 - `tests/repository-snapshot-acquirer.test.mjs`
 - `tests/source-repository-record.test.mjs`
 
-The PR description calls this architecture/documentation only, but the changed-file list includes executable modules and tests. The architecture document contains mixed status statements. Source CI run #142 on this exact PR head failed; the cause was not retrieved. Static inspection confirmed double-escaped semantic-version and timestamp regex tokens in `capability-registry-chain.mjs`; valid test fixtures `0.1.0` and `2026-10-30T03:00:00.000Z` do not match. The full source test suite was not executed here, and this defect is not asserted as the cause of run #142. The snapshot is quarantined pending a full source review and target-specific tests.
+The PR description calls this architecture/documentation only, but the changed-file list includes executable modules and tests. The architecture document contains mixed status statements. Source CI run #142 on this exact PR head failed at the append-only registry service test step: three subtests threw `Invalid capability semantic version.` Job logs point to `capability-registry-chain.mjs`. Static JavaScript checks confirm double-escaped semver and timestamp regex patterns reject valid fixtures `0.1.0` and `2026-10-30T03:00:00.000Z`. The semver defect explains the observed failures; the timestamp defect is separately confirmed. The snapshot is quarantined pending a full source review and target-specific tests.
 
 ## Integrity evidence
 
