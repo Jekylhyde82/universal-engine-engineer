@@ -49,7 +49,7 @@ Ten open PRs were identified in the source repository: #6, #7, #11, and #13–#1
 - [#13 — vendor-neutral multi-provider foundation](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/13): provider policy and browser gateway contract; not a deployed gateway.
 - [#14 — Cloudflare gateway](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/14): alternate gateway implementation stacked on #13.
 - [#15 — evidence ledger](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/15): hash-chained evidence ledger and export; explicitly records a NO-GO deployment decision and outstanding operational/security blockers.
-- [#16 — universal capability system](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/16): architecture specification only; no extractor, installer, runtime registry or sandbox is claimed to exist.
+- [#16 — universal capability system](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/16): draft; its changed-file inventory includes executable discovery, manifest validation, policy, registry, improvement, snapshot-acquisition and Cloudflare Worker modules plus schemas/tests. Its PR description says architecture/documentation only, while the architecture document itself contains both proposed/not-enabled and implementation-status statements. The source CI run associated with head `b271a166de17984aedb4c9a98a7273489c45b463` failed (run #142); failure details were not available in this inspection. Treat as unverified and review the discrepancy.
 - [#17 — gateway and Supabase authentication](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/17): gateway implementation stacked on #13; PR description reports 35 tests, Astro checks, build and Wrangler dry-run passing, but live Auth/JWKS, provider secrets, deployment and endpoint verification remain pending.
 - [#18 — Promptfoo and staged agent foundation](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/18): draft; Echo-provider evaluation is a fixture, not model-quality or live-gateway evaluation; latest complete run was not established.
 - [#19 — nine-stage assurance pipeline](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/19): draft; Stage 9 intentionally records HOLD. Successful workflow automation is not production readiness.
@@ -72,12 +72,13 @@ This is evidence that named source-commit workflows completed successfully. It i
 
 The master repository's `main` branch initially contained only a short README. The working branch `foundation/master-repository-charter` contains the master charter, consolidation register, implementation-status document and extraction snapshots. [PR #1](https://github.com/Jekylhyde82/universal-engine-engineer/pull/1) is already open as a draft against `main`; new work is being added to that branch rather than creating a duplicate PR.
 
-Three source-preservation groups have been added under `extractions/quarantine/`:
+Four source-preservation groups have been added under `extractions/quarantine/`:
 1. `syphon-provider-foundation/`;
 2. `syphon-gateway-security/`;
-3. `syphon-evidence-and-pipeline/`.
+3. `syphon-evidence-and-pipeline/`;
+4. `universal-capability-system/`.
 
-Thirteen copied source/code/test/workflow files were re-fetched from their exact source commits and destination Git blob SHA values matched exactly. Provenance notes and the source MIT licence notice were retained. These snapshots are quarantined, not integrated.
+Forty-six copied source artifacts (code, tests, workflow, documentation, schemas, package/build context and configuration) were preserved from exact source commits with matching Git blob SHA values. Provenance notes and the source MIT licence notice were retained. These snapshots are quarantined, not integrated.
 
 ## Migration gates
 
