@@ -14,7 +14,8 @@
 | Provider foundation extraction | Preserved | Four source artifacts plus provenance and licence; exact source/destination blob SHA matches |
 | Gateway security extraction | Preserved | Four source artifacts plus provenance; exact source/destination blob SHA matches |
 | Evidence and assurance extraction | Preserved | Five source artifacts plus provenance; exact source/destination blob SHA matches |
-| Extraction integrity | Verified | All 13 copied code/test/workflow artifacts have identical source and destination Git blob SHA values |
+| Universal Capability System extraction | Preserved | 33 PR #16 files plus quarantine record; source/destination blob SHA matches; source CI run #142 failed |
+| Extraction integrity | Verified | All 46 copied source artifacts have source-matching Git blob SHA values; this proves preservation integrity only |
 | Target-side tests | Not run | Snapshots are quarantined and have not been executed in the master repository |
 | Target integration | Not started | Requires architecture mapping, dependency review, adaptation and dedicated implementation PR |
 | Full Git history migration | Not performed | Requires Git-preserving clone/fetch/push or supported import |
