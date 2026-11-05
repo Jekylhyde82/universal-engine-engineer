@@ -56,9 +56,52 @@
 
 The source MIT notice is preserved at `../syphon-provider-foundation/LICENSE.source`.
 
+## Package 4 — Universal Capability System
+
+**Destination:** `extractions/quarantine/universal-capability-system/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `allsparx/universal-capability-system`  
+**Source commit:** `b271a166de17984aedb4c9a98a7273489c45b463`  
+**Source PR:** [#16](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/16)
+
+All 33 changed source files were preserved, retaining their relative paths:
+- `.github/workflows/syphon-baseline.yml`
+- `docs/architecture/universal-capability-system.md`
+- `docs/deployment/cloudflare-snapshot-worker.md`
+- `package.json`, `pnpm-lock.yaml`, `wrangler.toml`
+- `schemas/capability-manifest.schema.json`
+- `schemas/capability-registry-record.schema.json`
+- `schemas/source-repository-record.schema.json`
+- `schemas/examples/capability-manifest.example.json`
+- `schemas/examples/capability-registry-record.example.json`
+- `schemas/examples/source-repository-record.example.json`
+- `src/lib/allsparxPrime/capability-discovery.mjs`
+- `src/lib/allsparxPrime/capability-manifest-validator.mjs`
+- `src/lib/allsparxPrime/capability-policy.mjs`
+- `src/lib/allsparxPrime/capability-registry-chain.mjs`
+- `src/lib/allsparxPrime/capability-registry.mjs`
+- `src/lib/allsparxPrime/continuous-improvement-pipeline.mjs`
+- `src/lib/allsparxPrime/improvement-assessment.mjs`
+- `src/lib/allsparxPrime/repository-snapshot-acquirer.mjs`
+- `src/worker/index.mjs`
+- `tests/capability-discovery.test.mjs`
+- `tests/capability-manifest-validation.test.mjs`
+- `tests/capability-manifest.test.mjs`
+- `tests/capability-policy.test.mjs`
+- `tests/capability-registry-chain.test.mjs`
+- `tests/capability-registry-service.test.mjs`
+- `tests/capability-registry.test.mjs`
+- `tests/cloudflare-worker.test.mjs`
+- `tests/continuous-improvement-pipeline.test.mjs`
+- `tests/improvement-assessment.test.mjs`
+- `tests/repository-snapshot-acquirer.test.mjs`
+- `tests/source-repository-record.test.mjs`
+
+The PR description calls this architecture/documentation only, but the changed-file list includes executable modules and tests. The architecture document contains mixed status statements. Source CI run #142 on this exact PR head failed at the append-only registry service test step: three subtests threw `Invalid capability semantic version.` Job logs point to `capability-registry-chain.mjs`. Static JavaScript checks confirm double-escaped semver and timestamp regex patterns reject valid fixtures `0.1.0` and `2026-10-30T03:00:00.000Z`. The semver defect explains the observed failures; the timestamp defect is separately confirmed. The snapshot is quarantined pending a full source review and target-specific tests.
+
 ## Integrity evidence
 
-All 13 copied code, test and workflow artifacts were fetched again from their source commit and destination branch. For every pair:
+All 46 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
 - source Git blob SHA equals destination Git blob SHA;
 - fetched file contents are identical.
 
