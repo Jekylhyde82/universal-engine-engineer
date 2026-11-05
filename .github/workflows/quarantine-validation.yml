@@ -1,0 +1,58 @@
+name: Quarantine Validation
+
+on:
+  push:
+    branches:
+      - genius-engineer/quarantine-ci-baseline
+  pull_request:
+    branches:
+      - main
+      - extraction/syphon-runtime-hardening
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quarantine-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-preserved-extractions:
+    name: Validate preserved extraction snapshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.8.1
+
+      - name: Install capability snapshot test dependencies
+        working-directory: extractions/quarantine/universal-capability-system
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Run all preserved Node.js contract tests
+        shell: bash
+        run: |
+          mapfile -t tests < <(find extractions/quarantine -type f -path '*/tests/*.test.mjs' -print | sort)
+          if [ "${#tests[@]}" -eq 0 ]; then
+            echo "No quarantined contract tests were found."
+            exit 1
+          fi
+          printf 'Running %s preserved test files\n' "${#tests[@]}"
+          node --test "${tests[@]}"
+
+      - name: Record validation boundary
+        if: always()
+        run: |
+          echo "This workflow tests preserved snapshots only." >> "$GITHUB_STEP_SUMMARY"
+          echo "A passing result does not approve integration, deployment, live provider connectivity, or independent verification." >> "$GITHUB_STEP_SUMMARY"
