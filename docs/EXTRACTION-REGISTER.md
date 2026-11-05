@@ -129,9 +129,26 @@ Preserved 18 source files plus this package's provenance README:
 
 The gateway is Cloudflare/product-specific, not a generic master gateway. The source accepts `ollama` in request validation but only implements OpenAI, Anthropic and Google routing. Provider spend reservations are not actual usage settlement; the source PR explicitly leaves billing reconciliation outstanding. The source PR #15 records a NO-GO deployment decision and outstanding security/operational gates. The source PR #19 workflow passed but deliberately holds at Stage 9. Preserve as legacy reference and quarantine pending adaptation and independent review.
 
+## Package 6 — Read-only Verification Agent foundation
+
+**Destination:** `extractions/quarantine/verification-agent-foundation/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `syphon/agent-foundation-promptfoo`  
+**Source commit:** `e454c8429b686819d85b07124027c50d119b0e17`  
+**Source PR:** [#18](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/18)
+
+Five source files were preserved:
+- `.github/workflows/agent-evals.yml`
+- `docs/AGENT-FOUNDATION.md`
+- `promptfooconfig.yaml`
+- `src/agents/verification-agent.mjs`
+- `tests/verification-agent.test.mjs`
+
+The source head completed GitHub Actions run #14 successfully: evidence-gate tests, deterministic Echo Promptfoo evaluation and artifact upload passed. The Echo provider makes no model calls. The evaluator assesses caller-supplied evidence and does not authenticate its provenance; the trustworthy, independent, durable and safetyPassed flags are caller-controlled. Treat it as a deterministic policy primitive, not an independent verifier or autonomous agent.
+
 ## Integrity evidence
 
-All 64 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
+All 69 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
 - source Git blob SHA equals destination Git blob SHA;
 - fetched file contents are identical.
 
