@@ -11,6 +11,8 @@
 
 The PR description characterizes this change as an architecture/documentation specification and says no runtime registry, extractor, installer or sandbox runner exists. However, the PR changed-file inventory includes executable discovery, manifest-validation, policy, registry, continuous-improvement and repository-snapshot modules, a Cloudflare Worker, JSON schemas, configuration and dedicated tests. The GitHub workflow lookup for the exact PR head returned a failed SYPHON baseline run (#142); the failure details were not available through this inspection.
 
+**Confirmed static defect:** `capability-registry-chain.mjs` double-escapes the dot and digit tokens in its semantic-version and timestamp regular expressions. A direct JavaScript check confirms that the patterns reject the included valid fixtures `0.1.0` and `2026-10-30T03:00:00.000Z`. The registry-chain tests use those fixtures, so this defect is expected to fail the corresponding tests. The source test suite was not executed here, and this finding is not asserted as the cause of run #142.
+
 The architecture document also begins with a proposed/not-enabled status while later sections describe Phase 2 and Phase 6 implementations. This is a material status/documentation discrepancy. The code is preserved as evidence for review, not assumed complete or operational.
 
 ## Preserved contents
