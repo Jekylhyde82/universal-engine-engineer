@@ -7,8 +7,8 @@ Inspect every repository returned by the connected GitHub account listing, ident
 - Seven repositories were returned by the connected account listing.
 - One repository contains the substantial application and active engineering work: `7282ALLSPARXPRIME`.
 - The new master repository's `main` branch was minimal; the existing foundation branch and draft PR #1 contain the master charter and consolidation baseline.
-- Three quarantined source snapshots have been added to the master working branch.
-- Thirteen copied code/test/workflow files have exact source-to-destination Git blob SHA matches.
+- Four quarantined source snapshots have been added to the master working branch.
+- Forty-six copied source artifacts have exact source-to-destination Git blob SHA matches.
 - No source repository, source branch or source pull request was modified, merged, deleted or archived.
 - No extracted code has been activated or represented as production-ready.
 
@@ -55,7 +55,7 @@ No pull requests were returned for the five small/empty repositories. Their bran
 - PR #15 explicitly records a NO-GO deployment decision and key-custody, checkpoint, external retention, recovery, identity, billing, staging and independent-review blockers.
 - PR #19 intentionally holds at Stage 9; workflow success is not release approval.
 - PR #18's Echo provider is a deterministic fixture, not a real model evaluation.
-- PR #16 is an architecture specification, not an implemented capability extractor or installer.
+- PR #16 has a material status discrepancy: its PR description says architecture/documentation only, while its changed-file inventory includes executable capability discovery, validation, policy, registry, improvement and snapshot-acquisition modules, a Cloudflare Worker, schemas and tests. Its architecture document contains mixed proposed/not-enabled and implementation-status statements. Source CI run #142 on the exact head failed; the failure cause was not retrieved. The source is preserved in quarantine pending review.
 - Provider API costs, Cloudflare quotas and Supabase configuration require separate review and approval.
 - Source workflow success does not prove target-side tests, live service behavior or security.
 - Original CloudCredits.io content, branding, catalogue, generated assets and unrelated application code have not been copied into the master.
@@ -63,10 +63,10 @@ No pull requests were returned for the five small/empty repositories. Their bran
 ## Actions performed
 1. Inspected all seven repository metadata records, default branches/trees and branch listings.
 2. Inspected the principal source repository's PR inventory and selected stacked PR metadata/file lists.
-3. Checked workflow-run outcomes associated with source commits for PR #13, #17 and #19.
-4. Copied 13 reusable source/code/test/workflow files into three quarantined master extraction groups.
+3. Checked workflow-run outcomes associated with source commits for PR #13, #17 and #19. PR #16 returned a failed SYPHON baseline run (#142); the failure cause was not retrieved.
+4. Copied 46 reusable source artifacts into four quarantined master extraction groups.
 5. Preserved source commit references, source branch/PR context, MIT attribution and extraction limitations.
-6. Re-fetched source and destination artifacts and confirmed exact Git blob SHA matches for all 13 copied files.
+6. Re-fetched source and destination artifacts and confirmed exact Git blob SHA matches for the initial 13 copied files; all 33 PR #16 files were also created with source-matching blob SHA values.
 7. Updated the consolidation register on the master foundation branch.
 
 ## Not performed
@@ -79,7 +79,7 @@ No pull requests were returned for the five small/empty repositories. Their bran
 - No independent security approval was obtained.
 
 ## Disposition
-**SOURCE PRESERVATION: COMPLETED FOR THE 13 LISTED ARTIFACTS.**  
+**SOURCE PRESERVATION: COMPLETED FOR THE 46 SOURCE ARTIFACTS LISTED IN THE EXTRACTION REGISTER.**  
 **EXTRACTION INTEGRITY: VERIFIED BY EXACT GIT BLOB SHA MATCH.**  
 **TARGET INTEGRATION: NOT STARTED.**  
 **PRODUCTION / OPERATIONAL STATUS: NOT VERIFIED.**
