@@ -1,0 +1,887 @@
+{
+  "register_id": "UCA-REG-001",
+  "title": "Universal Capability Acquisition Register",
+  "architecture": "U.N.I.V.E.R.S.A.L. E.N.G.I.N.E. / E.N.G.I.N.E.E.R.",
+  "version": "0.1.0",
+  "record_status": "RESEARCH_BASELINE_NOT_APPROVED",
+  "research_date": "2026-11-06",
+  "purpose": "Track discoverable open-source and source-available projects that may provide reusable capabilities. This register is a candidate backlog, not an integration approval, security clearance, licence opinion, or proof that any capability works in our environment.",
+  "governing_principles": [
+    "PROOF BEFORE CLAIM. EVIDENCE BEFORE CONFIDENCE. VERIFICATION BEFORE COMPLETION.",
+    "Preserve distinct component identity, responsibility, licence obligations, and governance boundaries.",
+    "Prefer provider-neutral adapters and replaceable integrations over wholesale repository imports.",
+    "Discover capability gaps and methods, not repository-count targets.",
+    "No candidate is approved solely because it is popular, highly starred, or described as autonomous.",
+    "Human approval and external policy enforcement are required for high-impact actions.",
+    "Every accepted capability must have reproducible proof, rollback, provenance, and mirror parity."
+  ],
+  "status_vocabulary": [
+    "DISCOVERED",
+    "TRIAGE_REQUIRED",
+    "EVALUATION_IN_PROGRESS",
+    "PROOF_OF_CAPABILITY_REQUIRED",
+    "APPROVED_FOR_ADAPTER_DESIGN",
+    "APPROVED_FOR_IMPLEMENTATION",
+    "IMPLEMENTED",
+    "TESTED",
+    "INDEPENDENTLY_VERIFIED",
+    "OPERATIONAL",
+    "REJECTED",
+    "DEFERRED",
+    "BLOCKED"
+  ],
+  "scoring_model": {
+    "scale": "1-5; provisional research prioritisation only",
+    "dimensions": [
+      "capability_value",
+      "maturity_and_maintenance",
+      "integration_fit",
+      "security_and_governance_fit",
+      "licence_and_distribution_fit",
+      "resource_fit"
+    ],
+    "rule": "Do not collapse dimensions into a single average. A critical weakness in security, licence, maintenance, or resource fit blocks approval regardless of total score."
+  },
+  "records": [
+    {
+      "id": "UCA-AGENT-001",
+      "name": "DeepAgents",
+      "repository": "https://github.com/langchain-ai/deepagents",
+      "category": "agent_harness_and_planning",
+      "capabilities": [
+        "task planning",
+        "sub-agent delegation",
+        "tool use",
+        "filesystem-oriented workflows",
+        "long-running task patterns"
+      ],
+      "intended_role": "Higher-level agent harness candidate; evaluate above a lower-level orchestration runtime.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_WITH_LANGGRAPH_NOT_AS_A_REPLACEMENT_FOR_ALL_ORCHESTRATION",
+      "risks": [
+        "Tool permissions and sandboxing must be enforced outside the model.",
+        "Validate current API maturity and dependency footprint."
+      ],
+      "sources": [
+        "https://github.com/langchain-ai/deepagents"
+      ]
+    },
+    {
+      "id": "UCA-ORCH-001",
+      "name": "LangGraph",
+      "repository": "https://github.com/langchain-ai/langgraph",
+      "category": "agent_orchestration",
+      "capabilities": [
+        "stateful graphs",
+        "checkpointing",
+        "durable workflows",
+        "human-in-the-loop control"
+      ],
+      "intended_role": "Candidate orchestration substrate for long-running, inspectable agent workflows.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Avoid coupling domain logic directly to framework-specific state types.",
+        "Test persistence, recovery, and upgrade compatibility."
+      ],
+      "sources": [
+        "https://github.com/langchain-ai/langgraph"
+      ]
+    },
+    {
+      "id": "UCA-ORCH-002",
+      "name": "Microsoft Agent Framework",
+      "repository": "https://github.com/microsoft/agent-framework",
+      "category": "agent_orchestration",
+      "capabilities": [
+        "multi-agent orchestration",
+        "Python and .NET support",
+        "middleware",
+        "human approval patterns"
+      ],
+      "intended_role": "Alternative orchestration candidate; compare against LangGraph before selecting a primary runtime.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFERRED_FOR_COMPARATIVE_BENCHMARK",
+      "risks": [
+        "Potential overlap with LangGraph.",
+        "Confirm maturity, API stability, and cross-language operational costs."
+      ],
+      "sources": [
+        "https://github.com/microsoft/agent-framework"
+      ]
+    },
+    {
+      "id": "UCA-CODE-001",
+      "name": "OpenHands",
+      "repository": "https://github.com/All-Hands-AI/OpenHands",
+      "category": "software_engineering_agent",
+      "capabilities": [
+        "codebase inspection",
+        "software task execution",
+        "developer workflows",
+        "agent execution environment"
+      ],
+      "intended_role": "Candidate software-engineering agent platform; evaluate SDK and execution boundaries separately.",
+      "licence": {
+        "reported": "MIT for software-agent-sdk; verify each OpenHands repository/package independently",
+        "verification": "COMPONENT_LEVEL_REVIEW_REQUIRED"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_SDK_AND_AGENT_SERVER_FIRST",
+      "risks": [
+        "Untrusted code execution requires strong isolation.",
+        "Do not infer one repository's licence applies to the whole OpenHands ecosystem."
+      ],
+      "sources": [
+        "https://github.com/All-Hands-AI/OpenHands",
+        "https://github.com/OpenHands/software-agent-sdk",
+        "https://github.com/OpenHands/automation"
+      ]
+    },
+    {
+      "id": "UCA-CODE-002",
+      "name": "Aider",
+      "repository": "https://github.com/Aider-AI/aider",
+      "category": "software_engineering_agent",
+      "capabilities": [
+        "repository-aware code editing",
+        "Git workflows",
+        "test and command execution"
+      ],
+      "intended_role": "Candidate coding workflow/tool; compare for controlled patch generation and repository operations.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Limit repository write scope and shell execution.",
+        "Test supported model providers and context limitations."
+      ],
+      "sources": [
+        "https://github.com/Aider-AI/aider"
+      ]
+    },
+    {
+      "id": "UCA-CODE-003",
+      "name": "SWE-agent",
+      "repository": "https://github.com/SWE-agent/SWE-agent",
+      "category": "software_engineering_agent",
+      "capabilities": [
+        "issue-driven code investigation",
+        "automated repair workflows",
+        "benchmark-oriented software tasks"
+      ],
+      "intended_role": "Research and benchmark candidate for issue-to-patch workflows.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P3",
+      "initial_disposition": "DEFERRED",
+      "risks": [
+        "Verify current project status, licence, and reproducibility before further evaluation."
+      ],
+      "sources": [
+        "https://github.com/SWE-agent/SWE-agent"
+      ]
+    },
+    {
+      "id": "UCA-BROWSER-001",
+      "name": "Browser Use",
+      "repository": "https://github.com/browser-use/browser-use",
+      "category": "browser_automation",
+      "capabilities": [
+        "natural-language browser task execution",
+        "navigation",
+        "web interaction",
+        "structured extraction"
+      ],
+      "intended_role": "Candidate high-level browser agent behind a restricted browser automation gateway.",
+      "licence": {
+        "reported": "MIT for open-source library; hosted services are separate",
+        "verification": "RECHECK_CODE_AND_SERVICE_BOUNDARIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_WITH_LOCAL_OR_CONTROLLED_BROWSER",
+      "risks": [
+        "Browser sessions may expose authenticated accounts and sensitive data.",
+        "Cloud browser, CAPTCHA, proxy, and hosted API features may be paid services."
+      ],
+      "sources": [
+        "https://github.com/browser-use/browser-use",
+        "https://github.com/browser-use/browser-use/blob/main/LICENSE"
+      ]
+    },
+    {
+      "id": "UCA-BROWSER-002",
+      "name": "Playwright MCP",
+      "repository": "https://github.com/microsoft/playwright-mcp",
+      "category": "browser_automation_and_mcp",
+      "capabilities": [
+        "structured browser interaction",
+        "browser control via MCP",
+        "Playwright-based automation"
+      ],
+      "intended_role": "Candidate deterministic browser-control adapter and tool interface.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "MCP tool exposure must be allowlisted.",
+        "Separate browser profile, filesystem, downloads, and network permissions."
+      ],
+      "sources": [
+        "https://github.com/microsoft/playwright-mcp",
+        "https://github.com/microsoft/playwright-mcp/blob/main/LICENSE"
+      ]
+    },
+    {
+      "id": "UCA-BROWSER-003",
+      "name": "Stagehand",
+      "repository": "https://github.com/browserbase/stagehand",
+      "category": "browser_automation",
+      "capabilities": [
+        "browser interaction",
+        "structured extraction",
+        "natural-language plus code-based browser actions"
+      ],
+      "intended_role": "Alternative browser SDK; benchmark against Browser Use and Playwright MCP.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "COMPARATIVE_EVALUATION",
+      "risks": [
+        "Potential overlap with other browser layers.",
+        "Review hosted Browserbase dependencies and service terms separately."
+      ],
+      "sources": [
+        "https://github.com/browserbase/stagehand",
+        "https://github.com/browserbase/stagehand/blob/main/LICENSE"
+      ]
+    },
+    {
+      "id": "UCA-BROWSER-004",
+      "name": "Skyvern",
+      "repository": "https://github.com/Skyvern-AI/skyvern",
+      "category": "browser_automation",
+      "capabilities": [
+        "visual browser automation",
+        "web portal workflows"
+      ],
+      "intended_role": "Alternative candidate for visually variable enterprise portals.",
+      "licence": {
+        "reported": "AGPL-3.0 in research; verify exact current repository and component terms",
+        "verification": "LEGAL_REVIEW_REQUIRED"
+      },
+      "priority": "P3",
+      "initial_disposition": "DEFER_PENDING_LICENCE_REVIEW",
+      "risks": [
+        "AGPL obligations may affect distribution and network deployment.",
+        "Review self-hosted versus hosted feature boundaries."
+      ],
+      "sources": [
+        "https://github.com/Skyvern-AI/skyvern"
+      ]
+    },
+    {
+      "id": "UCA-WORKFLOW-001",
+      "name": "Kestra",
+      "repository": "https://github.com/kestra-io/kestra",
+      "category": "workflow_orchestration",
+      "capabilities": [
+        "event-driven workflows",
+        "scheduled execution",
+        "retries",
+        "parallel tasks",
+        "workflow observability"
+      ],
+      "intended_role": "Candidate durable automation substrate; evaluate deployment and worker model.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_CURRENT_EDITION_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Determine which enterprise features require commercial terms.",
+        "Assess operational footprint and durable state requirements."
+      ],
+      "sources": [
+        "https://github.com/kestra-io/kestra"
+      ]
+    },
+    {
+      "id": "UCA-WORKFLOW-002",
+      "name": "Activepieces",
+      "repository": "https://github.com/activepieces/activepieces",
+      "category": "workflow_automation_and_integrations",
+      "capabilities": [
+        "visual workflows",
+        "service connectors",
+        "MCP integrations",
+        "community pieces"
+      ],
+      "intended_role": "Candidate connector ecosystem and user-facing workflow builder.",
+      "licence": {
+        "reported": "MIT Community Edition; enterprise/cloud features separately commercially licensed",
+        "verification": "PATH_AND_FEATURE_LEVEL_REVIEW_REQUIRED"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_COMMUNITY_EDITION_SCOPE",
+      "risks": [
+        "Commercially licensed enterprise paths exist in repository.",
+        "Audit each piece, credentials scope, and external service terms."
+      ],
+      "sources": [
+        "https://github.com/activepieces/activepieces",
+        "https://www.activepieces.com/docs/about/license"
+      ]
+    },
+    {
+      "id": "UCA-WORKFLOW-003",
+      "name": "Temporal",
+      "repository": "https://github.com/temporalio/temporal",
+      "category": "durable_execution",
+      "capabilities": [
+        "durable workflows",
+        "retries",
+        "recovery",
+        "long-running process orchestration"
+      ],
+      "intended_role": "Alternative durable execution engine for critical long-running automation.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "COMPARE_WITH_KESTRA",
+      "risks": [
+        "May overlap with Kestra for orchestration; compare workflow semantics and operational burden."
+      ],
+      "sources": [
+        "https://github.com/temporalio/temporal"
+      ]
+    },
+    {
+      "id": "UCA-MEMORY-001",
+      "name": "Cognee",
+      "repository": "https://github.com/topoteretes/cognee",
+      "category": "agent_memory_and_knowledge_graph",
+      "capabilities": [
+        "knowledge graph construction",
+        "document and data ingestion",
+        "retrieval",
+        "persistent knowledge"
+      ],
+      "intended_role": "Candidate memory and knowledge layer; keep storage provider replaceable.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Benchmark extraction quality and retrieval grounding.",
+        "Review data retention, deletion, and embedding model requirements."
+      ],
+      "sources": [
+        "https://github.com/topoteretes/cognee"
+      ]
+    },
+    {
+      "id": "UCA-MEMORY-002",
+      "name": "Mem0",
+      "repository": "https://github.com/mem0ai/mem0",
+      "category": "agent_memory",
+      "capabilities": [
+        "persistent user and agent memory",
+        "memory extraction and retrieval"
+      ],
+      "intended_role": "Alternative focused memory service/library.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFERRED_FOR_LICENCE_AND_ARCHITECTURE_REVIEW",
+      "risks": [
+        "Verify repository versus hosted product boundaries and current licence."
+      ],
+      "sources": [
+        "https://github.com/mem0ai/mem0"
+      ]
+    },
+    {
+      "id": "UCA-MEMORY-003",
+      "name": "Letta",
+      "repository": "https://github.com/letta-ai/letta",
+      "category": "stateful_agents_and_memory",
+      "capabilities": [
+        "persistent agent state",
+        "memory management",
+        "stateful agent runtime"
+      ],
+      "intended_role": "Alternative agent-memory architecture; compare with Cognee and Mem0.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFERRED_FOR_LICENCE_AND_ARCHITECTURE_REVIEW",
+      "risks": [
+        "Potential overlap with agent harness and memory responsibilities."
+      ],
+      "sources": [
+        "https://github.com/letta-ai/letta"
+      ]
+    },
+    {
+      "id": "UCA-MEMORY-004",
+      "name": "Graphiti",
+      "repository": "https://github.com/getzep/graphiti",
+      "category": "temporal_knowledge_graph",
+      "capabilities": [
+        "temporal knowledge graph",
+        "time-aware entity relationships",
+        "agent context retrieval"
+      ],
+      "intended_role": "Candidate temporal graph component; compare as a Cognee complement or alternative.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P3",
+      "initial_disposition": "DEFERRED_FOR_LICENCE_AND_FIT_REVIEW",
+      "risks": [
+        "Confirm current ownership, maintenance, licence and database requirements."
+      ],
+      "sources": [
+        "https://github.com/getzep/graphiti"
+      ]
+    },
+    {
+      "id": "UCA-GOV-001",
+      "name": "Open Policy Agent",
+      "repository": "https://github.com/open-policy-agent/opa",
+      "category": "policy_enforcement",
+      "capabilities": [
+        "policy evaluation",
+        "authorization decisions",
+        "policy-as-code"
+      ],
+      "intended_role": "External policy decision point for agent and tool actions.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_AS_GOVERNANCE_FOUNDATION",
+      "risks": [
+        "OPA decisions must be enforced by the actual execution gateway.",
+        "Define fail-closed behavior and policy test coverage."
+      ],
+      "sources": [
+        "https://github.com/open-policy-agent/opa"
+      ]
+    },
+    {
+      "id": "UCA-GOV-002",
+      "name": "OpenFGA",
+      "repository": "https://github.com/openfga/openfga",
+      "category": "authorization",
+      "capabilities": [
+        "relationship-based authorization",
+        "fine-grained access control"
+      ],
+      "intended_role": "Candidate identity and resource authorization layer.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_IF_FINE_GRAINED_AUTHORIZATION_REQUIRED",
+      "risks": [
+        "Avoid duplicating OPA policy responsibilities; define PDP/PIP boundaries."
+      ],
+      "sources": [
+        "https://github.com/openfga/openfga"
+      ]
+    },
+    {
+      "id": "UCA-SANDBOX-001",
+      "name": "gVisor",
+      "repository": "https://github.com/google/gvisor",
+      "category": "execution_isolation",
+      "capabilities": [
+        "application-kernel isolation",
+        "container workload isolation"
+      ],
+      "intended_role": "Candidate isolation boundary for untrusted agent workloads.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_ON_SUPPORTED_REMOTE_HOSTS",
+      "risks": [
+        "Requires compatible host infrastructure and operational expertise.",
+        "Not assumed suitable for direct Android deployment."
+      ],
+      "sources": [
+        "https://github.com/google/gvisor"
+      ]
+    },
+    {
+      "id": "UCA-SANDBOX-002",
+      "name": "Wasmtime",
+      "repository": "https://github.com/bytecodealliance/wasmtime",
+      "category": "sandboxed_extension_runtime",
+      "capabilities": [
+        "WebAssembly execution",
+        "sandboxed component runtime",
+        "resource controls"
+      ],
+      "intended_role": "Candidate runtime for constrained, portable extensions and tools.",
+      "licence": {
+        "reported": "Apache-2.0 WITH LLVM-exception; verify current files",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_FOR_PORTABLE_TOOL_SANDBOXING",
+      "risks": [
+        "WASM sandboxing is not a complete substitute for host isolation or network policy."
+      ],
+      "sources": [
+        "https://github.com/bytecodealliance/wasmtime"
+      ]
+    },
+    {
+      "id": "UCA-EVAL-001",
+      "name": "Promptfoo",
+      "repository": "https://github.com/promptfoo/promptfoo",
+      "category": "agent_and_prompt_evaluation",
+      "capabilities": [
+        "prompt regression",
+        "model comparison",
+        "red-team testing"
+      ],
+      "intended_role": "Adversarial and comparative test harness for agent/model behavior.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Do not treat red-team coverage as proof of security.",
+        "Test tool-use and indirect prompt-injection scenarios."
+      ],
+      "sources": [
+        "https://github.com/promptfoo/promptfoo"
+      ]
+    },
+    {
+      "id": "UCA-EVAL-002",
+      "name": "DeepEval",
+      "repository": "https://github.com/confident-ai/deepeval",
+      "category": "llm_and_rag_evaluation",
+      "capabilities": [
+        "metric-based LLM evaluation",
+        "RAG evaluation",
+        "test-driven model assessment"
+      ],
+      "intended_role": "Quality metrics and repeatable evaluation suites.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_AS_METRIC_EVALUATOR",
+      "risks": [
+        "LLM-as-judge metrics require calibration and human-labelled validation."
+      ],
+      "sources": [
+        "https://github.com/confident-ai/deepeval"
+      ]
+    },
+    {
+      "id": "UCA-OBS-001",
+      "name": "Langfuse",
+      "repository": "https://github.com/langfuse/langfuse",
+      "category": "observability_and_tracing",
+      "capabilities": [
+        "LLM/agent tracing",
+        "evaluation",
+        "prompt management",
+        "experiments"
+      ],
+      "intended_role": "Candidate trace and observability platform.",
+      "licence": {
+        "reported": "MIT core; enterprise modules commercially licensed",
+        "verification": "PATH_AND_FEATURE_LEVEL_REVIEW_REQUIRED"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_CORE_AND_ENTERPRISE_BOUNDARIES",
+      "risks": [
+        "Enterprise modules have separate terms.",
+        "Tracing may capture sensitive prompts, tool inputs and outputs; apply redaction and retention policies."
+      ],
+      "sources": [
+        "https://github.com/langfuse/langfuse",
+        "https://langfuse.com/handbook/chapters/open-source"
+      ]
+    },
+    {
+      "id": "UCA-OBS-002",
+      "name": "Arize Phoenix",
+      "repository": "https://github.com/Arize-ai/phoenix",
+      "category": "observability_and_evaluation",
+      "capabilities": [
+        "agent tracing",
+        "LLM observability",
+        "evaluation",
+        "OpenInference support"
+      ],
+      "intended_role": "Alternative observability platform; compare with Langfuse.",
+      "licence": {
+        "reported": "Elastic License 2.0 for Phoenix; verify each package separately",
+        "verification": "LEGAL_REVIEW_REQUIRED_FOR_DISTRIBUTION"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFER_PENDING_LICENCE_AND_FEATURE_COMPARISON",
+      "risks": [
+        "ELv2 is not an OSI-approved open-source licence.",
+        "Different packages may have different licences."
+      ],
+      "sources": [
+        "https://github.com/Arize-ai/phoenix",
+        "https://github.com/Arize-ai/phoenix/blob/main/docs/phoenix/self-hosting/license.mdx"
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-001",
+      "name": "llama.cpp",
+      "repository": "https://github.com/ggml-org/llama.cpp",
+      "category": "local_inference_runtime",
+      "capabilities": [
+        "local model inference",
+        "quantized model execution",
+        "CPU/GPU backend support"
+      ],
+      "intended_role": "Optional local inference provider; model weights and model licences remain separate.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "BENCHMARK_BEFORE_TARGET_DEVICE_DECISION",
+      "risks": [
+        "4GB Android device is not assumed capable of useful workloads.",
+        "Model weights have independent licences and memory requirements."
+      ],
+      "sources": [
+        "https://github.com/ggml-org/llama.cpp"
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-002",
+      "name": "LlamaIndex",
+      "repository": "https://github.com/run-llama/llama_index",
+      "category": "data_ingestion_and_retrieval",
+      "capabilities": [
+        "document ingestion",
+        "parsing and indexing",
+        "retrieval and query workflows"
+      ],
+      "intended_role": "Candidate knowledge ingestion/retrieval framework; compare against Cognee's ingestion and graph features.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_FOR_CLEAR_COMPLEMENTARY_ROLE",
+      "risks": [
+        "Potential overlap with Cognee; define whether it is an ingestion adapter or a separate retrieval layer."
+      ],
+      "sources": [
+        "https://github.com/run-llama/llama_index"
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-003",
+      "name": "Qdrant",
+      "repository": "https://github.com/qdrant/qdrant",
+      "category": "vector_storage_and_retrieval",
+      "capabilities": [
+        "vector storage",
+        "similarity search",
+        "filtered retrieval"
+      ],
+      "intended_role": "Optional replaceable vector storage provider.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_AS_REMOTE_SERVICE_FIRST",
+      "risks": [
+        "Do not assume phone-resident deployment.",
+        "Review persistence, backup, access control and operational costs."
+      ],
+      "sources": [
+        "https://github.com/qdrant/qdrant"
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-004",
+      "name": "Promptfoo",
+      "repository": "https://github.com/promptfoo/promptfoo",
+      "category": "evaluation_and_red_teaming",
+      "capabilities": [
+        "prompt testing",
+        "model comparisons",
+        "red-team tests"
+      ],
+      "intended_role": "Shared candidate already represented in UCA-EVAL-001; retained here as one of the original six research sources.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "SEE_UCA-EVAL-001"
+      },
+      "priority": "P1",
+      "initial_disposition": "DUPLICATE_REFERENCE",
+      "risks": [
+        "Use canonical record UCA-EVAL-001."
+      ],
+      "sources": [
+        "https://github.com/promptfoo/promptfoo"
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-005",
+      "name": "DeepEval",
+      "repository": "https://github.com/confident-ai/deepeval",
+      "category": "evaluation",
+      "capabilities": [
+        "LLM and RAG evaluation"
+      ],
+      "intended_role": "Shared candidate already represented in UCA-EVAL-002; retained here as one of the original six research sources.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "SEE_UCA-EVAL-002"
+      },
+      "priority": "P1",
+      "initial_disposition": "DUPLICATE_REFERENCE",
+      "risks": [
+        "Use canonical record UCA-EVAL-002."
+      ],
+      "sources": [
+        "https://github.com/confident-ai/deepeval"
+      ]
+    }
+  ],
+  "mandatory_evaluation_gates": [
+    {
+      "gate": "G0_SOURCE_IDENTITY",
+      "requirements": [
+        "Confirm canonical upstream repository and owner.",
+        "Pin commit SHA or release tag.",
+        "Record retrieval date and source evidence."
+      ]
+    },
+    {
+      "gate": "G1_LICENCE_AND_PROVENANCE",
+      "requirements": [
+        "Inspect root and nested licence files.",
+        "Inventory transitive dependencies, assets, models and datasets.",
+        "Record NOTICE and attribution obligations.",
+        "Separate self-hosted, hosted and enterprise features."
+      ]
+    },
+    {
+      "gate": "G2_MAINTENANCE_AND_COMPATIBILITY",
+      "requirements": [
+        "Inspect releases, commits, issue response and security advisories.",
+        "Check supported runtimes, API stability and upgrade path.",
+        "Identify overlapping candidates and alternatives."
+      ]
+    },
+    {
+      "gate": "G3_SECURITY_AND_GOVERNANCE",
+      "requirements": [
+        "Threat model tools and data access.",
+        "Test prompt injection and untrusted content handling.",
+        "Enforce least privilege outside the model.",
+        "Define sandbox, network, secrets and approval boundaries."
+      ]
+    },
+    {
+      "gate": "G4_RESOURCE_AND_DEPLOYMENT",
+      "requirements": [
+        "Benchmark CPU, RAM, storage, latency and network requirements.",
+        "Separate mobile client from remote execution infrastructure.",
+        "Record hosting costs and offline behavior."
+      ]
+    },
+    {
+      "gate": "G5_PROOF_OF_CAPABILITY",
+      "requirements": [
+        "Define measurable acceptance criteria.",
+        "Build an isolated proof of capability.",
+        "Run reproducible tests and negative tests.",
+        "Record failures and limitations."
+      ]
+    },
+    {
+      "gate": "G6_INTEGRATION_APPROVAL",
+      "requirements": [
+        "Approve a narrow adapter contract.",
+        "Preserve provider identity and replaceability.",
+        "Review rollback and data migration.",
+        "Approval is not implementation."
+      ]
+    },
+    {
+      "gate": "G7_OPERATIONAL_VERIFICATION",
+      "requirements": [
+        "Verify deployed version and configuration.",
+        "Run integration, security, reliability and performance tests.",
+        "Obtain independent review.",
+        "Update source and operational mirrors and detect drift."
+      ]
+    }
+  ],
+  "next_actions": [
+    "Confirm and pin upstream commit/release identities for P1 candidates.",
+    "Complete licence and dependency inventory before any code import or distribution.",
+    "Define provider-neutral contracts for agent runtime, tool gateway, memory, workflow execution, policy enforcement and evidence.",
+    "Create isolated proof-of-capability benchmarks for DeepAgents/LangGraph, OpenHands SDK, Browser Use/Playwright MCP, Kestra, Cognee and OPA/gVisor.",
+    "Do not integrate all candidates at once; select one vertical slice at a time.",
+    "Keep the existing six-source reconnaissance PR separate from this register unless a maintainer explicitly chooses to consolidate them."
+  ],
+  "non_claims": [
+    "No candidate has been installed or integrated by this register.",
+    "No candidate has passed a security audit or operational benchmark.",
+    "Reported licences are research leads, not legal clearance; verify exact pinned revisions and all included components.",
+    "No upstream test suites were executed as part of this register creation.",
+    "Priority labels represent proposed evaluation order, not approval."
+  ]
+}
