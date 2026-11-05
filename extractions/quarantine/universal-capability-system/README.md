@@ -9,7 +9,7 @@
 
 ## Why this is preserved
 
-The PR description characterizes this change as an architecture/documentation specification and says no runtime registry, extractor, installer or sandbox runner exists. However, the PR changed-file inventory includes executable discovery, manifest-validation, policy, registry, continuous-improvement and repository-snapshot modules, a Cloudflare Worker, JSON schemas, configuration and dedicated tests.
+The PR description characterizes this change as an architecture/documentation specification and says no runtime registry, extractor, installer or sandbox runner exists. However, the PR changed-file inventory includes executable discovery, manifest-validation, policy, registry, continuous-improvement and repository-snapshot modules, a Cloudflare Worker, JSON schemas, configuration and dedicated tests. The GitHub workflow lookup for the exact PR head returned a failed SYPHON baseline run (#142); the failure details were not available through this inspection.
 
 The architecture document also begins with a proposed/not-enabled status while later sections describe Phase 2 and Phase 6 implementations. This is a material status/documentation discrepancy. The code is preserved as evidence for review, not assumed complete or operational.
 
