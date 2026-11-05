@@ -8,14 +8,14 @@ Inspect every repository returned by the connected GitHub account listing, ident
 - One repository contains the substantial application and active engineering work: `7282ALLSPARXPRIME`.
 - The new master repository's `main` branch was minimal; the existing foundation branch and draft PR #1 contain the master charter and consolidation baseline.
 - Seven quarantined source snapshots have been added to the master working branch.
-- Seventy-four copied source artifacts have exact source-to-destination Git blob SHA matches.
+- Seventy-four source code/test/workflow/documentation/schema/package-context/configuration artifacts plus one MIT licence notice have exact source-to-destination Git blob SHA matches (75 source files total).
 - No source repository, source branch or source pull request was modified, merged, deleted or archived.
 - No extracted code has been activated or represented as production-ready.
 
 ## Repository findings
 
 ### Primary source — 7282ALLSPARXPRIME
-Confirmed fork of `t3-sh/cloudcredits.io`, MIT licence, public, 12,029 KB, Astro application, 33 branches and 20 PRs. The default branch contains the CloudCredits.io product and a local SYPHON runtime adapter. The source PR branches contain additional provider routing, Cloudflare/Supabase gateway, evidence-ledger and assurance-pipeline work.
+Confirmed fork of `t3-sh/cloudcredits.io`, MIT licence, public, 12,029 KB, Astro application, 33 branches and 20 PRs. Its default Git tree contains 913 entries (707 blobs and 206 tree entries). The default branch contains the CloudCredits.io product and a local SYPHON runtime adapter. The source PR branches contain additional provider routing, Cloudflare/Supabase gateway, evidence-ledger and assurance-pipeline work.
 
 The source application itself is not a suitable wholesale master-root import. It has its own product identity, upstream relationship, content model, deployment assumptions and dependency tree. Reusable infrastructure is being preserved separately.
 
@@ -27,7 +27,21 @@ The source application itself is not a suitable wholesale master-root import. It
 - `UNIVERSAL-ENGINE.ENGINEER-`: private; one README and one initial commit.
 - `universal-engine-engineer`: public master; main branch initially contained one short README; the separate foundation branch contains the charter and extraction work.
 
-No pull requests were returned for the five small/empty repositories. Their branch/default-tree inspection did not reveal additional application source. Tags could not be conclusively inventoried through the available GitHub inspection action.
+No pull requests were returned for the five small/empty repositories. Their branch/default-tree inspection did not reveal additional application source. The releases endpoint returned no releases for any of the seven repositories; tags could not be conclusively inventoried through the available GitHub inspection action.
+
+## Branch-level review of the primary source
+
+Selected branch comparisons were performed against `main`:
+- `allsparx/universal-core-foundation` is identical to `main`.
+- `allsparx/universal-core-integration` is 158 commits ahead with 33 changed files; relevant gateway, evidence, checkpoint, pipeline and documentation assets were preserved in packages 3 and 5. Product UI/content changes were not copied.
+- `allsparx/universal-capability-system` contains the 33-file PR #16 capability system, preserved in package 4.
+- `syphon/runtime-hardening` is 12 commits ahead and one behind, with five changed files; all five were preserved in package 7.
+- `syphon/agent-foundation-promptfoo` is 68 commits ahead with 24 changed files; the relevant read-only verifier, tests, Promptfoo fixture and evaluation workflow were preserved in package 6. Duplicate gateway/runtime files were not recopied.
+- `syphon/server-gateway-security-rebased3` is 29 commits behind `syphon/server-gateway-security`; the original PR #17 branch and later PR #19 Worker snapshot were retained instead.
+- The alternative `syphon/cloudflare-worker-gateway` branch is older than `allsparx/universal-core-integration`; the latter's full Worker was retained as the later snapshot.
+- PR #11's integration-plan branch is diverged and draft; its product UI changes were not imported. PR #14's earlier gateway implementation is superseded by the later full Worker snapshot. PR #6 changes only the live-verification workflow, for which a later version was preserved.
+
+This is a targeted branch-diff review, not a forensic audit of every historical commit or all 33 branch contents.
 
 ## High-value assets identified and preserved
 
@@ -80,7 +94,7 @@ The source PR #18 includes a deterministic read-only evidence-claim evaluator, c
 1. Inspected all seven repository metadata records, default branches/trees and branch listings.
 2. Inspected the principal source repository's PR inventory and selected stacked PR metadata/file lists.
 3. Checked workflow-run outcomes associated with source commits for PR #13, #17 and #19. PR #16 returned a failed SYPHON baseline run (#142); the failure cause was not retrieved.
-4. Copied 74 reusable source artifacts into seven quarantined master extraction groups.
+4. Copied 74 reusable source artifacts plus one MIT licence notice into seven quarantined master extraction groups.
 5. Preserved source commit references, source branch/PR context, MIT attribution and extraction limitations.
 6. Re-fetched source and destination artifacts and confirmed exact Git blob SHA matches for the initial 13 copied files; all 33 PR #16 files and all 18 new gateway/checkpoint source files and all five verification-agent source files and all five runtime-hardening source files were also created with source-matching blob SHA values.
 7. Updated the consolidation register on the master foundation branch.
