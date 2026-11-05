@@ -17,7 +17,8 @@
 | Universal Capability System extraction | Preserved | 33 PR #16 files plus quarantine record; source/destination blob SHA matches; source CI run #142 failed |
 | Full gateway/checkpoint extraction | Preserved | 18 source files plus quarantine record; source/destination blob SHA matches; product-specific, not target-integrated |
 | Read-only Verification Agent foundation | Preserved | Five PR #18 source files plus quarantine record; source CI run #14 passed; evaluator trusts caller-supplied evidence flags |
-| Extraction integrity | Verified | All 69 copied source artifacts have source-matching Git blob SHA values; this proves preservation integrity only |
+| SYPHON runtime hardening | Preserved | Five PR #7 source files plus quarantine record; source CI run #35 passed; mocked tests only |
+| Extraction integrity | Verified | All 74 copied source artifacts have source-matching Git blob SHA values; this proves preservation integrity only |
 | Target-side tests | Not run | Snapshots are quarantined and have not been executed in the master repository |
 | Target integration | Not started | Requires architecture mapping, dependency review, adaptation and dedicated implementation PR |
 | Full Git history migration | Not performed | Requires Git-preserving clone/fetch/push or supported import |
