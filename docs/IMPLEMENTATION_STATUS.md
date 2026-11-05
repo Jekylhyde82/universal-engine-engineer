@@ -14,7 +14,8 @@
 | Provider foundation extraction | Preserved | Four source artifacts plus provenance and licence; exact source/destination blob SHA matches |
 | Gateway security extraction | Preserved | Four source artifacts plus provenance; exact source/destination blob SHA matches |
 | Evidence and assurance extraction | Preserved | Five source artifacts plus provenance; exact source/destination blob SHA matches |
-| Universal Capability System extraction | Preserved | 33 PR #16 files plus quarantine record; source/destination blob SHA matches; source CI run #142 failed |\n| Full gateway/checkpoint extraction | Preserved | 18 source files plus quarantine record; source/destination blob SHA matches; product-specific, not target-integrated |
+| Universal Capability System extraction | Preserved | 33 PR #16 files plus quarantine record; source/destination blob SHA matches; source CI run #142 failed |
+| Full gateway/checkpoint extraction | Preserved | 18 source files plus quarantine record; source/destination blob SHA matches; product-specific, not target-integrated |
 | Extraction integrity | Verified | All 64 copied source artifacts have source-matching Git blob SHA values; this proves preservation integrity only |
 | Target-side tests | Not run | Snapshots are quarantined and have not been executed in the master repository |
 | Target integration | Not started | Requires architecture mapping, dependency review, adaptation and dedicated implementation PR |
