@@ -30,7 +30,7 @@ The connected GitHub account listing returned seven repositories. This inventory
 | [ALLSPARX.PRIME-](https://github.com/Jekylhyde82/ALLSPARX.PRIME-) | Private / `main` | README only; one initial commit; no PRs returned | **Preserve / inspect before disposition** |
 | [UNIVERSAL-ENGINE.ENGINEER-](https://github.com/Jekylhyde82/UNIVERSAL-ENGINE.ENGINEER-) | Private / `main` | README only; one initial commit; no PRs returned | **Preserve / inspect before disposition** |
 
-For the five small repositories, branch and default-tree inspection found no additional source tree beyond the single README or empty repository state. Their tags endpoints were not available through the connected inspection action, so tag absence is not asserted.
+For the five small repositories, branch and default-tree inspection found no additional source tree beyond the single README or empty repository state. The GitHub releases endpoint returned no releases for any of the seven repositories. Tags endpoints were not available through the connected inspection action, so tag absence is not asserted.
 
 ## Critical source finding: 7282ALLSPARXPRIME
 
@@ -72,15 +72,16 @@ This is evidence that named source-commit workflows completed successfully. It i
 
 The master repository's `main` branch initially contained only a short README. The working branch `foundation/master-repository-charter` contains the master charter, consolidation register, implementation-status document and extraction snapshots. [PR #1](https://github.com/Jekylhyde82/universal-engine-engineer/pull/1) is already open as a draft against `main`; new work is being added to that branch rather than creating a duplicate PR.
 
-Six source-preservation groups have been added under `extractions/quarantine/`:
+Seven source-preservation groups have been added under `extractions/quarantine/`:
 1. `syphon-provider-foundation/`;
 2. `syphon-gateway-security/`;
 3. `syphon-evidence-and-pipeline/`;
 4. `universal-capability-system/`;
 5. `syphon-full-gateway-checkpoints/`;
-6. `verification-agent-foundation/`.
+6. `verification-agent-foundation/`;
+7. `syphon-runtime-hardening/`.
 
-Sixty-nine copied source artifacts (code, tests, workflow, documentation, schemas, package/build context and configuration) were preserved from exact source commits with matching Git blob SHA values. Provenance notes and the source MIT licence notice were retained. These snapshots are quarantined, not integrated.
+Seventy-four source code/test/workflow/documentation/schema/package-context/configuration artifacts plus one MIT licence notice were preserved from exact source commits. All 75 source files have matching source/destination Git blob SHA values. Provenance notes were retained. These snapshots are quarantined, not integrated.
 
 ## Migration gates
 

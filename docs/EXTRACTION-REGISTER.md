@@ -146,9 +146,26 @@ Five source files were preserved:
 
 The source head completed GitHub Actions run #14 successfully: evidence-gate tests, deterministic Echo Promptfoo evaluation and artifact upload passed. The Echo provider makes no model calls. The evaluator assesses caller-supplied evidence and does not authenticate its provenance; the trustworthy, independent, durable and safetyPassed flags are caller-controlled. Treat it as a deterministic policy primitive, not an independent verifier or autonomous agent.
 
+## Package 7 — SYPHON runtime hardening
+
+**Destination:** `extractions/quarantine/syphon-runtime-hardening/`  
+**Source repository:** `Jekylhyde82/7282ALLSPARXPRIME`  
+**Source branch:** `syphon/runtime-hardening`  
+**Source commit:** `6d0f61a809630062b965193ca8922430a1451ff5`  
+**Source PR:** [#7](https://github.com/Jekylhyde82/7282ALLSPARXPRIME/pull/7)
+
+Five source files were preserved:
+- `.github/workflows/syphon-baseline.yml`
+- `docs/SYPHON-RUNTIME-VERIFICATION.md`
+- `package.json`
+- `src/lib/allsparxPrime/runtime.ts`
+- `tests/syphon-runtime.test.mjs`
+
+The exact source commit completed GitHub Actions SYPHON baseline run #35 successfully. The 13 tests use mocked fetch and do not establish live provider connectivity. The adapter is a bounded local orchestration layer, not a server-side gateway, and explicitly marks its result `verified: false`.
+
 ## Integrity evidence
 
-All 69 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
+All 75 source files (74 code, tests, workflows, docs, schemas, package/build context and configuration artifacts plus one MIT licence notice) have source-matching Git blob SHA values. The initial 13 code/test/workflow artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
 - source Git blob SHA equals destination Git blob SHA;
 - fetched file contents are identical.
 

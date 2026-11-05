@@ -32,6 +32,8 @@ No source repository is to be deleted, archived, overwritten, or silently flatte
 |---|---|
 | `docs/MASTER_CHARTER.md` | Constitutional principles and architecture governance |
 | `docs/CONSOLIDATION_REGISTER.md` | Source-repository inventory, migration status, and preservation rules |
+| `docs/audits/REPOSITORY-AUDIT-2026-11-05.md` | Seven-repository audit findings and branch-level review scope |
+| `docs/EXTRACTION-REGISTER.md` | File-level provenance for quarantined source snapshots |
 | `docs/IMPLEMENTATION_STATUS.md` | Evidence-based status and verification gates |
 | `architecture/` | Architecture specifications and controlled registers |
 | `systems/` | System-level specifications and implementation |
@@ -44,7 +46,7 @@ Directories are introduced as their contents are approved and implemented.
 
 ## Current status
 
-The repository foundation and consolidation controls are being established. The architecture is a design/specification commitment; the complete architecture, code migration, system integration, tests, and independent verification are **not yet claimed as complete**.
+The repository foundation and consolidation controls are being established. Seven source repositories have been inventoried, and seven quarantined extraction packages preserve 74 code/test/workflow/documentation/schema/configuration artifacts plus the original MIT licence notice. All 75 source files have exact source/destination Git blob SHA matches. The extraction work is held in a five-PR draft stack (#1–#5); no extracted package is integrated or deployed. The architecture is a design/specification commitment; the complete architecture, code migration, system integration, tests, and independent verification are **not yet claimed as complete**.
 
 See [Master Charter](docs/MASTER_CHARTER.md), [Consolidation Register](docs/CONSOLIDATION_REGISTER.md), and [Implementation Status](docs/IMPLEMENTATION_STATUS.md).
 
