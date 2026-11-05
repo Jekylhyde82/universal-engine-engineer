@@ -165,7 +165,7 @@ The exact source commit completed GitHub Actions SYPHON baseline run #35 success
 
 ## Integrity evidence
 
-All 74 copied source artifacts (code, tests, workflows, docs, schemas, package/build context and configuration) have source-matching Git blob SHA values. The initial 13 artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
+All 75 source files (74 code, tests, workflows, docs, schemas, package/build context and configuration artifacts plus one MIT licence notice) have source-matching Git blob SHA values. The initial 13 code/test/workflow artifacts were also re-fetched from source and destination and their contents compared. For every verified pair:
 - source Git blob SHA equals destination Git blob SHA;
 - fetched file contents are identical.
 
