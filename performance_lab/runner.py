@@ -95,6 +95,20 @@ def validate_record(record: dict, schema: dict) -> list[str]:
             errors.append("input_sha256 does not match the versioned pilot input")
         if record["configuration_sha256"] != canonical_json_hash(record["configuration"]):
             errors.append("configuration_sha256 does not match configuration")
+    if not errors:
+        gates = record["hard_gates"]
+        if record["decision"] == "pass":
+            if not record["reviewer"].strip() or not record["independent_review_reference"].strip():
+                errors.append("pass decision requires reviewer identity and independent review reference")
+            if any(value != "pass" for value in gates.values()):
+                errors.append("pass decision requires every mandatory hard gate to be explicitly pass")
+        elif record["decision"] == "fail":
+            if not record["reviewer"].strip() or not record["independent_review_reference"].strip():
+                errors.append("fail decision requires reviewer identity and independent review reference")
+            if "fail" not in gates.values():
+                errors.append("fail decision requires at least one explicitly failed hard gate")
+        elif record["decision"] == "inconclusive" and not record["reviewer"].strip():
+            errors.append("inconclusive decision requires reviewer identity")
     return errors
 
 
@@ -226,8 +240,8 @@ def command_report(args) -> int:
         "# Performance Lab comparison report", "",
         "Weighted scores are descriptive only. Only assessed dimensions contribute; assessed weight coverage is shown separately.",
         "",
-        "| Test | Condition | Runs | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Decisions |",
-        "|---|---:|---:|---:|---:|---|---:|---|"
+        "| Test | Condition | Runs | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Gates not assessed | Decisions |",
+        "|---|---:|---:|---:|---:|---|---:|---:|---|"
     ]
     for test_id in TEST_IDS:
         for condition in conditions_for_test(test_id):
@@ -244,10 +258,11 @@ def command_report(args) -> int:
                     weighted_total += weight * (means[dimension] / 5.0) * 100.0
             score = f"{weighted_total / assessed_weight:.1f}" if assessed_weight else "NOT_ASSESSED"
             worst = min(means, key=means.get) if means else "NOT_ASSESSED"
-            gate_failures = sum(1 for r in group for passed in r["hard_gates"].values() if passed is False)
+            gate_failures = sum(1 for r in group for status in r["hard_gates"].values() if status == "fail")
+            gate_unassessed = sum(1 for r in group for status in r["hard_gates"].values() if status == "not_assessed")
             decisions = ", ".join(sorted({r["decision"] for r in group})) or "NO_RUNS"
             coverage = f"{assessed_weight}/100" if assessed_weight else "0/100"
-            lines.append(f"| {test_id} | {condition} | {len(group)} | {coverage} | {score} | {worst} | {gate_failures} | {decisions} |")
+            lines.append(f"| {test_id} | {condition} | {len(group)} | {coverage} | {score} | {worst} | {gate_failures} | {gate_unassessed} | {decisions} |")
 
     # PL-005 explicitly compares fusion against the strongest isolated specialist.
     pl005_scores = {}
@@ -295,7 +310,7 @@ def command_report(args) -> int:
                 lines.append(f"| {test_id} | {condition} | {dimension} | {len(values)} | {med} | {spread} |")
 
     lines += ["", "## Evidence limitations", "",
-              "- Scores and hard-gate results are reviewer supplied; this tool does not independently judge outputs.",
+              "- Scores and hard-gate results are reviewer supplied; this tool does not independently judge outputs. Missing gates are rejected by the schema; NOT_ASSESSED gates cannot be treated as passes.",
               "- Hash validation detects altered raw outputs or pilot inputs, but does not authenticate the operator or reviewer.",
               "- Missing scores remain NOT_ASSESSED; weighted scores disclose assessed-weight coverage.",
               "- A failed hard gate cannot be offset by a weighted score.",
