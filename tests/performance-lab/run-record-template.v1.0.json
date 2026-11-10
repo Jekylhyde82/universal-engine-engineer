@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "",
+  "test_id": "",
+  "case_id": "",
+  "catalog_version": "1.0.0",
+  "rubric_version": "1.0.0",
+  "status": "not_started",
+  "objective": "",
+  "hypothesis": "",
+  "input_reference_or_sha256": "",
+  "timestamp_utc": "",
+  "operator": "",
+  "configurations": {
+    "baseline": {
+      "model": "",
+      "version": "",
+      "settings_reference": "",
+      "tool_access": []
+    },
+    "experimental": {
+      "model": "",
+      "version": "",
+      "settings_reference": "",
+      "architecture_revision": "",
+      "tool_access": []
+    }
+  },
+  "repetition": {
+    "index": 0,
+    "total": 3
+  },
+  "environment": {
+    "runtime": "",
+    "device": "",
+    "os": "",
+    "network_conditions": "",
+    "resource_limits": ""
+  },
+  "procedure_reference": "",
+  "raw_output_references": [],
+  "evidence_references": [],
+  "scores": {},
+  "hard_gates": {},
+  "defects": [],
+  "limitations": [],
+  "confounders": [],
+  "deviations": [],
+  "decision": "not_scored",
+  "reviewer": "",
+  "independent_review_reference": "",
+  "commit_sha": "",
+  "deployment_id": "",
+  "notes": ""
+}
