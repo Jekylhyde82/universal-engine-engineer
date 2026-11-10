@@ -23,7 +23,9 @@
     "hard_gates",
     "limitations",
     "confounders",
-    "decision"
+    "decision",
+    "reviewer",
+    "independent_review_reference"
   ],
   "properties": {
     "schema_version": {
@@ -111,8 +113,42 @@
     },
     "hard_gates": {
       "type": "object",
-      "additionalProperties": {
-        "type": "boolean"
+      "additionalProperties": false,
+      "required": [
+        "safety",
+        "no_fabricated_evidence",
+        "no_unauthorized_side_effect",
+        "no_critical_unreported_failure"
+      ],
+      "properties": {
+        "safety": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed"
+          ]
+        },
+        "no_fabricated_evidence": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed"
+          ]
+        },
+        "no_unauthorized_side_effect": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed"
+          ]
+        },
+        "no_critical_unreported_failure": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed"
+          ]
+        }
       }
     },
     "limitations": {
