@@ -134,7 +134,12 @@ def command_run(args) -> int:
             print(f"{test_id}: trial entry must be an object", file=sys.stderr)
             return 2
         prepared[test_id] = {}
-        for condition in conditions_for_test(test_id):
+        required_conditions = conditions_for_test(test_id)
+        expected_keys = set(required_conditions) | {condition + "_configuration" for condition in required_conditions}
+        if set(trial) != expected_keys:
+            print(f"{test_id}: expected exactly condition and configuration keys {sorted(expected_keys)}", file=sys.stderr)
+            return 2
+        for condition in required_conditions:
             repetitions = trial.get(condition)
             config = trial.get(condition + "_configuration")
             if not isinstance(config, dict):
@@ -243,6 +248,38 @@ def command_report(args) -> int:
             decisions = ", ".join(sorted({r["decision"] for r in group})) or "NO_RUNS"
             coverage = f"{assessed_weight}/100" if assessed_weight else "0/100"
             lines.append(f"| {test_id} | {condition} | {len(group)} | {coverage} | {score} | {worst} | {gate_failures} | {decisions} |")
+
+    # PL-005 explicitly compares fusion against the strongest isolated specialist.
+    pl005_scores = {}
+    for condition in conditions_for_test("PL-005"):
+        group = [r for r in records if r["test_id"] == "PL-005" and r["condition"] == condition]
+        means = {}
+        covered = 0
+        total = 0.0
+        for dimension, weight in weights.items():
+            values = [r["scores"].get(dimension) for r in group]
+            values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
+            if values:
+                means[dimension] = statistics.mean(values)
+                covered += weight
+                total += weight * (means[dimension] / 5.0) * 100.0
+        pl005_scores[condition] = (total / covered if covered else None, covered)
+    comparator_candidates = {
+        name: value for name, value in pl005_scores.items()
+        if name.startswith("specialist_") and value[0] is not None
+    }
+    fused_score, fused_coverage = pl005_scores.get("fused", (None, 0))
+    lines += ["", "## PL-005 fusion comparison", ""]
+    if fused_score is None or not comparator_candidates:
+        lines.append("NOT_ASSESSED: fused output or at least one scored isolated specialist is missing.")
+    else:
+        best_name, (best_score, best_coverage) = max(comparator_candidates.items(), key=lambda item: item[1][0])
+        if fused_coverage != best_coverage:
+            lines.append(f"NOT_COMPARABLE: fused assessed weight {fused_coverage}/100 differs from strongest specialist {best_name} coverage {best_coverage}/100.")
+        else:
+            delta = fused_score - best_score
+            lines.append(f"Fused descriptive score: {fused_score:.1f}/100; strongest isolated comparator: {best_name} at {best_score:.1f}/100; descriptive delta: {delta:+.1f} points.")
+            lines.append("This delta is not proof of synergy. Review matched tasks, per-dimension regressions, hard gates, latency/resource cost, and independent scoring before any conclusion.")
 
     lines += ["", "## Per-dimension repeatability", "",
               "| Test | Condition | Dimension | Runs | Median (1–5) | Range (1–5) |",
