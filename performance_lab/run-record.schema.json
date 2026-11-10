@@ -16,6 +16,7 @@
     "repetition",
     "input_sha256",
     "configuration",
+    "configuration_sha256",
     "raw_output",
     "raw_output_sha256",
     "scores",
@@ -135,6 +136,10 @@
     },
     "notes": {
       "type": "string"
+    },
+    "configuration_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
     }
   }
 }
