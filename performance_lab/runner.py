@@ -264,21 +264,21 @@ def command_report(args) -> int:
                 covered += weight
                 total += weight * (means[dimension] / 5.0) * 100.0
         pl005_scores[condition] = (total / covered if covered else None, covered)
-    comparator_candidates = {
-        name: value for name, value in pl005_scores.items()
-        if name.startswith("specialist_") and value[0] is not None
-    }
+    comparator_names = ["baseline", *SPECIALIST_ARMS]
+    comparator_candidates = {name: pl005_scores.get(name, (None, 0)) for name in comparator_names}
     fused_score, fused_coverage = pl005_scores.get("fused", (None, 0))
     lines += ["", "## PL-005 fusion comparison", ""]
-    if fused_score is None or not comparator_candidates:
-        lines.append("NOT_ASSESSED: fused output or at least one scored isolated specialist is missing.")
+    missing = [name for name, (score, _) in comparator_candidates.items() if score is None]
+    if fused_score is None or missing:
+        lines.append("NOT_ASSESSED: fused score and every baseline/isolated-specialist comparator are required. Missing: " + (", ".join(missing + (["fused"] if fused_score is None else []))))
     else:
-        best_name, (best_score, best_coverage) = max(comparator_candidates.items(), key=lambda item: item[1][0])
-        if fused_coverage != best_coverage:
-            lines.append(f"NOT_COMPARABLE: fused assessed weight {fused_coverage}/100 differs from strongest specialist {best_name} coverage {best_coverage}/100.")
+        coverage_values = {coverage for _, coverage in comparator_candidates.values()} | {fused_coverage}
+        if len(coverage_values) != 1:
+            lines.append("NOT_COMPARABLE: assessed-weight coverage differs across baseline, specialist and fused arms.")
         else:
+            best_name, (best_score, _) = max(comparator_candidates.items(), key=lambda item: item[1][0])
             delta = fused_score - best_score
-            lines.append(f"Fused descriptive score: {fused_score:.1f}/100; strongest isolated comparator: {best_name} at {best_score:.1f}/100; descriptive delta: {delta:+.1f} points.")
+            lines.append(f"Fused descriptive score: {fused_score:.1f}/100; strongest isolated/baseline comparator: {best_name} at {best_score:.1f}/100; descriptive delta: {delta:+.1f} points.")
             lines.append("This delta is not proof of synergy. Review matched tasks, per-dimension regressions, hard gates, latency/resource cost, and independent scoring before any conclusion.")
 
     lines += ["", "## Per-dimension repeatability", "",
