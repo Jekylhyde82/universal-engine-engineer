@@ -43,7 +43,7 @@ Controls:
 
 ## 5. Scoring model
 
-Score each dimension from 0–5 using a written rubric, then normalize to 0–100 for display. Preserve raw scores and evidence.
+Score each dimension from 1–5 using a written rubric, or use NOT_ASSESSED when evidence is insufficient; normalize assessed scores to 0–100 for display. Preserve raw scores and evidence.
 
 Dimensions:
 - Correctness / task success
@@ -121,3 +121,14 @@ The repository already contains draft evaluation and adapter material. Performan
 - **PR #9 — capability evaluation engine specification:** align future evaluation records and decision states with its evidence-backed lifecycle; do not create conflicting parallel status vocabularies.
 
 No quarantined code is activated by this PR. The first runner implementation must consume verified evidence artifacts, not caller-asserted trust flags, and must retain candidate-specific acceptance gates.
+
+
+### Alignment with Universal Capability Evaluation Engine (UCEE-SPEC-001)
+
+Performance Lab measures the quality of benchmark task outcomes; UCEE evaluates external/internal capability candidates through governance gates. They are complementary, not competing systems.
+
+- Adopt UCEE's **1–5 or NOT_ASSESSED** scoring discipline. Missing evidence is NOT_ASSESSED, never a neutral score.
+- Preserve UCEE's G0–G7 candidate gates and its decision states; Performance Lab test outcomes must not imply candidate approval or operational status.
+- Map benchmark evidence into UCEE-compatible evidence records where a benchmark is evaluating a capability candidate.
+- Human approval remains mandatory for code import, dependency installation, credential access, production changes and other high-impact actions.
+- Mocks prove contract behavior only; they do not prove live provider behavior.
