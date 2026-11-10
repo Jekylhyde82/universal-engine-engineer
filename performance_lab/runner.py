@@ -53,13 +53,13 @@ def validate_assets() -> list[str]:
             (catalog, CATALOG_SCHEMA, "catalogue"),
             (cases, CASES_SCHEMA, "pilot cases"),
             (rubric, RUBRIC_SCHEMA, "scoring rubric"),
-            (load_json(SCHEMA), SCHEMA, "run record"),
         ]
         for document, schema_path, label in schema_files:
             schema = load_json(schema_path)
             Draft202012Validator.check_schema(schema)
             for error in Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(document):
                 errors.append(f"{label} schema: {'/'.join(map(str, error.absolute_path)) or '<root>'}: {error.message}")
+        Draft202012Validator.check_schema(load_json(SCHEMA))
 
         ids = [item["id"] for item in catalog["tests"]]
         case_ids = [item["test_id"] for item in cases["cases"]]
