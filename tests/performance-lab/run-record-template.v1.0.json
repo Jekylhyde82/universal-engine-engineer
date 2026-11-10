@@ -51,5 +51,11 @@
   "independent_review_reference": "",
   "commit_sha": "",
   "deployment_id": "",
-  "notes": ""
+  "notes": "",
+  "scoring_policy": {
+    "scale": "1_to_5",
+    "missing_evidence": "NOT_ASSESSED",
+    "normalized_display": "(score/5)*100",
+    "hard_gates_override_aggregate": true
+  }
 }
