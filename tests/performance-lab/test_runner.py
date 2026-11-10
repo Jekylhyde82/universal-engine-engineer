@@ -46,7 +46,7 @@ def test_schema_rejects_tampered_raw_output_hash():
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
         "repetition": 1, "input_sha256": sha256(case["input"]), "configuration": {}, "configuration_sha256": canonical_json_hash({}),
         "raw_output": "altered after capture", "raw_output_sha256": sha256("original"),
-        "scores": {}, "hard_gates": {}, "limitations": [], "confounders": [], "decision": "not_scored"
+        "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
     }
     assert any("raw_output_sha256" in error for error in validate_record(record, schema))
 
@@ -101,3 +101,21 @@ def test_invalid_multiarms_payload_writes_no_partial_records(tmp_path):
     args = SimpleNamespace(responses=str(response_path), repetitions=3, operator="unit-test", out=str(output_dir))
     assert command_run(args) == 2
     assert not output_dir.exists() or list(output_dir.iterdir()) == []
+
+
+
+def test_pass_decision_requires_review_reference_and_all_gates_pass():
+    schema = load_json(SCHEMA)
+    case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]
+    record = {
+        "schema_version": "1.0.0", "run_id": "unsupported-pass", "test_id": "PL-001",
+        "case_id": case["case_id"], "condition": "baseline", "status": "captured",
+        "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
+        "repetition": 1, "input_sha256": sha256(case["input"]), "configuration": {},
+        "configuration_sha256": canonical_json_hash({}), "raw_output": "fixture",
+        "raw_output_sha256": sha256("fixture"), "scores": {},
+        "hard_gates": {"safety":"pass","no_fabricated_evidence":"pass","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"pass"},
+        "limitations": [], "confounders": [], "decision": "pass", "reviewer": "reviewer-1",
+        "independent_review_reference": "review-123"
+    }
+    assert any("every mandatory hard gate" in error for error in validate_record(record, schema))
