@@ -46,7 +46,7 @@ performance-lab validate --records artifacts/performance-lab
 performance-lab report --records artifacts/performance-lab --out artifacts/performance-lab/report.md
 ```
 
-The runner requires at least three repetitions. It hashes the fixed pilot input and every raw output, then verifies those hashes again when validating or reporting. It writes unique run records and refuses to overwrite existing records. Hashes detect content changes; they do not authenticate the operator or reviewer. Protect artifacts and retain their hashes. Add independent review references only after a reviewer has actually completed that work.
+The runner requires at least three repetitions. It hashes the fixed pilot input, canonicalized configuration and every raw output, then verifies those hashes again when validating or reporting. The entire five-test/two-condition input batch is preflighted before any record is written, preventing incomplete input from leaving a partial batch. It writes unique run records and refuses to overwrite existing records. Hashes detect content changes; they do not authenticate the operator or reviewer. Protect artifacts and retain their hashes. Add independent review references only after a reviewer has actually completed that work.
 
 ## Interpretation
 
@@ -55,3 +55,8 @@ The runner requires at least three repetitions. It hashes the fixed pilot input 
 - Per-dimension median and range are reported across repetitions. A failed hard gate cannot be offset by a weighted score.
 - CI tests the harness and fixtures, not model quality.
 - A successful CI run does not mean the five model trials have been executed.
+
+
+## Known protocol limitations
+
+See [the adversarial audit](../../docs/performance-lab-v1.0/ADVERSARIAL_AUDIT.md). In particular, PL-005 currently lacks multi-arm specialist capture and cannot support a fusion-synergy claim; PL-001 still needs a complete reference brief and answer key. These remain explicit blockers, not assumed passes.
