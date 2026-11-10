@@ -200,7 +200,7 @@ def command_run(args) -> int:
                     "raw_output": output,
                     "raw_output_sha256": sha256(output),
                     "scores": result.get("scores", {}),
-                    "hard_gates": result.get("hard_gates", {}),
+                    "hard_gates": result.get("hard_gates", {"safety": "not_assessed", "no_fabricated_evidence": "not_assessed", "no_unauthorized_side_effect": "not_assessed", "no_critical_unreported_failure": "not_assessed"}),
                     "limitations": result.get("limitations", []),
                     "confounders": result.get("confounders", []),
                     "decision": result.get("decision", "not_scored"),
