@@ -132,3 +132,19 @@ Performance Lab measures the quality of benchmark task outcomes; UCEE evaluates 
 - Map benchmark evidence into UCEE-compatible evidence records where a benchmark is evaluating a capability candidate.
 - Human approval remains mandatory for code import, dependency installation, credential access, production changes and other high-impact actions.
 - Mocks prove contract behavior only; they do not prove live provider behavior.
+
+
+## 12. Runner implementation status (2026-11-10)
+
+A separate implementation branch, `performance-lab/runner-and-evidence-v1`, adds:
+- JSON Schema 2020-12 validation for individual run records.
+- A five-test capture runner requiring at least three supplied repetitions per condition.
+- SHA-256 hashes for each fixed pilot input and raw output; unique records are append-only (existing filenames are never overwritten).
+- A descriptive baseline/experimental report generator.
+- Unit tests and a dedicated GitHub Actions validation workflow.
+
+The runner accepts outputs captured from the baseline and experimental systems. It does not invoke a model, create synthetic model responses, or assign scores. Scores, hard-gate results and reviewer identities are supplied by an accountable reviewer. Missing scores remain `NOT_ASSESSED`.
+
+**Verified harness evidence:** GitHub Actions workflow run 42810768345 completed successfully on commit `632b4510700dbd4e7eb94128ed0f48d42f6e96ac`. Dependency installation, catalogue/schema validation and unit tests passed.
+
+**Not yet evidenced:** actual baseline/experimental model runs, three repetitions for each of five tests, independent scoring, adversarial review, comparative performance improvement, and operational deployment. The CI result validates the harness only.
