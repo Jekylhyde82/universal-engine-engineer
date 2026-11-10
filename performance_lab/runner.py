@@ -22,6 +22,13 @@ CATALOG_SCHEMA = ASSETS / "schemas" / "test-catalog.schema.json"
 CASES_SCHEMA = ASSETS / "schemas" / "pilot-cases.schema.json"
 RUBRIC_SCHEMA = ASSETS / "schemas" / "scoring-rubric.schema.json"
 TEST_IDS = [f"PL-{i:03d}" for i in range(1, 6)]
+SPECIALIST_ARMS = [f"specialist_{i}" for i in range(1, 10)]
+
+
+def conditions_for_test(test_id: str) -> list[str]:
+    if test_id == "PL-005":
+        return ["baseline", *SPECIALIST_ARMS, "fused"]
+    return ["baseline", "experimental"]
 
 
 def load_json(path: Path):
@@ -127,7 +134,7 @@ def command_run(args) -> int:
             print(f"{test_id}: trial entry must be an object", file=sys.stderr)
             return 2
         prepared[test_id] = {}
-        for condition in ("baseline", "experimental"):
+        for condition in conditions_for_test(test_id):
             repetitions = trial.get(condition)
             config = trial.get(condition + "_configuration")
             if not isinstance(config, dict):
@@ -154,7 +161,7 @@ def command_run(args) -> int:
     for test_id in TEST_IDS:
         case = cases[test_id]
         trial = prepared[test_id]
-        for condition in ("baseline", "experimental"):
+        for condition in conditions_for_test(test_id):
             config, repetitions = trial[condition]
             for index, result in enumerate(repetitions, start=1):
                 output = result["output"]
@@ -218,7 +225,7 @@ def command_report(args) -> int:
         "|---|---:|---:|---:|---:|---|---:|---|"
     ]
     for test_id in TEST_IDS:
-        for condition in ("baseline", "experimental"):
+        for condition in conditions_for_test(test_id):
             group = [r for r in records if r["test_id"] == test_id and r["condition"] == condition]
             means = {}
             assessed_weight = 0
@@ -241,7 +248,7 @@ def command_report(args) -> int:
               "| Test | Condition | Dimension | Runs | Median (1–5) | Range (1–5) |",
               "|---|---|---|---:|---:|---:|"]
     for test_id in TEST_IDS:
-        for condition in ("baseline", "experimental"):
+        for condition in conditions_for_test(test_id):
             group = [r for r in records if r["test_id"] == test_id and r["condition"] == condition]
             for dimension in weights:
                 values = [r["scores"].get(dimension) for r in group]
@@ -266,8 +273,8 @@ def main(argv=None) -> int:
     validate = sub.add_parser("validate", help="validate benchmark assets and run-record JSON")
     validate.add_argument("--records", default="artifacts/performance-lab")
     validate.set_defaults(func=command_validate)
-    run = sub.add_parser("run", help="record supplied baseline/experimental outputs for all five tests")
-    run.add_argument("--responses", required=True, help="JSON mapping each PL test to baseline and experimental repetition arrays")
+    run = sub.add_parser("run", help="record supplied comparison outputs for all five tests, including isolated PL-005 specialists")
+    run.add_argument("--responses", required=True, help="JSON mapping each PL test to required condition arms and repetition arrays")
     run.add_argument("--out", default="artifacts/performance-lab")
     run.add_argument("--operator", required=True)
     run.add_argument("--repetitions", type=int, default=3)
