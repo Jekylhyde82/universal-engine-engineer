@@ -18,6 +18,9 @@ CATALOG = ASSETS / "test-catalog.v1.0.json"
 CASES = ASSETS / "pilot-cases.v1.0.json"
 RUBRIC = ASSETS / "scoring-rubric.v1.0.json"
 SCHEMA = ROOT / "performance_lab" / "run-record.schema.json"
+CATALOG_SCHEMA = ASSETS / "schemas" / "test-catalog.schema.json"
+CASES_SCHEMA = ASSETS / "schemas" / "pilot-cases.schema.json"
+RUBRIC_SCHEMA = ASSETS / "schemas" / "scoring-rubric.schema.json"
 TEST_IDS = [f"PL-{i:03d}" for i in range(1, 6)]
 
 
@@ -39,22 +42,36 @@ def validate_assets() -> list[str]:
     errors: list[str] = []
     try:
         catalog, cases, rubric = load_json(CATALOG), load_json(CASES), load_json(RUBRIC)
-        schema = load_json(SCHEMA)
-        Draft202012Validator.check_schema(schema)
+        schema_files = [
+            (catalog, CATALOG_SCHEMA, "catalogue"),
+            (cases, CASES_SCHEMA, "pilot cases"),
+            (rubric, RUBRIC_SCHEMA, "scoring rubric"),
+            (load_json(SCHEMA), SCHEMA, "run record"),
+        ]
+        for document, schema_path, label in schema_files:
+            schema = load_json(schema_path)
+            Draft202012Validator.check_schema(schema)
+            for error in Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(document):
+                errors.append(f"{label} schema: {'/'.join(map(str, error.absolute_path)) or '<root>'}: {error.message}")
+
         ids = [item["id"] for item in catalog["tests"]]
         case_ids = [item["test_id"] for item in cases["cases"]]
-        if ids != TEST_IDS:
-            errors.append(f"catalog test IDs must be exactly {TEST_IDS}; got {ids}")
-        if case_ids != TEST_IDS:
-            errors.append(f"pilot cases must cover exactly {TEST_IDS}; got {case_ids}")
+        dimension_ids = [item["id"] for item in rubric["dimensions"]]
+        if ids != TEST_IDS or len(set(ids)) != len(ids):
+            errors.append(f"catalog test IDs must be unique and exactly {TEST_IDS}; got {ids}")
+        if case_ids != TEST_IDS or len(set(case_ids)) != len(case_ids):
+            errors.append(f"pilot cases must cover each test exactly once: {TEST_IDS}; got {case_ids}")
+        if catalog["version"] != cases["version"]:
+            errors.append("catalogue and pilot-case versions must match")
+        if len(set(dimension_ids)) != len(dimension_ids):
+            errors.append("rubric dimension IDs must be unique")
         if sum(item["weight"] for item in rubric["dimensions"]) != 100:
             errors.append("rubric dimension weights must total 100")
-        if len(cases["cases"]) != 5:
-            errors.append("exactly five pilot cases are required")
+        if catalog["protocol"]["minimum_repetitions"] < 3:
+            errors.append("protocol minimum repetitions cannot be below 3")
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as exc:
         errors.append(f"asset load/structure error: {exc}")
     return errors
-
 
 def validate_record(record: dict, schema: dict) -> list[str]:
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
@@ -85,7 +102,7 @@ def command_validate(args) -> int:
     if errors:
         print("\n".join(errors))
         return 1
-    print("PASS: five catalog entries, five pilot cases, 100-point rubric, schema valid, records valid.")
+    print("PASS: catalogue, pilot cases, rubric and run-record schemas valid; cross-file IDs and 100-point weights valid; records valid.")
     return 0
 
 
