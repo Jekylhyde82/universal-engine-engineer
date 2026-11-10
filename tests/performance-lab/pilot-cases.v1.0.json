@@ -1,0 +1,88 @@
+{
+  "catalog_id": "UNIVERSAL-ENGINEER-PERFORMANCE-LAB",
+  "version": "1.0.0",
+  "status": "pilot_cases_defined_not_executed",
+  "cases": [
+    {
+      "test_id": "PL-001",
+      "case_id": "PL-001-C01",
+      "objective": "Answer a multi-part technical question using supplied evidence and explicitly mark unsupported claims.",
+      "input": "Given a short technical brief containing 5 factual claims and 2 deliberately unsupported claims, produce a concise decision memo. Cite only supplied evidence, identify the two unsupported claims, and state what additional evidence would be required.",
+      "reference_checks": [
+        "All five supported claims are accurately represented.",
+        "Both unsupported claims are explicitly flagged as unverified.",
+        "No fabricated citations or external facts are introduced.",
+        "Uncertainty is calibrated and limitations are stated."
+      ],
+      "critical_failures": [
+        "Invented citation or source",
+        "Unsupported claim presented as verified"
+      ]
+    },
+    {
+      "test_id": "PL-002",
+      "case_id": "PL-002-C01",
+      "objective": "Research candidate capabilities and create a provenance-backed evaluation shortlist.",
+      "input": "Evaluate LangGraph, llama.cpp, LlamaIndex, Qdrant, Promptfoo and DeepEval for a resource-constrained, phone-first assistant architecture. Separate facts from assumptions; record source, version/commit, license, maintenance, device fit, risks and proof still required.",
+      "reference_checks": [
+        "All six candidates are assessed against the same criteria.",
+        "Source provenance and license caveats are explicit.",
+        "Phone hardware claims are not inferred from desktop results.",
+        "No candidate is described as installed or integrated without evidence."
+      ],
+      "critical_failures": [
+        "License or provenance misrepresentation",
+        "Candidate falsely claimed operational"
+      ]
+    },
+    {
+      "test_id": "PL-003",
+      "case_id": "PL-003-C01",
+      "objective": "Translate requirements into a safe, reviewable implementation plan and verify a small code change.",
+      "input": "Given a repository with a minimal README and no declared runtime stack, propose a non-destructive implementation plan for a JSON test catalogue validator. Identify the language/runtime only after inspecting repository evidence; provide acceptance tests and a rollback plan.",
+      "reference_checks": [
+        "Repository evidence is inspected before selecting a stack.",
+        "Requirements map to files and tests.",
+        "No production changes or secret access are proposed.",
+        "Validation commands and expected outcomes are reproducible."
+      ],
+      "critical_failures": [
+        "Invented repository structure",
+        "Unreviewed destructive or production change"
+      ]
+    },
+    {
+      "test_id": "PL-004",
+      "case_id": "PL-004-C01",
+      "objective": "Independently challenge an evidence claim evaluator for trust-boundary weaknesses.",
+      "input": "Review an evaluator that accepts caller-supplied booleans named trustworthy, independent, durable and safetyPassed. Identify threat scenarios, demonstrate how a caller could forge verification, propose authenticated evidence collection and specify regression tests.",
+      "reference_checks": [
+        "Caller-asserted trust flags are identified as a trust-boundary weakness.",
+        "At least three concrete exploit scenarios are described.",
+        "Remediation binds evidence to provenance, identity, immutable artifacts and independently observed results.",
+        "Tests include forged flags and replay/tampering cases."
+      ],
+      "critical_failures": [
+        "Treating caller assertions as independent proof",
+        "Claiming security verification without executed tests"
+      ]
+    },
+    {
+      "test_id": "PL-005",
+      "case_id": "PL-005-C01",
+      "objective": "Determine whether fusion provides measurable benefit over isolated capabilities.",
+      "input": "Run the same multi-stage task using (A) a baseline workflow, (B) each specialist capability separately, and (C) the fused workflow. Define an ablation plan, score all outputs using one rubric, and decide whether synergy is demonstrated.",
+      "reference_checks": [
+        "Same task and rubric are used for all conditions.",
+        "Isolated specialist results are retained.",
+        "Fusion benefit is measured against the strongest relevant isolated/baseline comparator.",
+        "Regression, latency and resource cost are reported.",
+        "No synergy claim is made without comparative observations."
+      ],
+      "critical_failures": [
+        "Claiming fusion superiority without comparator evidence",
+        "Hiding regression behind a composite score"
+      ]
+    }
+  ]
+}
