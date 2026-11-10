@@ -109,3 +109,15 @@ Use least-privilege access. Do not expose credentials, private user data or prod
 - Feature branch created: `performance-lab-v1.0`.
 - This document is an initial specification only.
 - No benchmark execution, CI validation, independent review, deployment or performance improvement is claimed.
+
+
+## 11. Reconciliation with existing repository work
+
+The repository already contains draft evaluation and adapter material. Performance Lab must reuse and extend it rather than duplicate it:
+
+- **PR #8 — six-source integration evaluation:** use its candidate-specific proof requirements for LangGraph (state/recovery), llama.cpp (target-device resources), LlamaIndex (provenance/injection), Qdrant (retrieval/isolation), Promptfoo (regression/red-team harness) and DeepEval (metric/judge calibration). These are candidate-specific subtests under PL-002, PL-003 and PL-005, not additional top-level benchmark tests.
+- **PR #4 — preserved Verification Agent:** its status ladder is useful, but its current evaluator trusts caller-supplied `trustworthy`, `independent`, `durable` and `safetyPassed` booleans. It does not independently fetch or authenticate evidence. It must remain quarantined until authenticated evidence collection and independent verification replace those trust assertions.
+- **Promptfoo Echo fixture:** the preserved workflow uses an Echo provider and makes no model calls. Its passing workflow is evidence that a deterministic fixture/configuration ran, not evidence of model quality, reasoning performance or red-team robustness.
+- **PR #9 — capability evaluation engine specification:** align future evaluation records and decision states with its evidence-backed lifecycle; do not create conflicting parallel status vocabularies.
+
+No quarantined code is activated by this PR. The first runner implementation must consume verified evidence artifacts, not caller-asserted trust flags, and must retain candidate-specific acceptance gates.
