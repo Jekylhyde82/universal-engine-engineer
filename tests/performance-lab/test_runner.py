@@ -19,7 +19,7 @@ def test_valid_record_passes_schema():
         "repetition": 1, "input_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]["input"]), "configuration": {}, "configuration_sha256": canonical_json_hash({}),
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
         "scores": {"correctness": 4, "safety": "NOT_ASSESSED"},
-        "hard_gates": {}, "limitations": [], "confounders": [], "decision": "not_scored"
+        "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
     }
     assert validate_record(record, schema) == []
 
@@ -32,7 +32,7 @@ def test_schema_rejects_unknown_test_id():
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
         "repetition": 1, "input_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]["input"]), "configuration": {},
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
-        "scores": {}, "hard_gates": {}, "limitations": [], "confounders": [], "decision": "not_scored"
+        "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
     }
     assert validate_record(record, schema)
 
