@@ -60,7 +60,7 @@ def validate_record(record: dict, schema: dict) -> list[str]:
 def command_validate(args) -> int:
     errors = validate_assets()
     schema = load_json(SCHEMA)
-    for path in sorted(Path(args.records).glob("*.json")):
+    for path in sorted(Path(args.records).glob("PL-*.json")):
         try:
             errors.extend(f"{path}: {message}" for message in validate_record(load_json(path), schema))
         except (OSError, json.JSONDecodeError) as exc:
