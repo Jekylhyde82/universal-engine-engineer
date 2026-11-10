@@ -2,17 +2,17 @@
   "rubric_id": "PERF-LAB-RUBRIC",
   "version": "1.0.0",
   "scale": {
-    "min": 0,
+    "min": 1,
     "max": 5,
     "normalization": "score/5*100",
     "anchors": {
-      "0": "Not attempted, unusable, or critical failure.",
       "1": "Major defects; fails most essential requirements.",
       "2": "Partial success; material omissions or errors remain.",
       "3": "Meets core requirements with limited, disclosed defects.",
       "4": "Strong result; minor defects only; evidence is complete.",
       "5": "Excellent, complete, repeatable result with independently checkable evidence."
-    }
+    },
+    "missing_evidence": "NOT_ASSESSED"
   },
   "dimensions": [
     {
