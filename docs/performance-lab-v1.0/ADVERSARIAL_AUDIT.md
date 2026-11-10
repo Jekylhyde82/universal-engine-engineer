@@ -1,59 +1,65 @@
 # Performance Lab adversarial audit — 2026-11-10
 
-## Scope
+## Scope and assurance level
 
-Reviewed the V1.0 test catalogue, pilot cases, scoring rubric, run-record schema, capture runner, unit tests and CI workflow on the isolated implementation branch. This is an internal design/code audit, not an independent third-party security review.
+Reviewed the V1.0 catalogue, pilot fixtures, scoring rubric, schemas, capture runner, report generator, tests and CI workflow on the isolated implementation branch. This is an internal engineering audit, not an independent third-party review or a model-quality evaluation.
 
-## Findings
+## Findings and dispositions
 
-### A-01 — PL-005 does not operationalize its own synergy protocol
+### A-01 — PL-005 multi-arm synergy protocol
 **Severity: Critical for synergy claims.**
+**Implementation disposition: Remediated in harness; experimental evidence outstanding.**
 
-The pilot case explicitly requires baseline, each specialist separately, and fused workflow. The current runner only supports `baseline` and `experimental` conditions. Therefore it cannot capture the full comparator set needed to establish incremental fusion benefit or ablation delta. No synergy conclusion is supportable from the current two-arm capture model.
+The original two-arm runner could not capture the required baseline, isolated specialist and fused comparisons. The runner now requires PL-005 to provide exactly eleven arms: baseline, specialist_1 through specialist_9, and fused. Each arm has its own configuration object and at least three supplied repetitions. The report compares fused against the strongest baseline/isolated-specialist comparator only when every comparator is scored and assessed-weight coverage matches.
 
-**Required remediation:** introduce an explicit multi-arm experiment schema (baseline, each named specialist, fused), require identical task/rubric and configuration provenance across arms, and report fused performance against the strongest relevant comparator. Until then, mark PL-005 synergy evaluation NOT ASSESSED.
+**Remaining acceptance work:** identify the exact specialist/version in each configuration, execute all arms on the same task and rubric, collect latency/resource costs and ablation evidence, and obtain independent scoring. A descriptive score delta is not proof of synergy.
 
-### A-02 — PL-001 lacks its actual reference brief
+### A-02 — PL-001 reference fixture incomplete
 **Severity: High for correctness scoring.**
+**Implementation disposition: Remediated as a self-contained fictional fixture.**
 
-The pilot input describes five supported and two unsupported claims, but does not provide the brief or authoritative reference facts. Reviewers cannot consistently score correctness or verify unsupported claims from the fixture alone.
+PL-001 now includes a self-contained fictional Northstar Edge Gateway source packet: five explicit supported facts and two explicitly unsupported assertions. It warns against inferring encrypted throughput from interface line rates and requires evidence for certification and performance claims.
 
-**Required remediation:** add a versioned, self-contained reference brief and answer key with five supported facts, two unsupported assertions, and explicit evidence mapping. Keep the answer key unavailable to the responding condition if blind scoring is intended.
+**Remaining acceptance work:** use a blinded answer key for independent scoring and ensure reviewers apply the same reference checks.
 
-### A-03 — Capture could write partial benchmark batches
+### A-03 — Partial benchmark batches
 **Severity: High for dataset integrity.**
+**Implementation disposition: Remediated in harness.**
 
-Previously, the runner wrote records while iterating through tests. If a later test lacked repetitions, earlier records remained on disk and could be mistaken for a complete batch.
+The runner preflights all five test payloads, required arm keys, configuration objects and requested non-empty repetitions before writing any record. An automated regression test confirms a missing PL-005 arm leaves no partial output directory.
 
-**Remediation applied:** runner now preflights the exact five-test payload, both conditions, configuration objects and all requested non-empty repetitions before creating records. Invalid input exits before writing any record.
-
-### A-04 — Model configuration was not integrity-bound
+### A-04 — Configuration and output integrity
 **Severity: High for reproducibility.**
+**Implementation disposition: Remediated for tamper detection.**
 
-The original record stored configuration as mutable JSON without a corresponding digest.
+Run records bind the fixed pilot input, canonicalized configuration and raw output with SHA-256 hashes. Validation and report generation recompute those hashes. This detects content alteration but does not authenticate model identity, operator identity, reviewer identity or the source system.
 
-**Remediation applied:** records now require a SHA-256 digest of canonicalized configuration JSON, and validation recomputes it. Raw-output and pilot-input hashes are also recomputed during validation/reporting. These hashes detect content changes; they do not authenticate the operator, model provider, or reviewer.
-
-### A-05 — Asset validation is not full schema validation
+### A-05 — Benchmark asset schema coverage
 **Severity: Medium.**
+**Implementation disposition: Remediated in harness.**
 
-The validator checks the run-record schema and selected catalogue invariants, but the catalogue, pilot-case and rubric JSON documents do not each have dedicated JSON Schemas. Structural mistakes outside the currently checked fields could pass CI.
+Dedicated JSON Schemas now validate the test catalogue, pilot cases and scoring rubric. The run-record schema is separately meta-validated. Cross-file checks enforce exact test IDs, matching catalogue/case versions, unique test and dimension IDs, and rubric weights totaling 100.
 
-**Required remediation:** add schemas for all three assets, validate cross-file IDs and rubric dimension IDs, and test malformed/duplicate entries.
-
-### A-06 — Hard-gate semantics depend on reviewer-supplied booleans
+### A-06 — Hard-gate semantics and reviewer provenance
 **Severity: High for acceptance decisions.**
+**Implementation disposition: Partially remediated in harness; independent evidence still outstanding.**
 
-The runner counts explicit false values, but a missing gate or a caller-supplied true value is not independent proof that the gate passed.
+Hard gates now require explicit tri-state values: pass, fail or not_assessed. Four mandatory gates are required on every record. A PASS decision requires reviewer identity, a review reference and every mandatory gate explicitly marked pass. A FAIL decision requires reviewer identity, a review reference and at least one failed gate. Missing or unassessed gates cannot silently count as passing.
 
-**Required remediation:** define required gate keys per test, require reviewer identity and evidence references for each decision, and keep unverified/missing gates in NOT_ASSESSED rather than treating absence as pass.
+**Remaining acceptance work:** verify reviewer independence and the referenced evidence outside the capture process. The runner still cannot authenticate a reviewer or independently observe the underlying system.
 
 ## Current disposition
 
-- Harness CI: passed on the latest validated code commit only when the corresponding workflow run is green.
-- PL-001 correctness reference fixture: incomplete.
-- PL-005 multi-arm synergy protocol: incomplete.
-- Independent scoring and adversarial review: not completed.
+- Asset schemas and cross-file invariants: implemented.
+- PL-001 self-contained reference fixture: implemented.
+- PL-005 eleven-arm capture and strongest-comparator reporting: implemented.
+- Partial-batch prevention and regression test: implemented.
+- Input/configuration/output hash verification: implemented.
+- Explicit tri-state hard gates and review-reference requirements: implemented.
+- Latest CI: pending for the newest commits; update this disposition only after the matching head commit passes.
+- Actual baseline/specialist/fused trials: not executed.
+- Independent scoring and third-party adversarial review: not completed.
+- Fusion synergy or model improvement: not demonstrated.
 - Operational approval: not granted.
 
-No benchmark result, synergy claim, model improvement claim or operational claim should be made until the relevant findings are remediated and evidence is independently reviewed.
+No benchmark result, synergy claim, model improvement claim or operational claim should be made until the relevant trials are executed and independently reviewed.
