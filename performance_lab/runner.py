@@ -30,6 +30,11 @@ def sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def canonical_json_hash(value: dict) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    return sha256(encoded)
+
+
 def validate_assets() -> list[str]:
     errors: list[str] = []
     try:
@@ -59,8 +64,13 @@ def validate_record(record: dict, schema: dict) -> list[str]:
         if record["raw_output_sha256"] != sha256(record["raw_output"]):
             errors.append("raw_output_sha256 does not match raw_output")
         case_map = {item["test_id"]: item for item in load_json(CASES)["cases"]}
-        if record["input_sha256"] != sha256(case_map[record["test_id"]]["input"]):
+        case = case_map[record["test_id"]]
+        if record["case_id"] != case["case_id"]:
+            errors.append("case_id does not match the versioned pilot case")
+        if record["input_sha256"] != sha256(case["input"]):
             errors.append("input_sha256 does not match the versioned pilot input")
+        if record["configuration_sha256"] != canonical_json_hash(record["configuration"]):
+            errors.append("configuration_sha256 does not match configuration")
     return errors
 
 
@@ -87,23 +97,50 @@ def command_run(args) -> int:
     payload = load_json(Path(args.responses))
     cases = {item["test_id"]: item for item in load_json(CASES)["cases"]}
     schema = load_json(SCHEMA)
+
+    # Preflight the entire batch before creating any records. Invalid input must
+    # never leave a misleading partial benchmark dataset.
+    if not isinstance(payload, dict) or set(payload) != set(TEST_IDS):
+        print(f"responses must contain exactly these test IDs: {TEST_IDS}", file=sys.stderr)
+        return 2
+    prepared = {}
+    for test_id in TEST_IDS:
+        trial = payload[test_id]
+        if not isinstance(trial, dict):
+            print(f"{test_id}: trial entry must be an object", file=sys.stderr)
+            return 2
+        prepared[test_id] = {}
+        for condition in ("baseline", "experimental"):
+            repetitions = trial.get(condition)
+            config = trial.get(condition + "_configuration")
+            if not isinstance(config, dict):
+                print(f"{test_id}/{condition}: configuration object required", file=sys.stderr)
+                return 2
+            if not isinstance(repetitions, list) or len(repetitions) < args.repetitions:
+                found = len(repetitions) if isinstance(repetitions, list) else 0
+                print(f"{test_id}/{condition}: need {args.repetitions} supplied repetitions; found {found}", file=sys.stderr)
+                return 2
+            selected = repetitions[:args.repetitions]
+            for index, result in enumerate(selected, start=1):
+                if not isinstance(result, dict):
+                    print(f"{test_id}/{condition}/{index}: repetition must be an object", file=sys.stderr)
+                    return 2
+                output = result.get("output", "")
+                if not isinstance(output, str) or not output.strip():
+                    print(f"{test_id}/{condition}/{index}: non-empty output required", file=sys.stderr)
+                    return 2
+            prepared[test_id][condition] = (config, selected)
+
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     created = 0
     for test_id in TEST_IDS:
         case = cases[test_id]
-        trial = payload.get(test_id, {})
+        trial = prepared[test_id]
         for condition in ("baseline", "experimental"):
-            repetitions = trial.get(condition, [])
-            if len(repetitions) < args.repetitions:
-                print(f"{test_id}/{condition}: need {args.repetitions} supplied repetitions; found {len(repetitions)}", file=sys.stderr)
-                return 2
-            config = trial.get(condition + "_configuration", {})
-            for index, result in enumerate(repetitions[:args.repetitions], start=1):
-                output = result.get("output", "")
-                if not isinstance(output, str) or not output.strip():
-                    print(f"{test_id}/{condition}/{index}: non-empty output required", file=sys.stderr)
-                    return 2
+            config, repetitions = trial[condition]
+            for index, result in enumerate(repetitions, start=1):
+                output = result["output"]
                 record = {
                     "schema_version": "1.0.0",
                     "run_id": str(uuid.uuid4()),
@@ -116,6 +153,7 @@ def command_run(args) -> int:
                     "repetition": index,
                     "input_sha256": sha256(case["input"]),
                     "configuration": config,
+                    "configuration_sha256": canonical_json_hash(config),
                     "raw_output": output,
                     "raw_output_sha256": sha256(output),
                     "scores": result.get("scores", {}),
