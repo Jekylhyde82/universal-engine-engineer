@@ -148,3 +148,10 @@ The runner accepts outputs captured from the baseline and experimental systems. 
 **Verified harness evidence:** GitHub Actions workflow run 42810768345 completed successfully on commit `632b4510700dbd4e7eb94128ed0f48d42f6e96ac`. Dependency installation, catalogue/schema validation and unit tests passed.
 
 **Not yet evidenced:** actual baseline/experimental model runs, three repetitions for each of five tests, independent scoring, adversarial review, comparative performance improvement, and operational deployment. The CI result validates the harness only.
+
+
+### Integrity and reporting hardening (2026-11-10)
+
+The runner now re-computes and checks each stored raw-output hash and the fixed pilot-input hash during validation and report generation. The comparison report applies the versioned rubric weights, exposes assessed-weight coverage, reports per-dimension median/range and worst dimension, and counts failed hard gates separately. These calculations remain descriptive; a weighted score cannot override a failed gate. Hashes detect content alteration but do not authenticate reviewer identity or guarantee independent review.
+
+**Latest CI evidence:** workflow run 42811837813 passed on head commit 693ff9b9af0d074fb280eb78c2261f92d3357ff6. The run validates the harness and its unit tests only; no model benchmark trials are included.
