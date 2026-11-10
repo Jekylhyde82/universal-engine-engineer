@@ -62,7 +62,7 @@ def test_schema_rejects_tampered_configuration_hash():
         "repetition": 1, "input_sha256": sha256(case["input"]), "configuration": {"model": "v1"},
         "configuration_sha256": canonical_json_hash({"model": "v0"}),
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
-        "scores": {}, "hard_gates": {}, "limitations": [], "confounders": [], "decision": "not_scored"
+        "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
     }
     assert any("configuration_sha256" in error for error in validate_record(record, schema))
 
@@ -78,7 +78,7 @@ def test_pl005_supports_fused_and_nine_specialist_arms():
         "repetition": 1, "input_sha256": sha256(case["input"]), "configuration": {"specialist": "nine"},
         "configuration_sha256": canonical_json_hash({"specialist": "nine"}),
         "raw_output": "isolated specialist output", "raw_output_sha256": sha256("isolated specialist output"),
-        "scores": {}, "hard_gates": {}, "limitations": [], "confounders": [], "decision": "not_scored"
+        "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
     }
     assert "fused" in conditions_for_test("PL-005")
     assert len([x for x in conditions_for_test("PL-005") if x.startswith("specialist_")]) == 9
