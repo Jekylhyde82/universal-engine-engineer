@@ -49,7 +49,17 @@
     "condition": {
       "enum": [
         "baseline",
-        "experimental"
+        "experimental",
+        "specialist_1",
+        "specialist_2",
+        "specialist_3",
+        "specialist_4",
+        "specialist_5",
+        "specialist_6",
+        "specialist_7",
+        "specialist_8",
+        "specialist_9",
+        "fused"
       ]
     },
     "status": {
