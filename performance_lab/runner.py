@@ -592,10 +592,21 @@ def command_report(args) -> int:
         if not repetition_status(group)[0]
     ]
     evidence_gate_failures = [name for name, group in all_groups.items() if not evidence_gate_status(group)]
+    evaluator_fields = ("evaluator_id", "provider", "model", "version", "instruction_sha256", "calibration_reference", "calibration_sha256")
+    scorer_signatures = {
+        tuple(record["assessment"]["scorer"][field] for field in evaluator_fields)
+        for group in all_groups.values() for record in group
+    }
+    adversarial_signatures = {
+        tuple(record["assessment"]["adversarial_reviewer"][field] for field in evaluator_fields)
+        for group in all_groups.values() for record in group
+    }
     if repetition_failures:
         lines.append("NOT_VERIFIED: minimum distinct repetition requirement not met: " + "; ".join(repetition_failures) + ".")
     elif evidence_gate_failures:
         lines.append("NOT_VERIFIED: mandatory hard gates and independent review decisions must explicitly PASS for every repetition in every arm; blocked arms: " + ", ".join(evidence_gate_failures) + ".")
+    elif len(scorer_signatures) != 1 or len(adversarial_signatures) != 1:
+        lines.append("NOT_VERIFIED: scorer and adversarial evaluator configurations must remain frozen and identical across every PL-005 arm and repetition.")
     else:
         dimension_sets = {name: assessed_dimensions(group) for name, group in all_groups.items()}
         reference_dimensions = dimension_sets["fused"]
