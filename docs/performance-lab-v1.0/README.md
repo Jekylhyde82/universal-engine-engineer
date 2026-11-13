@@ -198,3 +198,12 @@ performance-lab run \
 ```
 
 The generated manifest defaults to `<evidence-root>/evidence-manifest.json`. The capture runner records operator-supplied outputs; it does not invoke a model or independently establish capture authenticity. Preserve any separate raw capture artifacts and include them in the evidence package. A valid signature proves possession of the signing key, not the real-world identity of its holder.
+
+
+## 15. Trial execution provenance and separated review
+
+Run records now require the same core execution controls used by GENESIS: unique `trial_id` and `blind_label`, explicit Unpersonalized Temporary Chat confirmation, context reference/type, capture timestamp, exact model label, settings, tools used, retained capture reference, canonical prompt SHA-256, raw-response SHA-256, and an architecture-instruction SHA-256 for non-baseline conditions. The runner recomputes prompt/response hashes and preflights unique trial/blind identifiers across the supplied batch.
+
+Each record also requires a separate blinded assessor and adversarial reviewer. Both attest independence and blinding; their IDs must differ. A PASS decision requires every adversarial check to explicitly pass.
+
+These controls provide structured provenance and fail-closed consistency checks. They do not cryptographically prove a human's identity, prove that the UI was genuinely unpersonalized, or independently establish assessor independence. Those remain external verification requirements.
