@@ -172,3 +172,14 @@ The Python CLI now exposes `performance-lab seal` and `performance-lab verify-ma
 **Exact CI evidence:** GitHub Actions run 43429608408 passed on commit 80bbd3b60ad4797577d19c754c3856d9d935b42e. Dependency installation and the Performance Lab validation command passed; pytest reported 25 passed, 0 failed. This verifies the manifest primitive and CLI tests, not authentic benchmark execution or independent identity verification.
 
 **Remaining parity gaps:** trial-execution metadata and blind matrix are not yet enforced in Python run records; the existing capture command does not automatically produce a manifest or raw artifact inventory; reports do not yet require a verified manifest before rendering. These are the next implementation gates.
+
+
+### A-12 — Cross-platform artifact-path hardening and final CLI regression
+
+**Disposition: Implemented and CI-verified on exact code/test commit a8c6c242b16229a1818b0f7098dbf35cde32d6f2.**
+
+Artifact path validation now rejects backslash-containing paths as non-canonical, in addition to absolute paths, parent traversal, symlink escapes, and resolved paths outside the evidence root. Regression coverage includes POSIX traversal, Windows-style traversal/drive paths, symlink escape, duplicate paths, artifact tampering, and signature/revision/trust-key failures.
+
+GitHub Actions run 43429912937 passed on the exact code/test commit a8c6c242b16229a1818b0f7098dbf35cde32d6f2. Dependency installation and benchmark asset/record validation passed; pytest reported 25 passed, 0 failed.
+
+The evidence-sealing usage guide is in docs/performance-lab-v1.0/EVIDENCE_SEALING.md. The manifest API and CLI are verified, but automatic capture sealing, report-time manifest enforcement, trial-context schema parity, blind-assessor separation, and authentic experimental evidence remain outstanding.
