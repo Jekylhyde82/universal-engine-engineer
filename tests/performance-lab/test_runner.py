@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from performance_lab.runner import ROOT, SCHEMA, TEST_IDS, canonical_json_hash, command_run, conditions_for_test, load_json, sha256, validate_assets, validate_record
+from performance_lab.runner import ROOT, SCHEMA, TEST_IDS, canonical_json_hash, command_report, command_run, conditions_for_test, load_json, sha256, validate_assets, validate_record
 
 
 def test_assets_cover_exactly_five_tests_and_rubric_totals_100():
@@ -119,3 +119,105 @@ def test_pass_decision_requires_review_reference_and_all_gates_pass():
         "independent_review_reference": "review-123"
     }
     assert any("every mandatory hard gate" in error for error in validate_record(record, schema))
+
+
+
+def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by_condition=None):
+    """Create valid synthetic records for report-gate tests; not benchmark evidence."""
+    directory.mkdir(parents=True, exist_ok=True)
+    case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][4]
+    conditions = conditions_for_test("PL-005")
+    repetitions_by_condition = repetitions_by_condition or {}
+    dimensions_by_condition = dimensions_by_condition or {}
+    for condition in conditions:
+        repetitions = repetitions_by_condition.get(condition, [1, 2, 3])
+        dimensions = dimensions_by_condition.get(condition, {"correctness": 4, "efficiency": 4})
+        for repetition in repetitions:
+            output = f"{condition}-{repetition}"
+            configuration = {"condition": condition}
+            record = {
+                "schema_version": "1.0.0", "run_id": f"{condition}-{repetition}",
+                "test_id": "PL-005", "case_id": case["case_id"],
+                "condition": condition, "status": "captured",
+                "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
+                "repetition": repetition, "input_sha256": sha256(case["input"]),
+                "configuration": configuration,
+                "configuration_sha256": canonical_json_hash(configuration),
+                "raw_output": output, "raw_output_sha256": sha256(output),
+                "scores": dimensions,
+                "hard_gates": {
+                    "safety": "not_assessed",
+                    "no_fabricated_evidence": "not_assessed",
+                    "no_unauthorized_side_effect": "not_assessed",
+                    "no_critical_unreported_failure": "not_assessed"
+                },
+                "limitations": [], "confounders": [], "decision": "not_scored",
+                "reviewer": "", "independent_review_reference": ""
+            }
+            (directory / f"PL-005-{condition}-{repetition}.json").write_text(
+                json.dumps(record), encoding="utf-8"
+            )
+
+
+def _run_pl005_report(records_dir, output_path):
+    return command_report(SimpleNamespace(records=str(records_dir), out=str(output_path)))
+
+
+def test_report_marks_under_three_repetitions_not_verified(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records, {"baseline": [1, 2]})
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "baseline | 2 | NOT_VERIFIED (2/3)" in text
+    assert "NOT_VERIFIED: minimum distinct repetition requirement not met" in text
+
+
+def test_report_duplicate_repetition_numbers_do_not_satisfy_minimum(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records, {"specialist_1": [1, 1, 2]})
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "specialist_1 | 3 | DUPLICATE_REPETITION" in text
+    assert "NOT_VERIFIED: minimum distinct repetition requirement not met" in text
+
+
+def test_pl005_equal_weight_but_different_dimension_sets_are_not_comparable(tmp_path):
+    records = tmp_path / "records"
+    dimensions = {
+        "baseline": {"correctness": 4, "efficiency": 4},
+        "fused": {"reliability": 4, "calibration": 4}
+    }
+    _write_pl005_records(records, dimensions_by_condition=dimensions)
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "NOT_COMPARABLE: assessed-dimension identities differ across arms" in text
+    assert "correctness, efficiency" in text
+    assert "calibration, reliability" in text
+
+
+def test_pl005_matching_dimension_identity_sets_allow_comparison(tmp_path):
+    records = tmp_path / "records"
+    dimensions = {
+        condition: {"correctness": 4, "efficiency": 4}
+        for condition in conditions_for_test("PL-005")
+    }
+    _write_pl005_records(records, dimensions_by_condition=dimensions)
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "Fused descriptive score:" in text
+    assert "NOT_COMPARABLE" not in text
+
+
+def test_pl005_missing_arm_fails_closed(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    (records / "PL-005-specialist_9-3.json").unlink()
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "specialist_9=NOT_VERIFIED (2/3)" in text
+    assert "Fused descriptive score:" not in text
