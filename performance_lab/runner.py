@@ -100,6 +100,17 @@ def validate_record(record: dict, schema: dict) -> list[str]:
         if record["configuration_sha256"] != canonical_json_hash(record["configuration"]):
             errors.append("configuration_sha256 does not match configuration")
     if not errors:
+        execution = record["trial_execution"]
+        if execution["canonical_prompt_sha256"] != record["input_sha256"]:
+            errors.append("trial_execution canonical_prompt_sha256 does not match the canonical pilot input")
+        if execution["raw_response_sha256"] != record["raw_output_sha256"]:
+            errors.append("trial_execution raw_response_sha256 does not match the captured raw output")
+        if record["condition"] == "baseline":
+            if execution.get("architecture_instruction_sha256") not in (None, ""):
+                errors.append("baseline trial must not declare an architecture instruction hash")
+        elif not execution.get("architecture_instruction_sha256"):
+            errors.append("non-baseline trial requires architecture_instruction_sha256")
+    if not errors:
         gates = record["hard_gates"]
         if record["decision"] == "pass":
             if not record["reviewer"].strip() or not record["independent_review_reference"].strip():
@@ -146,6 +157,7 @@ def command_run(args) -> int:
         print(f"responses must contain exactly these test IDs: {TEST_IDS}", file=sys.stderr)
         return 2
     prepared = {}
+    seen_trial_ids, seen_blind_labels = set(), set()
     for test_id in TEST_IDS:
         trial = payload[test_id]
         if not isinstance(trial, dict):
@@ -175,6 +187,19 @@ def command_run(args) -> int:
                 output = result.get("output", "")
                 if not isinstance(output, str) or not output.strip():
                     print(f"{test_id}/{condition}/{index}: non-empty output required", file=sys.stderr)
+                    return 2
+                execution = result.get("trial_execution")
+                if not isinstance(execution, dict):
+                    print(f"{test_id}/{condition}/{index}: trial_execution metadata required", file=sys.stderr)
+                    return 2
+                trial_id, blind_label = execution.get("trial_id"), execution.get("blind_label")
+                if not trial_id or trial_id in seen_trial_ids or not blind_label or blind_label in seen_blind_labels:
+                    print(f"{test_id}/{condition}/{index}: trial_id and blind_label must be present and globally unique", file=sys.stderr)
+                    return 2
+                seen_trial_ids.add(trial_id)
+                seen_blind_labels.add(blind_label)
+                if execution.get("unpersonalized_confirmed") is not True:
+                    print(f"{test_id}/{condition}/{index}: verified Unpersonalized Temporary Chat confirmation required", file=sys.stderr)
                     return 2
             prepared[test_id][condition] = (config, selected)
 
@@ -234,7 +259,12 @@ def command_run(args) -> int:
                     "reviewer": result.get("reviewer", ""),
                     "independent_review_reference": result.get("independent_review_reference", ""),
                     "commit_sha": revision,
-                    "notes": result.get("notes", "")
+                    "notes": result.get("notes", ""),
+                    "trial_execution": {
+                        **result["trial_execution"],
+                        "canonical_prompt_sha256": sha(case["input"]),
+                        "raw_response_sha256": sha(output)
+                    }
                 }
                 problems = validate_record(record, schema)
                 if problems:
