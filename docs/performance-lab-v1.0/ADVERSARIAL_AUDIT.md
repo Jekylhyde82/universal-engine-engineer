@@ -161,3 +161,14 @@ Tests cover valid signing and verification, tampered payloads, wrong revisions, 
 - Independent scoring, calibration, third-party review, measured improvement/synergy, and operational approval: not established.
 
 Both pull requests remain draft and unmerged. No merge, deployment, benchmark-quality, synergy, or operational-readiness claim is authorized by these harness checks.
+
+
+### A-11 — Evidence-manifest command-line integration
+
+**Disposition: Implemented and CI-verified on exact commit 80bbd3b60ad4797577d19c754c3856d9d935b42e.**
+
+The Python CLI now exposes `performance-lab seal` and `performance-lab verify-manifest`. Sealing reads an explicit artifact-list JSON file, requires a protected Ed25519 private-key PEM file (on POSIX, group/other permissions are rejected), creates a revision-bound manifest, and writes it atomically. Verification requires an externally supplied public key and exact candidate revision, with optional expected signer ID and role. It fails closed on malformed manifests, invalid signatures, trust-key mismatch, artifact mismatch, or revision mismatch.
+
+**Exact CI evidence:** GitHub Actions run 43429608408 passed on commit 80bbd3b60ad4797577d19c754c3856d9d935b42e. Dependency installation and the Performance Lab validation command passed; pytest reported 25 passed, 0 failed. This verifies the manifest primitive and CLI tests, not authentic benchmark execution or independent identity verification.
+
+**Remaining parity gaps:** trial-execution metadata and blind matrix are not yet enforced in Python run records; the existing capture command does not automatically produce a manifest or raw artifact inventory; reports do not yet require a verified manifest before rendering. These are the next implementation gates.
