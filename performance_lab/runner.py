@@ -236,72 +236,103 @@ def command_report(args) -> int:
 
     rubric = load_json(RUBRIC)
     weights = {item["id"]: item["weight"] for item in rubric["dimensions"]}
+    minimum_repetitions = max(3, load_json(CATALOG)["protocol"]["minimum_repetitions"])
+
+    def group_for(test_id: str, condition: str) -> list[dict]:
+        return [r for r in records if r["test_id"] == test_id and r["condition"] == condition]
+
+    def repetition_status(group: list[dict]) -> tuple[bool, str]:
+        repetitions = [r["repetition"] for r in group]
+        if len(set(repetitions)) != len(repetitions):
+            return False, "DUPLICATE_REPETITION"
+        if len(repetitions) < minimum_repetitions:
+            return False, f"NOT_VERIFIED ({len(repetitions)}/{minimum_repetitions})"
+        return True, "PASS"
+
+    def assessed_dimensions(group: list[dict]) -> set[str]:
+        return {
+            dimension for dimension in weights
+            if any(isinstance(r["scores"].get(dimension), int)
+                   and not isinstance(r["scores"].get(dimension), bool) for r in group)
+        }
+
+    def score_for(group: list[dict], dimensions: set[str]) -> tuple[float | None, int]:
+        covered = sum(weights[d] for d in dimensions)
+        if not covered:
+            return None, 0
+        weighted_total = 0.0
+        for dimension in dimensions:
+            values = [r["scores"].get(dimension) for r in group]
+            values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
+            weighted_total += weights[dimension] * (statistics.mean(values) / 5.0) * 100.0
+        return weighted_total / covered, covered
+
     lines = [
         "# Performance Lab comparison report", "",
-        "Weighted scores are descriptive only. Only assessed dimensions contribute; assessed weight coverage is shown separately.",
-        "",
-        "| Test | Condition | Runs | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Gates not assessed | Decisions |",
-        "|---|---:|---:|---:|---:|---|---:|---:|---|"
+        f"Each condition requires at least {minimum_repetitions} distinct repetitions. Comparisons require identical assessed-dimension identities; equal aggregate weight coverage alone is insufficient.", "",
+        "| Test | Condition | Runs | Repetition gate | Assessed dimensions | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Gates not assessed | Decisions |",
+        "|---|---:|---:|---|---|---:|---:|---|---:|---:|---|"
     ]
     for test_id in TEST_IDS:
         for condition in conditions_for_test(test_id):
-            group = [r for r in records if r["test_id"] == test_id and r["condition"] == condition]
+            group = group_for(test_id, condition)
+            eligible, rep_status = repetition_status(group)
+            dimensions = assessed_dimensions(group)
+            score_value, covered = score_for(group, dimensions) if eligible else (None, sum(weights[d] for d in dimensions))
             means = {}
-            assessed_weight = 0
-            weighted_total = 0.0
-            for dimension, weight in weights.items():
-                values = [r["scores"].get(dimension) for r in group]
-                values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
-                if values:
-                    means[dimension] = statistics.mean(values)
-                    assessed_weight += weight
-                    weighted_total += weight * (means[dimension] / 5.0) * 100.0
-            score = f"{weighted_total / assessed_weight:.1f}" if assessed_weight else "NOT_ASSESSED"
-            worst = min(means, key=means.get) if means else "NOT_ASSESSED"
+            if eligible:
+                for dimension in dimensions:
+                    values = [r["scores"].get(dimension) for r in group]
+                    values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
+                    if values:
+                        means[dimension] = statistics.mean(values)
+            score = f"{score_value:.1f}" if score_value is not None else ("NOT_VERIFIED" if not eligible else "NOT_ASSESSED")
+            worst = min(means, key=means.get) if means else ("NOT_VERIFIED" if not eligible else "NOT_ASSESSED")
             gate_failures = sum(1 for r in group for status in r["hard_gates"].values() if status == "fail")
             gate_unassessed = sum(1 for r in group for status in r["hard_gates"].values() if status == "not_assessed")
             decisions = ", ".join(sorted({r["decision"] for r in group})) or "NO_RUNS"
-            coverage = f"{assessed_weight}/100" if assessed_weight else "0/100"
-            lines.append(f"| {test_id} | {condition} | {len(group)} | {coverage} | {score} | {worst} | {gate_failures} | {gate_unassessed} | {decisions} |")
+            coverage = f"{covered}/100" if dimensions else "0/100"
+            dimension_label = ", ".join(sorted(dimensions)) or "NOT_ASSESSED"
+            lines.append(f"| {test_id} | {condition} | {len(group)} | {rep_status} | {dimension_label} | {coverage} | {score} | {worst} | {gate_failures} | {gate_unassessed} | {decisions} |")
 
-    # PL-005 explicitly compares fusion against the strongest isolated specialist.
-    pl005_scores = {}
-    for condition in conditions_for_test("PL-005"):
-        group = [r for r in records if r["test_id"] == "PL-005" and r["condition"] == condition]
-        means = {}
-        covered = 0
-        total = 0.0
-        for dimension, weight in weights.items():
-            values = [r["scores"].get(dimension) for r in group]
-            values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
-            if values:
-                means[dimension] = statistics.mean(values)
-                covered += weight
-                total += weight * (means[dimension] / 5.0) * 100.0
-        pl005_scores[condition] = (total / covered if covered else None, covered)
-    comparator_names = ["baseline", *SPECIALIST_ARMS]
-    comparator_candidates = {name: pl005_scores.get(name, (None, 0)) for name in comparator_names}
-    fused_score, fused_coverage = pl005_scores.get("fused", (None, 0))
     lines += ["", "## PL-005 fusion comparison", ""]
-    missing = [name for name, (score, _) in comparator_candidates.items() if score is None]
-    if fused_score is None or missing:
-        lines.append("NOT_ASSESSED: fused score and every baseline/isolated-specialist comparator are required. Missing: " + (", ".join(missing + (["fused"] if fused_score is None else []))))
+    comparator_names = ["baseline", *SPECIALIST_ARMS]
+    comparator_groups = {name: group_for("PL-005", name) for name in comparator_names}
+    fused_group = group_for("PL-005", "fused")
+    all_groups = {**comparator_groups, "fused": fused_group}
+    repetition_failures = [
+        f"{name}={repetition_status(group)[1]}"
+        for name, group in all_groups.items()
+        if not repetition_status(group)[0]
+    ]
+    if repetition_failures:
+        lines.append("NOT_VERIFIED: minimum distinct repetition requirement not met: " + "; ".join(repetition_failures) + ".")
     else:
-        coverage_values = {coverage for _, coverage in comparator_candidates.values()} | {fused_coverage}
-        if len(coverage_values) != 1:
-            lines.append("NOT_COMPARABLE: assessed-weight coverage differs across baseline, specialist and fused arms.")
+        dimension_sets = {name: assessed_dimensions(group) for name, group in all_groups.items()}
+        reference_dimensions = dimension_sets["fused"]
+        mismatches = [
+            f"{name}=[{', '.join(sorted(dimensions)) or 'NONE'}]"
+            for name, dimensions in dimension_sets.items()
+            if dimensions != reference_dimensions
+        ]
+        missing_scores = [name for name, dimensions in dimension_sets.items() if not dimensions]
+        if missing_scores:
+            lines.append("NOT_ASSESSED: no scored rubric dimensions for: " + ", ".join(missing_scores) + ".")
+        elif mismatches:
+            lines.append("NOT_COMPARABLE: assessed-dimension identities differ across arms; " + "; ".join(mismatches) + ". Equal total weight coverage does not establish equivalent coverage.")
         else:
-            best_name, (best_score, _) = max(comparator_candidates.items(), key=lambda item: item[1][0])
-            delta = fused_score - best_score
-            lines.append(f"Fused descriptive score: {fused_score:.1f}/100; strongest isolated/baseline comparator: {best_name} at {best_score:.1f}/100; descriptive delta: {delta:+.1f} points.")
-            lines.append("This delta is not proof of synergy. Review matched tasks, per-dimension regressions, hard gates, latency/resource cost, and independent scoring before any conclusion.")
+            scored = {name: score_for(group, dimension_sets[name])[0] for name, group in all_groups.items()}
+            best_name = max(comparator_names, key=lambda name: scored[name])
+            delta = scored["fused"] - scored[best_name]
+            lines.append(f"Fused descriptive score: {scored['fused']:.1f}/100; strongest baseline/isolated-specialist comparator: {best_name} at {scored[best_name]:.1f}/100; descriptive delta: {delta:+.1f} points.")
+            lines.append("This delta is not proof of synergy. Review matched tasks, per-dimension regressions, hard gates, latency/resource cost, ablation evidence and independent scoring before any conclusion.")
 
     lines += ["", "## Per-dimension repeatability", "",
               "| Test | Condition | Dimension | Runs | Median (1–5) | Range (1–5) |",
               "|---|---|---|---:|---:|---:|"]
     for test_id in TEST_IDS:
         for condition in conditions_for_test(test_id):
-            group = [r for r in records if r["test_id"] == test_id and r["condition"] == condition]
+            group = group_for(test_id, condition)
             for dimension in weights:
                 values = [r["scores"].get(dimension) for r in group]
                 values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
@@ -310,12 +341,13 @@ def command_report(args) -> int:
                 lines.append(f"| {test_id} | {condition} | {dimension} | {len(values)} | {med} | {spread} |")
 
     lines += ["", "## Evidence limitations", "",
-              "- Scores and hard-gate results are reviewer supplied; this tool does not independently judge outputs. Missing gates are rejected by the schema; NOT_ASSESSED gates cannot be treated as passes.",
+              "- Scores and hard-gate results are reviewer supplied; this tool does not independently judge outputs. Missing gates remain NOT_ASSESSED and cannot be treated as passes.",
+              "- A condition with fewer than the protocol minimum of distinct repetitions is NOT_VERIFIED; duplicate repetition numbers do not increase the count.",
+              "- PL-005 comparability requires the exact same assessed rubric dimensions in every arm, not merely equal summed weights.",
               "- Hash validation detects altered raw outputs or pilot inputs, but does not authenticate the operator or reviewer.",
-              "- Missing scores remain NOT_ASSESSED; weighted scores disclose assessed-weight coverage.",
               "- A failed hard gate cannot be offset by a weighted score.",
               "- This report does not establish improvement unless configurations, raw outputs, scoring and confounders are independently checked."]
-    Path(args.out).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    Path(args.out).write_text("\\n".join(lines) + "\\n", encoding="utf-8")
     print(f"Wrote {args.out}")
     return 0
 
