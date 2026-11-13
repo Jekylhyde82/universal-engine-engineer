@@ -18,7 +18,7 @@ def _trial_execution(test_id, condition, repetition, output):
         "model_label": "synthetic-test-model",
         "settings": "synthetic fixture settings",
         "tools_used": "none",
-        "capture_reference": f"synthetic-capture-{numeric_id}",
+        "capture_reference": f"captures/TRIAL-{numeric_id:03d}.txt",
         "canonical_prompt_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][int(test_id[-3:]) - 1]["input"]),
         "raw_response_sha256": sha256(output),
     }
@@ -443,6 +443,10 @@ def test_cli_report_requires_verified_manifest_covering_every_run_record(tmp_pat
     for path in sorted(records.glob("PL-*.json")):
         record = json.loads(path.read_text(encoding="utf-8"))
         record["commit_sha"] = revision
+        capture_path = evidence_root / record["trial_execution"]["capture_reference"]
+        capture_path.parent.mkdir(parents=True, exist_ok=True)
+        capture_path.write_text(record["raw_output"], encoding="utf-8")
+        artifacts.append({"path": record["trial_execution"]["capture_reference"], "kind": "raw_trial_output"})
         path.write_text(json.dumps(record), encoding="utf-8")
         artifacts.append({"path": path.relative_to(evidence_root).as_posix(), "kind": "run_record"})
 
@@ -582,6 +586,7 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
     assert manifest_data["revision"] == revision
     assert sum(item["kind"] == "run_record" for item in manifest_data["artifacts"]) == 57
     assert sum(item["kind"] == "calibration_reference" for item in manifest_data["artifacts"]) == 2
+    assert sum(item["kind"] == "raw_trial_output" for item in manifest_data["artifacts"]) == 57
 
     assert main([
         "report", "--records", str(records), "--out", str(tmp_path / "report.md"),
