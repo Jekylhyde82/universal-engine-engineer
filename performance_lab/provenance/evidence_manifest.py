@@ -17,7 +17,6 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 from jsonschema import Draft202012Validator, FormatChecker
 
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "schemas" / "evidence-manifest.schema.json"
-HEX_64 = re.compile(r"^[a-f0-9]{64}$")
 HEX_40 = re.compile(r"^[a-f0-9]{40}$")
 
 
