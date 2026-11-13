@@ -69,14 +69,14 @@ def test_manifest_rejects_artifact_tampering_and_path_escape(tmp_path):
     payload = tmp_path / "payload.json"
     payload.write_text(json.dumps(payload_obj), encoding="utf-8")
     manifest = tmp_path / "manifest.json"
-    sign_manifest(payload, private, manifest)
+    sign_manifest(payload, private, evidence, manifest)
     (evidence / "raw.txt").write_text("tampered", encoding="utf-8")
     with pytest.raises(ValueError, match="SHA-256 mismatch"):
         verify_manifest(manifest, public, evidence, "a" * 40, "custodian-test", "evidence-custodian")
     payload_obj["artifacts"][0]["path"] = "../outside.txt"
     payload.write_text(json.dumps(payload_obj), encoding="utf-8")
     with pytest.raises(ValueError, match="relative path"):
-        sign_manifest(payload, private, manifest)
+        sign_manifest(payload, private, evidence, manifest)
 
 
 def test_manifest_rejects_modified_signed_payload(tmp_path):
@@ -86,9 +86,9 @@ def test_manifest_rejects_modified_signed_payload(tmp_path):
     payload = tmp_path / "payload.json"
     payload.write_text(json.dumps(_payload(evidence)), encoding="utf-8")
     manifest = tmp_path / "manifest.json"
-    sign_manifest(payload, private, manifest)
+    sign_manifest(payload, private, evidence, manifest)
     changed = json.loads(manifest.read_text(encoding="utf-8"))
     changed["signer"]["signer_id"] = "forged"
     manifest.write_text(json.dumps(changed), encoding="utf-8")
-    with pytest.raises(ValueError, match="signer ID"):
-        verify_manifest(manifest, public, evidence, "a" * 40, "custodian-test", "evidence-custodian")
+    with pytest.raises(ValueError, match="signature verification"):
+        verify_manifest(manifest, public, evidence, "a" * 40, "forged", "evidence-custodian")
