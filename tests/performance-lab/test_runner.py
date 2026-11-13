@@ -235,7 +235,7 @@ def test_pl005_partial_dimension_coverage_is_not_comparable(tmp_path):
     assert _run_pl005_report(records, report) == 0
     text = report.read_text(encoding="utf-8")
     assert "NOT_COMPARABLE: assessed-dimension identities differ across arms" in text
-    assert "fused=[correctness]" in text
+    assert "| PL-005 | fused | 3 | PASS | correctness | 20/100 |" in text
 
 
 def test_report_rejects_condition_not_valid_for_test(tmp_path, capsys):
