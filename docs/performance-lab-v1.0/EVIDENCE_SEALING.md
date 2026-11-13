@@ -169,3 +169,8 @@ Example metadata (illustrative only; never submit as an actual trial without rea
 Every record also requires an `assessment` object with separate scorer and adversarial-evaluator identities, provider, model, version, instruction SHA-256, calibration status `PASS`, calibration reference, and calibration artifact SHA-256. The evaluator configurations must not collapse to the same provider/model/version tuple. A non-empty rationale is mandatory for every score key, and rationales must cover exactly the scored dimensions.
 
 The capture runner now requires each calibration reference to resolve to a retained file inside the evidence root and verifies its bytes against the declared SHA-256 before writing any run records. It includes both calibration artifacts in the signed evidence manifest. The report command requires each scorer/reviewer calibration reference and declared hash to match a calibration_reference entry in the independently verified manifest. This establishes artifact integrity and linkage, not calibration quality or evaluator competence. Calibration PASS must still be backed by an independently reviewed calibration package; do not treat a signed file alone as proof of calibration.
+
+
+## Frozen evaluator protocol across fusion arms
+
+The PL-005 report gate compares evaluator signatures across all eleven arms and all repetitions. The scorer signature and adversarial-evaluator signature must each remain identical across evaluator ID, provider, model, version, instruction hash, calibration reference and calibration hash. Any drift blocks the fusion comparison, even if all individual records otherwise pass their schema and evidence gates.
