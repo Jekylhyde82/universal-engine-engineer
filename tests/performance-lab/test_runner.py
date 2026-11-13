@@ -27,6 +27,22 @@ def _trial_execution(test_id, condition, repetition, output):
     return metadata
 
 
+def _assessor_pair():
+    return {
+        "assessor": {
+            "assessor_id": "synthetic-blind-scorer",
+            "blinded_condition": True,
+            "independent": True
+        },
+        "adversarial_review": {
+            "reviewer_id": "synthetic-independent-reviewer",
+            "blinded_condition": True,
+            "independent": True,
+            "checks": [{"check_id": "synthetic-check-1", "outcome": "pass", "finding": "Synthetic fixture only."}]
+        }
+    }
+
+
 def test_assets_cover_exactly_five_tests_and_rubric_totals_100():
     assert validate_assets() == []
     assert [x["id"] for x in load_json(ROOT / "tests/performance-lab/test-catalog.v1.0.json")["tests"]] == TEST_IDS
@@ -41,7 +57,7 @@ def test_valid_record_passes_schema():
         "repetition": 1, "input_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]["input"]), "configuration": {}, "configuration_sha256": canonical_json_hash({}),
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
         "scores": {"correctness": 4, "safety": "NOT_ASSESSED"},
-        "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "", "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
+        "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "", "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture"), **_assessor_pair()
     }
     assert validate_record(record, schema) == []
 
@@ -70,7 +86,7 @@ def test_schema_rejects_tampered_raw_output_hash():
         "repetition": 1, "input_sha256": sha256(case["input"]), "configuration": {}, "configuration_sha256": canonical_json_hash({}),
         "raw_output": "altered after capture", "raw_output_sha256": sha256("original"),
         "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "",
-        "trial_execution": _trial_execution("PL-001", "baseline", 1, "altered after capture")
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "altered after capture"), **_assessor_pair()
     }
     assert any("raw_output_sha256" in error for error in validate_record(record, schema))
 
@@ -104,7 +120,7 @@ def test_pl005_supports_fused_and_nine_specialist_arms():
         "configuration_sha256": canonical_json_hash({"specialist": "nine"}),
         "raw_output": "isolated specialist output", "raw_output_sha256": sha256("isolated specialist output"),
         "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "",
-        "trial_execution": _trial_execution("PL-005", "specialist_9", 1, "isolated specialist output")
+        "trial_execution": _trial_execution("PL-005", "specialist_9", 1, "isolated specialist output"), **_assessor_pair()
     }
     assert "fused" in conditions_for_test("PL-005")
     assert len([x for x in conditions_for_test("PL-005") if x.startswith("specialist_")]) == 9
@@ -141,7 +157,7 @@ def test_pass_decision_requires_review_reference_and_all_gates_pass():
         "configuration_sha256": canonical_json_hash({}), "raw_output": "fixture",
         "raw_output_sha256": sha256("fixture"), "scores": {},
         "hard_gates": {"safety":"pass","no_fabricated_evidence":"pass","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"pass"},
-        "limitations": [], "confounders": [], "decision": "pass", "reviewer": "reviewer-1",
+        "limitations": [], "confounders": [], "decision": "pass", "reviewer": "synthetic-independent-reviewer",
         "independent_review_reference": "review-123",
         "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
     }
@@ -181,7 +197,8 @@ def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by
                 "limitations": [], "confounders": [], "decision": "pass",
                 "reviewer": "synthetic-independent-reviewer",
                 "independent_review_reference": "test://synthetic-review",
-                "trial_execution": _trial_execution("PL-005", condition, repetition, output)
+                "trial_execution": _trial_execution("PL-005", condition, repetition, output),
+                **_assessor_pair()
             }
             (directory / f"PL-005-{condition}-{record_index}.json").write_text(
                 json.dumps(record), encoding="utf-8"
@@ -423,7 +440,8 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
                     "output": f"{test_id}/{condition}/repetition-{rep}",
                     "trial_execution": _trial_execution(
                         test_id, condition, rep, f"{test_id}/{condition}/repetition-{rep}"
-                    )
+                    ),
+                    **_assessor_pair()
                 }
                 for rep in (1, 2, 3)
             ]
