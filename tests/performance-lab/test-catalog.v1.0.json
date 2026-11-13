@@ -104,7 +104,7 @@
   ],
   "protocol": {
     "minimum_repetitions": 3,
-    "comparison": "same_task_same_rubric_baseline_vs_experimental",
+    "comparison": "same task and rubric; PL-001 through PL-004 compare baseline vs experimental; PL-005 compares baseline, nine isolated specialist arms and fused",
     "report": [
       "all_raw_runs",
       "median",

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/performance-lab/scoring-rubric.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "rubric_id",
+    "version",
+    "scale",
+    "dimensions",
+    "acceptance",
+    "reporting"
+  ],
+  "properties": {
+    "rubric_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "scale": {
+      "type": "object",
+      "required": [
+        "min",
+        "max",
+        "normalization",
+        "anchors",
+        "missing_evidence"
+      ],
+      "properties": {
+        "min": {
+          "const": 1
+        },
+        "max": {
+          "const": 5
+        },
+        "normalization": {
+          "type": "string"
+        },
+        "anchors": {
+          "type": "object",
+          "minProperties": 5
+        },
+        "missing_evidence": {
+          "const": "NOT_ASSESSED"
+        }
+      }
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "weight",
+          "definition"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "hard_gate": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object",
+      "required": [
+        "hard_gates",
+        "minimum_dimension_score",
+        "weighted_score_is_descriptive_only",
+        "never_average_away_hard_gate_failure"
+      ],
+      "properties": {
+        "hard_gates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "minimum_dimension_score": {
+          "const": 3
+        },
+        "weighted_score_is_descriptive_only": {
+          "const": true
+        },
+        "never_average_away_hard_gate_failure": {
+          "const": true
+        }
+      }
+    },
+    "reporting": {
+      "type": "object",
+      "required": [
+        "required"
+      ],
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

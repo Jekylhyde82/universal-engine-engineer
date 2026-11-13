@@ -132,3 +132,95 @@ Performance Lab measures the quality of benchmark task outcomes; UCEE evaluates 
 - Map benchmark evidence into UCEE-compatible evidence records where a benchmark is evaluating a capability candidate.
 - Human approval remains mandatory for code import, dependency installation, credential access, production changes and other high-impact actions.
 - Mocks prove contract behavior only; they do not prove live provider behavior.
+
+
+## 12. Runner implementation status (2026-11-10)
+
+A separate implementation branch, `performance-lab/runner-and-evidence-v1`, adds:
+- JSON Schema 2020-12 validation for individual run records.
+- A five-test capture runner requiring at least three supplied repetitions per condition.
+- SHA-256 hashes for each fixed pilot input and raw output; unique records are append-only (existing filenames are never overwritten).
+- A descriptive baseline/experimental report generator.
+- Unit tests and a dedicated GitHub Actions validation workflow.
+
+The runner accepts outputs captured from the baseline and experimental systems. It does not invoke a model, create synthetic model responses, or assign scores. Scores, hard-gate results and reviewer identities are supplied by an accountable reviewer. Missing scores remain `NOT_ASSESSED`.
+
+**Verified harness evidence:** GitHub Actions workflow run 42810768345 completed successfully on commit `632b4510700dbd4e7eb94128ed0f48d42f6e96ac`. Dependency installation, catalogue/schema validation and unit tests passed.
+
+**Not yet evidenced:** actual baseline/experimental model runs, three repetitions for each of five tests, independent scoring, adversarial review, comparative performance improvement, and operational deployment. The CI result validates the harness only.
+
+
+### Integrity and reporting hardening (2026-11-10)
+
+The runner now re-computes and checks each stored raw-output hash and the fixed pilot-input hash during validation and report generation. The comparison report applies the versioned rubric weights, exposes assessed-weight coverage, reports per-dimension median/range and worst dimension, and counts failed hard gates separately. These calculations remain descriptive; a weighted score cannot override a failed gate. Hashes detect content alteration but do not authenticate reviewer identity or guarantee independent review.
+
+**Latest CI evidence:** workflow run 42811837813 passed on head commit 693ff9b9af0d074fb280eb78c2261f92d3357ff6. The run validates the harness and its unit tests only; no model benchmark trials are included.
+
+
+## 13. Signed-evidence requirement for reports
+
+The report CLI now fails closed unless a trusted Ed25519 manifest is supplied and verified against the exact candidate commit. Every input run-record file must be covered by that manifest as a `run_record`, and every record must declare the same candidate `commit_sha`.
+
+Before reporting, freeze the candidate revision, retain raw captures and run records under one evidence root, create an artifact list, and seal it with a protected signing key. Then run:
+
+```bash
+performance-lab report \
+  --records artifacts/performance-lab/records \
+  --evidence-root artifacts/performance-lab \
+  --manifest /secure/evidence/performance-lab-manifest.json \
+  --revision <FROZEN_40_CHARACTER_COMMIT_SHA> \
+  --public-key /secure/keys/performance-lab-ed25519-public.pem \
+  --expected-signer-id <TRUSTED_SIGNER_ID> \
+  --expected-signer-role evidence-custodian \
+  --out artifacts/performance-lab/report.md
+```
+
+The report gate establishes signed artifact integrity and candidate-revision binding. It does not independently prove real-world signer identity, trial isolation, evaluator independence, or benchmark quality. Capture-time automatic sealing, enforced trial-context metadata, blind assessor separation, and independent identity-to-key verification remain outstanding.
+
+
+## 14. Automatic capture-batch sealing
+
+The public `performance-lab run` command now requires a frozen candidate revision, an evidence root, signer ID/role, and a protected Ed25519 private key. After preflighting and writing the supplied batch, it automatically creates a signed manifest covering every generated run-record file. Each record is stamped with the same candidate revision. On POSIX systems, group/other-readable private-key files are rejected.
+
+Example:
+
+```bash
+performance-lab run \
+  --responses responses.json \
+  --out artifacts/performance-lab/records \
+  --operator <OPERATOR_ID> \
+  --repetitions 3 \
+  --evidence-root artifacts/performance-lab \
+  --revision <FROZEN_40_CHARACTER_COMMIT_SHA> \
+  --signer-id <TRUSTED_SIGNER_ID> \
+  --signer-role evidence-custodian \
+  --private-key /secure/keys/performance-lab-ed25519-private.pem
+```
+
+The generated manifest defaults to `<evidence-root>/evidence-manifest.json`. The capture runner records operator-supplied outputs; it does not invoke a model or independently establish capture authenticity. Preserve any separate raw capture artifacts and include them in the evidence package. A valid signature proves possession of the signing key, not the real-world identity of its holder.
+
+
+## 15. Trial execution provenance and separated review
+
+Run records now require the same core execution controls used by GENESIS: unique `trial_id` and `blind_label`, explicit Unpersonalized Temporary Chat confirmation, context reference/type, capture timestamp, exact model label, settings, tools used, retained capture reference, canonical prompt SHA-256, raw-response SHA-256, and an architecture-instruction SHA-256 for non-baseline conditions. The runner recomputes prompt/response hashes and preflights unique trial/blind identifiers across the supplied batch.
+
+Each record also requires a separate blinded assessor and adversarial reviewer. Both attest independence and blinding; their IDs must differ. A PASS decision requires every adversarial check to explicitly pass.
+
+These controls provide structured provenance and fail-closed consistency checks. They do not cryptographically prove a human's identity, prove that the UI was genuinely unpersonalized, or independently establish assessor independence. Those remain external verification requirements.
+
+
+## 16. Calibrated evaluator provenance and scoring rationales
+
+Each record now requires distinct scorer and adversarial-evaluator metadata: evaluator ID, provider, model, version, instruction hash, calibration PASS status, calibration reference, and calibration artifact hash. The scorer and adversarial evaluator cannot share the same provider/model/version tuple. Every scored dimension must have a non-empty rationale, with exact one-to-one coverage between score keys and rationale keys.
+
+The capture runner requires calibration references to resolve to files inside the evidence root, verifies each declared SHA-256, and includes the calibration files in the signed manifest. The report command requires those references and hashes to match entries in the independently verified manifest. This proves artifact integrity/linkage, not calibration quality or evaluator competence. Human calibration approval and external evaluator-identity verification remain required; an asserted PASS value is not proof of calibration.
+
+
+## 17. Frozen evaluator configuration across fusion arms
+
+The PL-005 fusion comparison now requires one identical scorer configuration and one identical adversarial-evaluator configuration across baseline, all nine isolated specialists, fused condition, and every repetition. The frozen signatures include evaluator ID, provider, model, version, instruction hash, calibration reference and calibration hash. Any evaluator drift blocks the fusion comparison; the runner will not silently compare scores produced under different evaluation protocols.
+
+
+## 18. Retained raw capture files
+
+Each run record points to a traversal-free raw capture path under the evidence root. The capture runner retains the supplied verbatim output at that path and seals it into the manifest as `raw_trial_output`; report generation requires that exact file and SHA-256 to be present in the verified manifest. The runner stores the operator-supplied text and does not directly capture the ChatGPT UI or independently prove session authenticity. Preserve original capture evidence where the protocol requires it.
