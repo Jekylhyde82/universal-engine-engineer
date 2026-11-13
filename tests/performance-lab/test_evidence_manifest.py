@@ -40,7 +40,7 @@ def test_manifest_sign_and_verify_revision_key_and_artifact(tmp_path):
     payload = tmp_path / "payload.json"
     payload.write_text(json.dumps(_payload(evidence)), encoding="utf-8")
     manifest_path = tmp_path / "manifest.json"
-    sign_manifest(payload, private, manifest_path)
+    sign_manifest(payload, private, evidence, manifest_path)
     result = verify_manifest(manifest_path, public, evidence, "a" * 40,
                              "custodian-test", "evidence-custodian")
     assert result["verified"] is True
@@ -54,7 +54,7 @@ def test_manifest_rejects_wrong_revision_and_signer(tmp_path):
     payload = tmp_path / "payload.json"
     payload.write_text(json.dumps(_payload(evidence)), encoding="utf-8")
     manifest = tmp_path / "manifest.json"
-    sign_manifest(payload, private, manifest)
+    sign_manifest(payload, private, evidence, manifest)
     with pytest.raises(ValueError, match="revision"):
         verify_manifest(manifest, public, evidence, "b" * 40, "custodian-test", "evidence-custodian")
     with pytest.raises(ValueError, match="signer ID"):
