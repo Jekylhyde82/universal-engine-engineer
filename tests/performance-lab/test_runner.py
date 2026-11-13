@@ -396,7 +396,7 @@ def test_pl005_matching_dimension_identity_sets_allow_comparison(tmp_path):
     assert _run_pl005_report(records, report) == 0
     text = report.read_text(encoding="utf-8")
     assert "Fused descriptive score:" in text
-    assert "NOT_COMPARABLE" not in text
+    assert "NOT_COMPARABLE: assessed-dimension identities differ across arms" not in text
 
 
 def test_pl005_missing_arm_fails_closed(tmp_path):
