@@ -162,3 +162,10 @@ Example metadata (illustrative only; never submit as an actual trial without rea
   }
 }
 ```
+
+
+## Calibrated evaluator provenance and score rationales
+
+Every record also requires an `assessment` object with separate scorer and adversarial-evaluator identities, provider, model, version, instruction SHA-256, calibration status `PASS`, calibration reference, and calibration artifact SHA-256. The evaluator configurations must not collapse to the same provider/model/version tuple. A non-empty rationale is mandatory for every score key, and rationales must cover exactly the scored dimensions.
+
+The runner validates the metadata structure, separation and rationale coverage. It checks the declared calibration hash format and reference but does not fetch or independently verify the calibration artifact bytes or establish evaluator quality. Calibration PASS must be backed by an independently reviewed calibration package retained in the evidence set; do not treat a syntactically valid reference as proof of calibration.
