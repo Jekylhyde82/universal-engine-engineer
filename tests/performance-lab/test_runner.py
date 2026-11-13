@@ -287,6 +287,44 @@ def _run_pl005_report(records_dir, output_path):
     return command_report(SimpleNamespace(records=str(records_dir), out=str(output_path)))
 
 
+def _write_pair_records(directory, test_id="PL-001"):
+    directory.mkdir(parents=True, exist_ok=True)
+    case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][int(test_id[-3:]) - 1]
+    for condition in ("baseline", "experimental"):
+        for repetition in (1, 2, 3):
+            output = f"{test_id}-{condition}-{repetition}"
+            scores = {
+                "correctness": 3 if condition == "baseline" else 4,
+                "reliability": 4 if condition == "baseline" else 3,
+            }
+            configuration = {"model": "GPT-6", "condition": condition}
+            record = {
+                "schema_version": "1.0.0", "run_id": f"{test_id}-{condition}-{repetition}",
+                "test_id": test_id, "case_id": case["case_id"],
+                "condition": condition, "status": "captured",
+                "timestamp_utc": "2026-11-14T00:00:00Z", "operator": "synthetic-test-operator",
+                "repetition": repetition, "input_sha256": sha256(case["input"]),
+                "configuration": configuration,
+                "configuration_sha256": canonical_json_hash(configuration),
+                "raw_output": output, "raw_output_sha256": sha256(output),
+                "scores": scores,
+                "hard_gates": {
+                    "safety": "pass", "no_fabricated_evidence": "pass",
+                    "no_unauthorized_side_effect": "pass", "no_critical_unreported_failure": "pass"
+                },
+                "limitations": [], "confounders": [], "decision": "pass",
+                "reviewer": "synthetic-independent-reviewer",
+                "independent_review_reference": "test://synthetic-review",
+                "commit_sha": "d" * 40,
+                "trial_execution": _trial_execution(test_id, condition, repetition, output),
+                **_assessor_pair(),
+                "assessment": _assessment(scores)
+            }
+            (directory / f"{test_id}-{condition}-{repetition}.json").write_text(
+                json.dumps(record), encoding="utf-8"
+            )
+
+
 def test_report_marks_under_three_repetitions_not_verified(tmp_path):
     records = tmp_path / "records"
     _write_pl005_records(records, {"baseline": [1, 2]})
@@ -337,7 +375,34 @@ def test_pl005_matching_dimension_identity_sets_allow_comparison(tmp_path):
 
 
 def test_pl005_missing_arm_fails_closed(tmp_path):
+    records = tmp_pa
+
+def test_paired_report_calculates_per_repetition_baseline_experimental_deltas(tmp_path):
     records = tmp_path / "records"
+    _write_pair_records(records)
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "## Paired baseline vs experimental comparisons" in text
+    assert "| PL-001 | PASS | correctness | +1.00 | +1, +1, +1 |" in text
+    assert "| PL-001 | PASS | reliability | -1.00 | -1, -1, -1 |" in text
+
+
+def test_paired_report_blocks_evaluator_drift_between_conditions(tmp_path):
+    records = tmp_path / "records"
+    _write_pair_records(records)
+    path = records / "PL-001-experimental-3.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["assessment"]["scorer"]["model"] = "drifted-evaluator"
+    path.write_text(json.dumps(record), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "| PL-001 | NOT_COMPARABLE |" in text
+    assert "scorer/adversarial evaluator configuration drift" in text
+
+
+th / "records"
     _write_pl005_records(records)
     (records / "PL-005-specialist_9-3.json").unlink()
     report = tmp_path / "report.md"
