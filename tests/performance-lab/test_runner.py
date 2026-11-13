@@ -304,6 +304,7 @@ def test_report_rejects_condition_not_valid_for_test(tmp_path, capsys):
     _write_pl005_records(records)
     source = json.loads((records / "PL-005-baseline-1.json").read_text(encoding="utf-8"))
     source["condition"] = "experimental"
+    source["trial_execution"]["architecture_instruction_sha256"] = sha256("synthetic architecture instruction")
     (records / "PL-005-invalid-condition.json").write_text(json.dumps(source), encoding="utf-8")
     report = tmp_path / "report.md"
     assert _run_pl005_report(records, report) == 1
