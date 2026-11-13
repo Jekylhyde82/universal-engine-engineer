@@ -98,6 +98,23 @@ def test_assessor_and_adversarial_reviewer_must_be_distinct_and_blinded(tmp_path
     assert validate_record(record, schema)
 
 
+def test_calibrated_evaluators_must_be_distinct_and_rationales_complete(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    path = records / "PL-005-baseline-1.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    schema = load_json(SCHEMA)
+    scorer = record["assessment"]["scorer"]
+    reviewer = record["assessment"]["adversarial_reviewer"]
+    reviewer["provider"] = scorer["provider"]
+    reviewer["model"] = scorer["model"]
+    reviewer["version"] = scorer["version"]
+    assert any("same provider/model/version tuple" in error for error in validate_record(record, schema))
+    reviewer["provider"], reviewer["model"], reviewer["version"] = "provider-B", "model-B", "1"
+    record["assessment"]["rationales"].pop("correctness")
+    assert any("rationales must cover exactly" in error for error in validate_record(record, schema))
+
+
 def test_run_preflight_rejects_unconfirmed_context_without_partial_records(tmp_path):
     payload = {}
     for test_id in TEST_IDS:
