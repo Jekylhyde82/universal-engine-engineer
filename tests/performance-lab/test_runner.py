@@ -417,8 +417,15 @@ def test_cli_report_requires_verified_manifest_covering_every_run_record(tmp_pat
     evidence_root = tmp_path / "evidence"
     records = evidence_root / "records"
     records.mkdir(parents=True)
+    calibration_dir = evidence_root / "calibration"
+    calibration_dir.mkdir(parents=True)
+    (calibration_dir / "scorer.json").write_text("synthetic scorer calibration", encoding="utf-8")
+    (calibration_dir / "adversarial-reviewer.json").write_text("synthetic reviewer calibration", encoding="utf-8")
     _write_pl005_records(records)
-    artifacts = []
+    artifacts = [
+        {"path": "calibration/scorer.json", "kind": "calibration_reference"},
+        {"path": "calibration/adversarial-reviewer.json", "kind": "calibration_reference"},
+    ]
     for path in sorted(records.glob("PL-*.json")):
         record = json.loads(path.read_text(encoding="utf-8"))
         record["commit_sha"] = revision
@@ -543,6 +550,10 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
     public_path.write_bytes(public_pem)
 
     evidence_root = tmp_path / "evidence"
+    calibration_dir = evidence_root / "calibration"
+    calibration_dir.mkdir(parents=True)
+    (calibration_dir / "scorer.json").write_text("synthetic scorer calibration", encoding="utf-8")
+    (calibration_dir / "adversarial-reviewer.json").write_text("synthetic reviewer calibration", encoding="utf-8")
     records = evidence_root / "records"
     manifest = evidence_root / "evidence-manifest.json"
     assert main([
@@ -555,8 +566,8 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
     assert len(list(records.glob("PL-*.json"))) == 57
     manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
     assert manifest_data["revision"] == revision
-    assert len(manifest_data["artifacts"]) == 57
-    assert all(item["kind"] == "run_record" for item in manifest_data["artifacts"])
+    assert sum(item["kind"] == "run_record" for item in manifest_data["artifacts"]) == 57
+    assert sum(item["kind"] == "calibration_reference" for item in manifest_data["artifacts"]) == 2
 
     assert main([
         "report", "--records", str(records), "--out", str(tmp_path / "report.md"),
