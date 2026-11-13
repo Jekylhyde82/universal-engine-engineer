@@ -241,3 +241,15 @@ Regression coverage creates a complete 57-record synthetic PL-001–PL-005 batch
 **Exact verification evidence:** GitHub Actions run 43462142476 passed on code/test head `7fe4e169c4364f42095e4618f78237990c9da80a`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43462142476. Asset/record validation passed and pytest reported **30 passed, 0 failed**.
 
 **Remaining scope:** automatic sealing covers generated run-record files. Operators must separately retain/list any independent raw capture files and supply a trusted key whose real-world custodian identity is established out of band. Trial-context authenticity, assessor independence, calibration, authentic model trials, and release approval remain separate gates.
+
+
+### A-16 — GENESIS-aligned trial provenance and separated assessor attestations
+
+**Disposition: Implemented; exact-head CI verification pending.**
+
+Python run records now require structured trial execution metadata aligned with GENESIS: unique trial ID and blind label, explicit Unpersonalized Temporary Chat confirmation, context type/reference, capture timestamp, model label, settings, tools used, capture reference, canonical prompt hash, raw-response hash, and architecture-instruction hash for non-baseline conditions. The runner recomputes prompt and response hashes, checks baseline/non-baseline instruction-hash rules, and rejects duplicate trial/blind IDs.
+
+Every run record also requires separate assessor and adversarial-review attestations. Both attest blinded condition and independence; their IDs must differ. A PASS decision requires all recorded adversarial checks to PASS. The capture command now validates the complete nested metadata and hash relationships during whole-batch preflight, before writing any records.
+
+**Limitations:** these are structured attestations and consistency checks. They do not cryptographically prove real-world human identity, genuine UI isolation, actual blinding, evaluator independence, or calibration quality. Independent governance and external identity-to-key verification remain necessary. Synthetic test fixtures are not experimental evidence.
+
