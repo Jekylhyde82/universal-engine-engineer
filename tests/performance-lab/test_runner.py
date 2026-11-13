@@ -280,3 +280,99 @@ def test_report_rejects_condition_not_valid_for_test(tmp_path, capsys):
     report = tmp_path / "report.md"
     assert _run_pl005_report(records, report) == 1
     assert "condition 'experimental' is not valid for PL-005" in capsys.readouterr().err
+
+
+def test_cli_report_requires_verified_manifest_covering_every_run_record(tmp_path, capsys):
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from performance_lab.evidence import create_evidence_manifest
+    from performance_lab.runner import main
+
+    revision = "a" * 40
+    evidence_root = tmp_path / "evidence"
+    records = evidence_root / "records"
+    records.mkdir(parents=True)
+    _write_pl005_records(records)
+    artifacts = []
+    for path in sorted(records.glob("PL-*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["commit_sha"] = revision
+        path.write_text(json.dumps(record), encoding="utf-8")
+        artifacts.append({"path": path.relative_to(evidence_root).as_posix(), "kind": "run_record"})
+
+    private = Ed25519PrivateKey.generate()
+    private_pem = private.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    )
+    public_pem = private.public_key().public_bytes(
+        serialization.Encoding.PEM,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    manifest = create_evidence_manifest(
+        evidence_root=evidence_root, revision=revision, signer_id="custodian-01",
+        signer_role="evidence-custodian", artifacts=artifacts,
+        private_key_pem=private_pem, created_at="2026-11-14T00:00:00Z",
+    )
+    manifest_path = evidence_root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    public_path = tmp_path / "trusted-public.pem"
+    public_path.write_bytes(public_pem)
+    report_path = tmp_path / "report.md"
+
+    result = main([
+        "report", "--records", str(records), "--out", str(report_path),
+        "--evidence-root", str(evidence_root), "--manifest", str(manifest_path),
+        "--revision", revision, "--public-key", str(public_path),
+        "--expected-signer-id", "custodian-01",
+        "--expected-signer-role", "evidence-custodian",
+    ])
+    assert result == 0
+    report = report_path.read_text(encoding="utf-8")
+    assert f"Verified Ed25519 evidence manifest: PASS; candidate revision: {revision}." in report
+
+
+def test_cli_report_fails_closed_when_record_is_not_in_manifest(tmp_path, capsys):
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from performance_lab.evidence import create_evidence_manifest
+    from performance_lab.runner import main
+
+    revision = "b" * 40
+    evidence_root = tmp_path / "evidence"
+    records = evidence_root / "records"
+    records.mkdir(parents=True)
+    _write_pl005_records(records)
+    artifacts = []
+    for path in sorted(records.glob("PL-*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record["commit_sha"] = revision
+        path.write_text(json.dumps(record), encoding="utf-8")
+        artifacts.append({"path": path.relative_to(evidence_root).as_posix(), "kind": "run_record"})
+    artifacts.pop()
+    private = Ed25519PrivateKey.generate()
+    private_pem = private.private_bytes(
+        serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    )
+    public_pem = private.public_key().public_bytes(
+        serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    manifest = create_evidence_manifest(
+        evidence_root=evidence_root, revision=revision, signer_id="custodian-01",
+        signer_role="evidence-custodian", artifacts=artifacts,
+        private_key_pem=private_pem, created_at="2026-11-14T00:00:00Z",
+    )
+    manifest_path = evidence_root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    public_path = tmp_path / "trusted-public.pem"
+    public_path.write_bytes(public_pem)
+
+    result = main([
+        "report", "--records", str(records), "--out", str(tmp_path / "report.md"),
+        "--evidence-root", str(evidence_root), "--manifest", str(manifest_path),
+        "--revision", revision, "--public-key", str(public_path),
+    ])
+    assert result == 1
+    assert "UNSEALED_RECORD:" in capsys.readouterr().err
