@@ -245,7 +245,7 @@ Regression coverage creates a complete 57-record synthetic PL-001–PL-005 batch
 
 ### A-16 — GENESIS-aligned trial provenance and separated assessor attestations
 
-**Disposition: Implemented; exact-head CI verification pending.**
+**Disposition: Implemented and CI-verified on exact code/test head.**
 
 Python run records now require structured trial execution metadata aligned with GENESIS: unique trial ID and blind label, explicit Unpersonalized Temporary Chat confirmation, context type/reference, capture timestamp, model label, settings, tools used, capture reference, canonical prompt hash, raw-response hash, and architecture-instruction hash for non-baseline conditions. The runner recomputes prompt and response hashes, checks baseline/non-baseline instruction-hash rules, and rejects duplicate trial/blind IDs.
 
@@ -253,3 +253,6 @@ Every run record also requires separate assessor and adversarial-review attestat
 
 **Limitations:** these are structured attestations and consistency checks. They do not cryptographically prove real-world human identity, genuine UI isolation, actual blinding, evaluator independence, or calibration quality. Independent governance and external identity-to-key verification remain necessary. Synthetic test fixtures are not experimental evidence.
 
+
+
+**Exact verification evidence:** GitHub Actions run 43464083063 passed on code/test head `27fa58a4194975d62730a4899984b318ccce05ca`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43464083063. Asset/record validation passed and pytest reported **32 passed, 0 failed**. The later audit-document commit does not change executable code or tests.
