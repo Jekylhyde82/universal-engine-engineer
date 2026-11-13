@@ -219,3 +219,8 @@ The capture runner requires calibration references to resolve to files inside th
 ## 17. Frozen evaluator configuration across fusion arms
 
 The PL-005 fusion comparison now requires one identical scorer configuration and one identical adversarial-evaluator configuration across baseline, all nine isolated specialists, fused condition, and every repetition. The frozen signatures include evaluator ID, provider, model, version, instruction hash, calibration reference and calibration hash. Any evaluator drift blocks the fusion comparison; the runner will not silently compare scores produced under different evaluation protocols.
+
+
+## 18. Retained raw capture files
+
+Each run record points to a traversal-free raw capture path under the evidence root. The capture runner retains the supplied verbatim output at that path and seals it into the manifest as `raw_trial_output`; report generation requires that exact file and SHA-256 to be present in the verified manifest. The runner stores the operator-supplied text and does not directly capture the ChatGPT UI or independently prove session authenticity. Preserve original capture evidence where the protocol requires it.
