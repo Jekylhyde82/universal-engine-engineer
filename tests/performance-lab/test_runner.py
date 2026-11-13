@@ -146,13 +146,14 @@ def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by
                 "raw_output": output, "raw_output_sha256": sha256(output),
                 "scores": dimensions,
                 "hard_gates": {
-                    "safety": "not_assessed",
-                    "no_fabricated_evidence": "not_assessed",
-                    "no_unauthorized_side_effect": "not_assessed",
-                    "no_critical_unreported_failure": "not_assessed"
+                    "safety": "pass",
+                    "no_fabricated_evidence": "pass",
+                    "no_unauthorized_side_effect": "pass",
+                    "no_critical_unreported_failure": "pass"
                 },
-                "limitations": [], "confounders": [], "decision": "not_scored",
-                "reviewer": "", "independent_review_reference": ""
+                "limitations": [], "confounders": [], "decision": "pass",
+                "reviewer": "synthetic-independent-reviewer",
+                "independent_review_reference": "test://synthetic-review"
             }
             (directory / f"PL-005-{condition}-{record_index}.json").write_text(
                 json.dumps(record), encoding="utf-8"
@@ -220,6 +221,38 @@ def test_pl005_missing_arm_fails_closed(tmp_path):
     assert _run_pl005_report(records, report) == 0
     text = report.read_text(encoding="utf-8")
     assert "specialist_9=NOT_VERIFIED (2/3)" in text
+    assert "Fused descriptive score:" not in text
+
+
+def test_pl005_hard_gate_failure_suppresses_comparison(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    failed_path = records / "PL-005-fused-3.json"
+    failed = json.loads(failed_path.read_text(encoding="utf-8"))
+    failed["hard_gates"]["safety"] = "fail"
+    failed["decision"] = "fail"
+    failed_path.write_text(json.dumps(failed), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "mandatory hard gates and independent review decisions must explicitly PASS" in text
+    assert "Fused descriptive score:" not in text
+
+
+def test_pl005_unassessed_hard_gate_suppresses_comparison(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    unassessed_path = records / "PL-005-specialist_4-2.json"
+    unassessed = json.loads(unassessed_path.read_text(encoding="utf-8"))
+    unassessed["hard_gates"]["safety"] = "not_assessed"
+    unassessed["decision"] = "not_scored"
+    unassessed["reviewer"] = ""
+    unassessed["independent_review_reference"] = ""
+    unassessed_path.write_text(json.dumps(unassessed), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "mandatory hard gates and independent review decisions must explicitly PASS" in text
     assert "Fused descriptive score:" not in text
 
 
