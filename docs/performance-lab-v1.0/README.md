@@ -155,3 +155,24 @@ The runner accepts outputs captured from the baseline and experimental systems. 
 The runner now re-computes and checks each stored raw-output hash and the fixed pilot-input hash during validation and report generation. The comparison report applies the versioned rubric weights, exposes assessed-weight coverage, reports per-dimension median/range and worst dimension, and counts failed hard gates separately. These calculations remain descriptive; a weighted score cannot override a failed gate. Hashes detect content alteration but do not authenticate reviewer identity or guarantee independent review.
 
 **Latest CI evidence:** workflow run 42811837813 passed on head commit 693ff9b9af0d074fb280eb78c2261f92d3357ff6. The run validates the harness and its unit tests only; no model benchmark trials are included.
+
+
+## 13. Signed-evidence requirement for reports
+
+The report CLI now fails closed unless a trusted Ed25519 manifest is supplied and verified against the exact candidate commit. Every input run-record file must be covered by that manifest as a `run_record`, and every record must declare the same candidate `commit_sha`.
+
+Before reporting, freeze the candidate revision, retain raw captures and run records under one evidence root, create an artifact list, and seal it with a protected signing key. Then run:
+
+```bash
+performance-lab report \
+  --records artifacts/performance-lab/records \
+  --evidence-root artifacts/performance-lab \
+  --manifest /secure/evidence/performance-lab-manifest.json \
+  --revision <FROZEN_40_CHARACTER_COMMIT_SHA> \
+  --public-key /secure/keys/performance-lab-ed25519-public.pem \
+  --expected-signer-id <TRUSTED_SIGNER_ID> \
+  --expected-signer-role evidence-custodian \
+  --out artifacts/performance-lab/report.md
+```
+
+The report gate establishes signed artifact integrity and candidate-revision binding. It does not independently prove real-world signer identity, trial isolation, evaluator independence, or benchmark quality. Capture-time automatic sealing, enforced trial-context metadata, blind assessor separation, and independent identity-to-key verification remain outstanding.
