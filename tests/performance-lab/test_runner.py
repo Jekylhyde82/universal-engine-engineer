@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-from performance_lab.runner import ROOT, SCHEMA, TEST_IDS, canonical_json_hash, command_report, command_run, conditions_for_test, load_json, sha256, validate_assets, validate_record
+from performance_lab.runner import ROOT, SCHEMA, TEST_IDS, canonical_json_hash, command_report, command_run, command_validate, conditions_for_test, load_json, sha256, validate_assets, validate_record
 
 
 def test_assets_cover_exactly_five_tests_and_rubric_totals_100():
@@ -22,6 +22,8 @@ def test_valid_record_passes_schema():
         "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
     }
     assert validate_record(record, schema) == []
+    record["scores"]["invented_dimension"] = 5
+    assert any("unknown rubric dimension IDs" in error for error in validate_record(record, schema))
 
 
 def test_schema_rejects_unknown_test_id():
@@ -102,6 +104,28 @@ def test_invalid_multiarms_payload_writes_no_partial_records(tmp_path):
     assert command_run(args) == 2
     assert not output_dir.exists() or list(output_dir.iterdir()) == []
 
+
+
+def test_run_preflights_late_schema_invalid_record_before_writing(tmp_path):
+    payload = {}
+    for test_id in TEST_IDS:
+        conditions = conditions_for_test(test_id)
+        payload[test_id] = {}
+        for condition in conditions:
+            payload[test_id][condition + "_configuration"] = {"model": "test"}
+            payload[test_id][condition] = [
+                {"output": "one"}, {"output": "two"}, {"output": "three"}
+            ]
+    # Fail at the final PL-005 arm/repetition, after every earlier arm is valid.
+    payload["PL-005"]["fused"][2]["scores"] = {"invented_dimension": 4}
+    response_path = tmp_path / "responses.json"
+    response_path.write_text(json.dumps(payload), encoding="utf-8")
+    output_dir = tmp_path / "records"
+    args = SimpleNamespace(
+        responses=str(response_path), repetitions=3, operator="unit-test", out=str(output_dir)
+    )
+    assert command_run(args) == 2
+    assert not output_dir.exists() or list(output_dir.iterdir()) == []
 
 
 def test_pass_decision_requires_review_reference_and_all_gates_pass():
@@ -247,3 +271,14 @@ def test_report_rejects_condition_not_valid_for_test(tmp_path, capsys):
     report = tmp_path / "report.md"
     assert _run_pl005_report(records, report) == 1
     assert "condition 'experimental' is not valid for PL-005" in capsys.readouterr().err
+
+
+def test_validate_rejects_condition_not_valid_for_test(tmp_path, capsys):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    source = json.loads((records / "PL-005-baseline-1.json").read_text(encoding="utf-8"))
+    source["condition"] = "experimental"
+    (records / "PL-005-invalid-condition.json").write_text(json.dumps(source), encoding="utf-8")
+    args = SimpleNamespace(records=str(records))
+    assert command_validate(args) == 1
+    assert "condition 'experimental' is not valid for PL-005" in capsys.readouterr().out
