@@ -132,8 +132,8 @@ def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by
     for condition in conditions:
         repetitions = repetitions_by_condition.get(condition, [1, 2, 3])
         dimensions = dimensions_by_condition.get(condition, {"correctness": 4, "efficiency": 4})
-        for repetition in repetitions:
-            output = f"{condition}-{repetition}"
+        for record_index, repetition in enumerate(repetitions, start=1):
+            output = f"{condition}-{record_index}-{repetition}"
             configuration = {"condition": condition}
             record = {
                 "schema_version": "1.0.0", "run_id": f"{condition}-{repetition}",
@@ -154,7 +154,7 @@ def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by
                 "limitations": [], "confounders": [], "decision": "not_scored",
                 "reviewer": "", "independent_review_reference": ""
             }
-            (directory / f"PL-005-{condition}-{repetition}.json").write_text(
+            (directory / f"PL-005-{condition}-{record_index}.json").write_text(
                 json.dumps(record), encoding="utf-8"
             )
 
