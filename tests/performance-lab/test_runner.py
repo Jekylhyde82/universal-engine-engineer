@@ -219,7 +219,7 @@ def test_pass_decision_requires_review_reference_and_all_gates_pass():
         "hard_gates": {"safety":"pass","no_fabricated_evidence":"pass","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"pass"},
         "limitations": [], "confounders": [], "decision": "pass", "reviewer": "synthetic-independent-reviewer",
         "independent_review_reference": "review-123",
-        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture"), **_assessor_pair()
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture"), **_assessor_pair(), "assessment": _assessment({})
     }
     assert any("every mandatory hard gate" in error for error in validate_record(record, schema))
 
@@ -369,6 +369,7 @@ def test_pl005_partial_dimension_coverage_is_not_comparable(tmp_path):
     partial_path = records / "PL-005-fused-3.json"
     partial = json.loads(partial_path.read_text(encoding="utf-8"))
     partial["scores"].pop("efficiency")
+    partial["assessment"]["rationales"].pop("efficiency")
     partial_path.write_text(json.dumps(partial), encoding="utf-8")
     report = tmp_path / "report.md"
     assert _run_pl005_report(records, report) == 0
