@@ -95,6 +95,19 @@ def validate_record(record: dict, schema: dict) -> list[str]:
             errors.append("input_sha256 does not match the versioned pilot input")
         if record["configuration_sha256"] != canonical_json_hash(record["configuration"]):
             errors.append("configuration_sha256 does not match configuration")
+        if record["condition"] not in conditions_for_test(record["test_id"]):
+            expected = ", ".join(conditions_for_test(record["test_id"]))
+            errors.append(
+                f"condition {record['condition']!r} is not valid for {record['test_id']}; "
+                f"expected one of: {expected}"
+            )
+        rubric_dimensions = {item["id"] for item in load_json(RUBRIC)["dimensions"]}
+        unknown_dimensions = sorted(set(record["scores"]) - rubric_dimensions)
+        if unknown_dimensions:
+            errors.append(
+                "scores contain unknown rubric dimension IDs: "
+                + ", ".join(unknown_dimensions)
+            )
     if not errors:
         gates = record["hard_gates"]
         if record["decision"] == "pass":
@@ -174,9 +187,10 @@ def command_run(args) -> int:
                     return 2
             prepared[test_id][condition] = (config, selected)
 
-    out = Path(args.out)
-    out.mkdir(parents=True, exist_ok=True)
-    created = 0
+    # Build and schema-validate every record before touching the output directory.
+    # This closes the late-record failure path that structural preflight alone
+    # cannot catch (for example, an invalid score in the final fused repetition).
+    records_to_write = []
     for test_id in TEST_IDS:
         case = cases[test_id]
         trial = prepared[test_id]
@@ -214,12 +228,21 @@ def command_run(args) -> int:
                     print(f"{test_id}/{condition}/{index}: " + "; ".join(problems), file=sys.stderr)
                     return 2
                 filename = f"{test_id}-{condition}-r{index}-{record['run_id']}.json"
-                target = out / filename
-                if target.exists():
-                    raise FileExistsError(target)
-                target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-                created += 1
-    print(f"Captured {created} immutable run records in {out}. Outputs were supplied by the operator; no model was invoked.")
+                records_to_write.append((filename, record))
+
+    out = Path(args.out)
+    collisions = [filename for filename, _ in records_to_write if (out / filename).exists()]
+    if collisions:
+        print("refusing to overwrite existing run records: " + ", ".join(collisions), file=sys.stderr)
+        return 2
+
+    # No schema or protocol validation can fail beyond this point.
+    out.mkdir(parents=True, exist_ok=True)
+    created = 0
+    for filename, record in records_to_write:
+        target = out / filename
+        target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+        created += 1
     return 0
 
 
