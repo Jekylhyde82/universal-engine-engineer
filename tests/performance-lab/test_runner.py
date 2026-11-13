@@ -71,7 +71,7 @@ def test_schema_rejects_unknown_test_id():
         "repetition": 1, "input_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]["input"]), "configuration": {},
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
         "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "",
-        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture"), **_assessor_pair()
     }
     assert validate_record(record, schema)
 
@@ -103,7 +103,7 @@ def test_schema_rejects_tampered_configuration_hash():
         "configuration_sha256": canonical_json_hash({"model": "v0"}),
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
         "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "",
-        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture"), **_assessor_pair()
     }
     assert any("configuration_sha256" in error for error in validate_record(record, schema))
 
@@ -159,7 +159,7 @@ def test_pass_decision_requires_review_reference_and_all_gates_pass():
         "hard_gates": {"safety":"pass","no_fabricated_evidence":"pass","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"pass"},
         "limitations": [], "confounders": [], "decision": "pass", "reviewer": "synthetic-independent-reviewer",
         "independent_review_reference": "review-123",
-        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture"), **_assessor_pair()
     }
     assert any("every mandatory hard gate" in error for error in validate_record(record, schema))
 
@@ -438,7 +438,7 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
             payload[test_id][condition] = [
                 {
                     "output": f"{test_id}/{condition}/repetition-{rep}",
-                    "trial_execution": _trial_execution(
+                    "trial_execution": _trial_execution(, **_assessor_pair()
                         test_id, condition, rep, f"{test_id}/{condition}/repetition-{rep}"
                     ),
                     **_assessor_pair()
