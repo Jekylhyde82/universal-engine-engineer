@@ -285,16 +285,29 @@ def command_report(args) -> int:
             weighted_total += weights[dimension] * (statistics.mean(values) / 5.0) * 100.0
         return weighted_total / covered, covered
 
+    def evidence_gate_status(group: list[dict]) -> bool:
+        # A weighted score is not eligible for comparison unless every record
+        # has an explicit PASS decision and every mandatory hard gate passes.
+        # NOT_ASSESSED and FAIL are both fail-closed.
+        return bool(group) and all(
+            record["decision"] == "pass"
+            and all(status == "pass" for status in record["hard_gates"].values())
+            for record in group
+        )
+
     lines = [
         "# Performance Lab comparison report", "",
         f"Each condition requires at least {minimum_repetitions} distinct repetitions. Comparisons require identical assessed-dimension identities; equal aggregate weight coverage alone is insufficient.", "",
-        "| Test | Condition | Runs | Repetition gate | Assessed dimensions | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Gates not assessed | Decisions |",
-        "|---|---:|---:|---|---|---:|---:|---|---:|---:|---|"
+        "| Test | Condition | Runs | Repetition gate | Evidence gate | Assessed dimensions | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Gates not assessed | Decisions |",
+        "|---|---:|---:|---|---|---|---:|---:|---|---:|---:|---|"
     ]
     for test_id in TEST_IDS:
         for condition in conditions_for_test(test_id):
             group = group_for(test_id, condition)
-            eligible, rep_status = repetition_status(group)
+            repetition_ok, rep_status = repetition_status(group)
+            evidence_ok = evidence_gate_status(group)
+            eligible = repetition_ok and evidence_ok
+            evidence_status = "PASS" if evidence_ok else "NOT_VERIFIED"
             dimensions = assessed_dimensions(group)
             score_value, covered = score_for(group, dimensions) if eligible else (None, sum(weights[d] for d in dimensions))
             means = {}
@@ -311,7 +324,7 @@ def command_report(args) -> int:
             decisions = ", ".join(sorted({r["decision"] for r in group})) or "NO_RUNS"
             coverage = f"{covered}/100" if dimensions else "0/100"
             dimension_label = ", ".join(sorted(dimensions)) or "NOT_ASSESSED"
-            lines.append(f"| {test_id} | {condition} | {len(group)} | {rep_status} | {dimension_label} | {coverage} | {score} | {worst} | {gate_failures} | {gate_unassessed} | {decisions} |")
+            lines.append(f"| {test_id} | {condition} | {len(group)} | {rep_status} | {evidence_status} | {dimension_label} | {coverage} | {score} | {worst} | {gate_failures} | {gate_unassessed} | {decisions} |")
 
     lines += ["", "## PL-005 fusion comparison", ""]
     comparator_names = ["baseline", *SPECIALIST_ARMS]
@@ -323,8 +336,11 @@ def command_report(args) -> int:
         for name, group in all_groups.items()
         if not repetition_status(group)[0]
     ]
+    evidence_gate_failures = [name for name, group in all_groups.items() if not evidence_gate_status(group)]
     if repetition_failures:
         lines.append("NOT_VERIFIED: minimum distinct repetition requirement not met: " + "; ".join(repetition_failures) + ".")
+    elif evidence_gate_failures:
+        lines.append("NOT_VERIFIED: mandatory hard gates and independent review decisions must explicitly PASS for every repetition in every arm; blocked arms: " + ", ".join(evidence_gate_failures) + ".")
     else:
         dimension_sets = {name: assessed_dimensions(group) for name, group in all_groups.items()}
         reference_dimensions = dimension_sets["fused"]
