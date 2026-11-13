@@ -310,6 +310,7 @@ def command_run(args) -> int:
         print(f"cannot read protected signing key: {exc}", file=sys.stderr)
         return 2
     calibration_artifacts = {}
+    raw_capture_artifacts = {}
     for test_id in TEST_IDS:
         for condition in conditions_for_test(test_id):
             for result in prepared[test_id][condition][1]:
@@ -334,6 +335,29 @@ def command_run(args) -> int:
                         print(f"calibration artifact hash mismatch: {reference}", file=sys.stderr)
                         return 2
                     calibration_artifacts[relative] = "calibration_reference"
+                capture_reference = result["trial_execution"]["capture_reference"]
+                capture_path = Path(capture_reference)
+                if capture_path.is_absolute() or ".." in capture_path.parts:
+                    print(f"invalid raw capture artifact path: {capture_reference}", file=sys.stderr)
+                    return 2
+                try:
+                    resolved_capture = (resolved_root / capture_path).resolve()
+                    relative_capture = resolved_capture.relative_to(resolved_root).as_posix()
+                except ValueError:
+                    print(f"raw capture path escapes evidence root: {capture_reference}", file=sys.stderr)
+                    return 2
+                if resolved_capture.exists() or relative_capture in raw_capture_artifacts:
+                    print(f"raw capture artifact path already exists or is duplicated: {capture_reference}", file=sys.stderr)
+                    return 2
+                raw_capture_artifacts[relative_capture] = result["output"]
+    try:
+        for relative, output in raw_capture_artifacts.items():
+            target = resolved_root / Path(*Path(relative).parts)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(output, encoding="utf-8")
+    except OSError as exc:
+        print(f"CAPTURE_UNSEALED: could not retain raw capture artifact: {exc}", file=sys.stderr)
+        return 2
     created = 0
     for test_id in TEST_IDS:
         case = cases[test_id]
@@ -394,6 +418,10 @@ def command_run(args) -> int:
         artifacts.extend(
             {"path": path, "kind": kind}
             for path, kind in sorted(calibration_artifacts.items())
+        )
+        artifacts.extend(
+            {"path": path, "kind": "raw_trial_output"}
+            for path in sorted(raw_capture_artifacts)
         )
         if sum(item["kind"] == "run_record" for item in artifacts) != created:
             raise ValueError("capture batch record count changed before evidence sealing")
@@ -490,6 +518,19 @@ def command_report(args) -> int:
                         file=sys.stderr,
                     )
                     return 1
+            capture_reference = record["trial_execution"]["capture_reference"]
+            capture_artifact = verified_artifacts.get(capture_reference)
+            if (
+                capture_artifact is None
+                or capture_artifact["kind"] != "raw_trial_output"
+                or capture_artifact["sha256"] != record["trial_execution"]["raw_response_sha256"]
+            ):
+                print(
+                    f"RAW_CAPTURE_UNSEALED: {path} capture reference {capture_reference!r} "
+                    "is not covered by the verified manifest with its declared hash",
+                    file=sys.stderr,
+                )
+                return 1
         if record["condition"] not in conditions_for_test(record["test_id"]):
             expected = ", ".join(conditions_for_test(record["test_id"]))
             print(
