@@ -207,3 +207,10 @@ Run records now require the same core execution controls used by GENESIS: unique
 Each record also requires a separate blinded assessor and adversarial reviewer. Both attest independence and blinding; their IDs must differ. A PASS decision requires every adversarial check to explicitly pass.
 
 These controls provide structured provenance and fail-closed consistency checks. They do not cryptographically prove a human's identity, prove that the UI was genuinely unpersonalized, or independently establish assessor independence. Those remain external verification requirements.
+
+
+## 16. Calibrated evaluator provenance and scoring rationales
+
+Each record now requires distinct scorer and adversarial-evaluator metadata: evaluator ID, provider, model, version, instruction hash, calibration PASS status, calibration reference, and calibration artifact hash. The scorer and adversarial evaluator cannot share the same provider/model/version tuple. Every scored dimension must have a non-empty rationale, with exact one-to-one coverage between score keys and rationale keys.
+
+The runner checks structure, declared calibration metadata and evaluator separation. It does not independently retrieve or verify calibration artifact bytes, authenticate evaluator identities, or prove calibration quality. Retain calibration artifacts and independent human approval in the signed evidence package; an asserted PASS value is not itself proof of calibration.
