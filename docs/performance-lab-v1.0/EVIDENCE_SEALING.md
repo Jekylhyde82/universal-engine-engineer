@@ -107,7 +107,7 @@ performance-lab report \
   --out artifacts/performance-lab/report.md
 ```
 
-The capture command still does not automatically seal evidence. The operator must retain the raw captures and run records, prepare an artifact list, and seal them after freezing the candidate revision. The manifest must cover every run-record file used by the report; raw captures should also be listed as separate artifacts when retained separately.
+The capture command automatically seals generated run-record files after freezing the candidate revision. The operator must separately retain raw captures and list them as additional artifacts when they are stored outside the generated run records. The manifest must cover every run-record file used by the report and all retained raw capture artifacts required for independent review.
 
 This enforcement verifies integrity and revision binding; it does not prove that a capture was genuinely performed in an isolated context, authenticate a real-world human identity, establish evaluator independence, or certify benchmark quality. Trial-context metadata and assessor separation remain separate acceptance gates.
 
