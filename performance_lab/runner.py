@@ -243,6 +243,7 @@ def command_run(args) -> int:
         target = out / filename
         target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
         created += 1
+    print(f"Captured {created} immutable run records in {out}. Outputs were supplied by the operator; no model was invoked.")
     return 0
 
 
