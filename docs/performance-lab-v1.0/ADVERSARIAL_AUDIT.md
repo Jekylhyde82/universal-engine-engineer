@@ -284,8 +284,11 @@ This control establishes consistency of declared evaluator configuration, not ac
 
 ### A-19 — Retained raw capture artifacts and manifest binding
 
-**Disposition: Implemented; exact-head CI verification pending.**
+**Disposition: Implemented and CI-verified on exact code/test head.**
 
 Every record's `trial_execution.capture_reference` is now a traversal-free path under the evidence root. The capture command retains the supplied verbatim output at that path and adds it to the signed manifest as `raw_trial_output`. The report command requires the verified manifest to cover the exact capture path and match its SHA-256 to the run record's raw-response digest. Regression coverage verifies manifest linkage for a full synthetic 57-record capture batch.
 
 **Limitations:** the runner stores operator-supplied output; it does not capture the ChatGPT UI or independently authenticate the source session. The retained file is an integrity-protected copy, not proof that the operator captured the complete original response. Preserve original UI/export evidence as required by the trial protocol.
+
+
+**Exact verification evidence:** GitHub Actions run 43465799215 passed on code/test head `9dade25596da0963e410b04dbd931b518fbd283d`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43465799215. Asset/record validation passed and pytest reported **34 passed, 0 failed**. Later documentation-only commits clarify the capture authenticity boundary.
