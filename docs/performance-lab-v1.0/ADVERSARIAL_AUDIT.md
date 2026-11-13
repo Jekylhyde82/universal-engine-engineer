@@ -260,8 +260,11 @@ Every run record also requires separate assessor and adversarial-review attestat
 
 ### A-17 — Calibrated evaluator provenance and per-dimension rationales
 
-**Disposition: Implemented; exact-head CI verification pending.**
+**Disposition: Implemented and CI-verified on exact code/test head.**
 
 Each run record now requires separate scorer and adversarial-evaluator metadata: evaluator ID, provider, model, version, instruction SHA-256, calibration PASS status, calibration reference, and calibration artifact SHA-256. The scorer and adversarial evaluator must have distinct identities and cannot share the same provider/model/version tuple. Every score key must have exactly one non-empty rationale; missing or extra rationales invalidate the record. Whole-batch capture preflight validates the assessment structure before writing any records.
 
-**Limitations:** the runner validates declarations, schema, distinctness and hash format. It does not independently retrieve calibration artifacts, authenticate evaluator identities, or establish calibration quality. Calibration evidence and human approval must be retained and independently checked in the signed evidence package. Synthetic evaluator fixtures are tests only, not proof of evaluator calibration.
+**Verification boundary:** capture preflight resolves every scorer/reviewer calibration reference inside the evidence root, verifies the actual file bytes against the declared SHA-256, and includes each calibration file in the signed manifest. The report command requires every reference/hash to match a `calibration_reference` artifact in the independently verified manifest. This verifies artifact integrity and linkage. It does not authenticate evaluator identities or establish calibration quality; independent human approval remains required. Synthetic evaluator fixtures are tests only, not proof of evaluator calibration.
+
+
+**Exact verification evidence:** GitHub Actions run 43465080114 passed on code/test head `df6b53f3e9001f7fb24982bc153c322a37e5e710`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43465080114. Asset/record validation passed and pytest reported **33 passed, 0 failed**. Later documentation-only commits clarify the verified calibration artifact linkage.
