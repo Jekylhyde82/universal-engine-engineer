@@ -221,3 +221,29 @@ def test_pl005_missing_arm_fails_closed(tmp_path):
     text = report.read_text(encoding="utf-8")
     assert "specialist_9=NOT_VERIFIED (2/3)" in text
     assert "Fused descriptive score:" not in text
+
+
+
+def test_pl005_partial_dimension_coverage_is_not_comparable(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    partial_path = records / "PL-005-fused-3.json"
+    partial = json.loads(partial_path.read_text(encoding="utf-8"))
+    partial["scores"].pop("efficiency")
+    partial_path.write_text(json.dumps(partial), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "NOT_COMPARABLE: assessed-dimension identities differ across arms" in text
+    assert "fused=[correctness]" in text
+
+
+def test_report_rejects_condition_not_valid_for_test(tmp_path, capsys):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    source = json.loads((records / "PL-005-baseline-1.json").read_text(encoding="utf-8"))
+    source["condition"] = "experimental"
+    (records / "PL-005-invalid-condition.json").write_text(json.dumps(source), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 1
+    assert "condition 'experimental' is not valid for PL-005" in capsys.readouterr().err
