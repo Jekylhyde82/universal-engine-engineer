@@ -226,3 +226,18 @@ Missing, unsealed, altered, stale-revision, or incorrectly signed evidence fails
 
 
 **Exact verification evidence:** GitHub Actions run 43461472818 passed on exact head `afe9dc2a98b8f8be382a73b02fc69fb8763670f8`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43461472818. Asset/record validation passed and pytest reported **29 passed, 0 failed**. This verifies the harness and tests only; it does not establish authentic model trials or production readiness.
+
+
+### A-15 — Automatic capture-batch sealing
+
+**Disposition: Implemented and CI-verified on exact head.**
+
+The CLI capture command now requires a frozen candidate revision, protected Ed25519 private-key file, signer identity, signer role, and evidence root. After full-batch preflight and record creation, it automatically creates a signed manifest covering every generated run record. Each record is bound to the supplied candidate revision. The command rejects group/other-readable POSIX private-key files and reports `CAPTURE_UNSEALED` if manifest creation fails; the report command continues to reject unsealed records.
+
+Regression coverage creates a complete 57-record synthetic PL-001–PL-005 batch, verifies that all 57 records are automatically listed in the signed manifest, and successfully exercises the manifest-gated report path. This is a deterministic software test only; these synthetic records are not authentic benchmark evidence.
+
+**Failure/fix history:** the first regression run exposed incorrect newline escaping in the manifest writer; the failure was corrected and the complete suite rerun successfully. The failed run was not treated as verification.
+
+**Exact verification evidence:** GitHub Actions run 43462142476 passed on code/test head `7fe4e169c4364f42095e4618f78237990c9da80a`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43462142476. Asset/record validation passed and pytest reported **30 passed, 0 failed**.
+
+**Remaining scope:** automatic sealing covers generated run-record files. Operators must separately retain/list any independent raw capture files and supply a trusted key whose real-world custodian identity is established out of band. Trial-context authenticity, assessor independence, calibration, authentic model trials, and release approval remain separate gates.
