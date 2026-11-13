@@ -325,6 +325,31 @@ def _write_pair_records(directory, test_id="PL-001"):
             )
 
 
+def test_paired_report_calculates_per_repetition_baseline_experimental_deltas(tmp_path):
+    records = tmp_path / "records"
+    _write_pair_records(records)
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "## Paired baseline vs experimental comparisons" in text
+    assert "| PL-001 | PASS | correctness | +1.00 | +1, +1, +1 |" in text
+    assert "| PL-001 | PASS | reliability | -1.00 | -1, -1, -1 |" in text
+
+
+def test_paired_report_blocks_evaluator_drift_between_conditions(tmp_path):
+    records = tmp_path / "records"
+    _write_pair_records(records)
+    path = records / "PL-001-experimental-3.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["assessment"]["scorer"]["model"] = "drifted-evaluator"
+    path.write_text(json.dumps(record), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "| PL-001 | NOT_COMPARABLE |" in text
+    assert "scorer/adversarial evaluator configuration drift" in text
+
+
 def test_report_marks_under_three_repetitions_not_verified(tmp_path):
     records = tmp_path / "records"
     _write_pl005_records(records, {"baseline": [1, 2]})
@@ -376,31 +401,6 @@ def test_pl005_matching_dimension_identity_sets_allow_comparison(tmp_path):
 
 def test_pl005_missing_arm_fails_closed(tmp_path):
     records = tmp_pa
-
-def test_paired_report_calculates_per_repetition_baseline_experimental_deltas(tmp_path):
-    records = tmp_path / "records"
-    _write_pair_records(records)
-    report = tmp_path / "report.md"
-    assert _run_pl005_report(records, report) == 0
-    text = report.read_text(encoding="utf-8")
-    assert "## Paired baseline vs experimental comparisons" in text
-    assert "| PL-001 | PASS | correctness | +1.00 | +1, +1, +1 |" in text
-    assert "| PL-001 | PASS | reliability | -1.00 | -1, -1, -1 |" in text
-
-
-def test_paired_report_blocks_evaluator_drift_between_conditions(tmp_path):
-    records = tmp_path / "records"
-    _write_pair_records(records)
-    path = records / "PL-001-experimental-3.json"
-    record = json.loads(path.read_text(encoding="utf-8"))
-    record["assessment"]["scorer"]["model"] = "drifted-evaluator"
-    path.write_text(json.dumps(record), encoding="utf-8")
-    report = tmp_path / "report.md"
-    assert _run_pl005_report(records, report) == 0
-    text = report.read_text(encoding="utf-8")
-    assert "| PL-001 | NOT_COMPARABLE |" in text
-    assert "scorer/adversarial evaluator configuration drift" in text
-
 
 th / "records"
     _write_pl005_records(records)
