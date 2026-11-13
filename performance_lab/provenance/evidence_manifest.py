@@ -71,14 +71,14 @@ def _verify_artifact_bytes(manifest: dict, evidence_root: Path) -> None:
             raise ValueError(f"SHA-256 mismatch for artifact: {artifact['path']}")
 
 
-def sign_manifest(payload_path: Path, private_key_path: Path, output_path: Path) -> dict:
+def sign_manifest(payload_path: Path, private_key_path: Path, evidence_root: Path, output_path: Path) -> dict:
     payload = _load_json(payload_path)
     if "signature" in payload:
         raise ValueError("payload must not contain a signature; signatures are generated here")
     validate_manifest({**payload, "signature": {
         "algorithm": "Ed25519", "public_key_sha256": "0" * 64, "value": "A" * 88
     }})
-    private_key = serialization.load_pem_private_key(private_key_path.read_bytes(), password=None)
+    _verify_artifact_bytes(payload, evidence_root)\n    private_key = serialization.load_pem_private_key(private_key_path.read_bytes(), password=None)
     if not isinstance(private_key, Ed25519PrivateKey):
         raise ValueError("private key must be Ed25519 PEM")
     public_bytes = _public_raw(private_key.public_key())
@@ -140,7 +140,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "sign-manifest":
-            result = sign_manifest(args.payload, args.private_key, args.output)
+            result = sign_manifest(args.payload, args.private_key, args.evidence_root, args.output)
             print(f"Signed {len(result['artifacts'])} artifact(s); signer={result['signer']['signer_id']}; revision={result['revision']}")
         else:
             result = verify_manifest(args.manifest, args.public_key, args.evidence_root,
