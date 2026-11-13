@@ -272,8 +272,11 @@ Each run record now requires separate scorer and adversarial-evaluator metadata:
 
 ### A-18 — Frozen evaluator configuration across PL-005 arms
 
-**Disposition: Implemented; exact-head CI verification pending.**
+**Disposition: Implemented and CI-verified on exact code/test head.**
 
 The PL-005 fusion comparison now checks the full scorer and adversarial-evaluator signatures across baseline, all nine specialist arms, fused condition, and every repetition. Each signature includes evaluator ID, provider, model, version, instruction hash, calibration reference and calibration hash. Any drift blocks the fusion comparison rather than allowing scores from different evaluator protocols to be compared. A regression test confirms evaluator-model drift suppresses the fusion conclusion.
 
 This control establishes consistency of declared evaluator configuration, not actual operational independence or calibration quality.
+
+
+**Exact verification evidence:** GitHub Actions run 43465430036 passed on code/test head `bc497f80b0e777daaabb5fba538e3d884aa4a755`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43465430036. Asset/record validation passed and pytest reported **34 passed, 0 failed**. The subsequent audit-document commit contains no executable changes.
