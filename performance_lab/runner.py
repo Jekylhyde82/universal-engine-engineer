@@ -4,13 +4,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import statistics
+import stat
 import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
 from jsonschema import Draft202012Validator, FormatChecker
+
+from .evidence import create_evidence_manifest, verify_evidence_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "tests" / "performance-lab"
@@ -365,6 +369,60 @@ def command_report(args) -> int:
     print(f"Wrote {args.out}")
     return 0
 
+def command_seal(args) -> int:
+    """Create a signed manifest over explicitly listed evidence artifacts."""
+    root = Path(args.evidence_root)
+    key_path = Path(args.private_key)
+    try:
+        if os.name == "posix" and stat.S_IMODE(key_path.stat().st_mode) & 0o077:
+            print("private key file permissions must exclude group and other access", file=sys.stderr)
+            return 2
+        artifacts = json.loads(Path(args.artifacts_json).read_text(encoding="utf-8"))
+        if not isinstance(artifacts, list):
+            raise ValueError("artifacts JSON must contain an array")
+        manifest = create_evidence_manifest(
+            evidence_root=root,
+            revision=args.revision,
+            signer_id=args.signer_id,
+            signer_role=args.signer_role,
+            artifacts=artifacts,
+            private_key_pem=key_path.read_bytes(),
+            created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        )
+        target = Path(args.out)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        temporary = target.with_name(target.name + ".tmp")
+        temporary.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+        temporary.replace(target)
+    except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        print(f"SEAL_FAILED: {exc}", file=sys.stderr)
+        return 2
+    print(f"SEALED: {len(manifest['artifacts'])} artifacts bound to revision {args.revision}; manifest written to {target}")
+    return 0
+
+
+def command_verify_manifest(args) -> int:
+    """Verify a signed manifest against an externally supplied trust key and revision."""
+    try:
+        manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+        errors = verify_evidence_manifest(
+            manifest,
+            evidence_root=args.evidence_root,
+            trusted_public_key_pem=Path(args.public_key).read_bytes(),
+            expected_revision=args.revision,
+            expected_signer_id=args.expected_signer_id,
+            expected_signer_role=args.expected_signer_role,
+        )
+    except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
+        print(f"MANIFEST_INVALID: {exc}", file=sys.stderr)
+        return 1
+    if errors:
+        print("\\n".join(errors), file=sys.stderr)
+        return 1
+    print(f"VERIFIED: signed evidence manifest is valid for revision {args.revision}")
+    return 0
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="performance-lab")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -381,6 +439,23 @@ def main(argv=None) -> int:
     report.add_argument("--records", default="artifacts/performance-lab")
     report.add_argument("--out", default="artifacts/performance-lab/report.md")
     report.set_defaults(func=command_report)
+    seal = sub.add_parser("seal", help="sign listed evidence artifacts with an Ed25519 key")
+    seal.add_argument("--evidence-root", required=True)
+    seal.add_argument("--artifacts-json", required=True, help="JSON array of relative artifact path/kind objects")
+    seal.add_argument("--revision", required=True, help="exact 40-character candidate Git commit SHA")
+    seal.add_argument("--signer-id", required=True)
+    seal.add_argument("--signer-role", required=True, choices=["evidence-custodian", "independent-reviewer", "release-approver"])
+    seal.add_argument("--private-key", required=True, help="path to protected Ed25519 private-key PEM; never commit this key")
+    seal.add_argument("--out", default="artifacts/performance-lab/evidence-manifest.json")
+    seal.set_defaults(func=command_seal)
+    verify = sub.add_parser("verify-manifest", help="verify a signed manifest against an external trust key and exact revision")
+    verify.add_argument("--evidence-root", required=True)
+    verify.add_argument("--manifest", required=True)
+    verify.add_argument("--revision", required=True)
+    verify.add_argument("--public-key", required=True, help="path to externally trusted Ed25519 public-key PEM")
+    verify.add_argument("--expected-signer-id")
+    verify.add_argument("--expected-signer-role", choices=["evidence-custodian", "independent-reviewer", "release-approver"])
+    verify.set_defaults(func=command_verify_manifest)
     args = parser.parse_args(argv)
     if getattr(args, "repetitions", 3) < 3:
         parser.error("the controlled protocol requires at least three repetitions")
