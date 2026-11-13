@@ -114,12 +114,13 @@ def test_manifest_rejects_untrusted_public_key(evidence_root, keys):
 
 def test_manifest_rejects_path_traversal(evidence_root, keys):
     private_pem, _ = keys
-    with pytest.raises(ValueError, match="traversal-free"):
-        create_evidence_manifest(
-            evidence_root=evidence_root, revision=REVISION, signer_id="custodian-01",
-            signer_role="evidence-custodian", artifacts=[{"path": "../outside.txt", "kind": "raw"}],
-            private_key_pem=private_pem, created_at=CREATED,
-        )
+    for unsafe_path in ("../outside.txt", r"..\\outside.txt", r"C:\\outside.txt"):
+        with pytest.raises(ValueError, match="traversal-free"):
+            create_evidence_manifest(
+                evidence_root=evidence_root, revision=REVISION, signer_id="custodian-01",
+                signer_role="evidence-custodian", artifacts=[{"path": unsafe_path, "kind": "raw"}],
+                private_key_pem=private_pem, created_at=CREATED,
+            )
 
 
 def test_manifest_rejects_duplicate_artifact_paths(evidence_root, keys):
