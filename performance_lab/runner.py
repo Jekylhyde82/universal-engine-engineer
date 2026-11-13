@@ -262,8 +262,8 @@ def command_run(args) -> int:
                     "notes": result.get("notes", ""),
                     "trial_execution": {
                         **result["trial_execution"],
-                        "canonical_prompt_sha256": sha(case["input"]),
-                        "raw_response_sha256": sha(output)
+                        "canonical_prompt_sha256": sha256(case["input"]),
+                        "raw_response_sha256": sha256(output)
                     }
                 }
                 problems = validate_record(record, schema)
