@@ -438,7 +438,7 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
             payload[test_id][condition] = [
                 {
                     "output": f"{test_id}/{condition}/repetition-{rep}",
-                    "trial_execution": _trial_execution(, **_assessor_pair()
+                    "trial_execution": _trial_execution(
                         test_id, condition, rep, f"{test_id}/{condition}/repetition-{rep}"
                     ),
                     **_assessor_pair()
