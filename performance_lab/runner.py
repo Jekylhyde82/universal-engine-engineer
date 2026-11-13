@@ -392,7 +392,7 @@ def command_seal(args) -> int:
         target = Path(args.out)
         target.parent.mkdir(parents=True, exist_ok=True)
         temporary = target.with_name(target.name + ".tmp")
-        temporary.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+        temporary.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         temporary.replace(target)
     except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
         print(f"SEAL_FAILED: {exc}", file=sys.stderr)
@@ -417,7 +417,7 @@ def command_verify_manifest(args) -> int:
         print(f"MANIFEST_INVALID: {exc}", file=sys.stderr)
         return 1
     if errors:
-        print("\\n".join(errors), file=sys.stderr)
+        print("\n".join(errors), file=sys.stderr)
         return 1
     print(f"VERIFIED: signed evidence manifest is valid for revision {args.revision}")
     return 0
