@@ -110,3 +110,55 @@ performance-lab report \
 The capture command still does not automatically seal evidence. The operator must retain the raw captures and run records, prepare an artifact list, and seal them after freezing the candidate revision. The manifest must cover every run-record file used by the report; raw captures should also be listed as separate artifacts when retained separately.
 
 This enforcement verifies integrity and revision binding; it does not prove that a capture was genuinely performed in an isolated context, authenticate a real-world human identity, establish evaluator independence, or certify benchmark quality. Trial-context metadata and assessor separation remain separate acceptance gates.
+
+
+## Trial-execution provenance and assessor separation
+
+Every Python run record now requires a GENESIS-aligned `trial_execution` object:
+
+- unique trial ID and blind label;
+- explicit Unpersonalized Temporary Chat confirmation;
+- context type/reference and capture timestamp;
+- model label, settings and tools used;
+- retained capture reference;
+- canonical prompt SHA-256 and raw-response SHA-256;
+- architecture-instruction SHA-256 for non-baseline conditions.
+
+The runner recomputes the canonical prompt and raw-response hashes and rejects mismatches. Capture preflight requires unique trial IDs and blind labels across the batch and refuses to proceed without the explicit isolation confirmation.
+
+Every record also requires separate `assessor` and `adversarial_review` attestations. Both must attest blinded condition and independence; the scorer/assessor and adversarial reviewer IDs must differ. A PASS decision requires every recorded adversarial check to explicitly PASS. These are structured attestations and consistency gates—not cryptographic proof of human identity, actual blinding, evaluator independence, or a genuinely Unpersonalized session. Those controls still require independent governance and evidence.
+
+Example metadata (illustrative only; never submit as an actual trial without real capture evidence):
+
+```json
+{
+  "trial_execution": {
+    "trial_id": "TRIAL-001",
+    "blind_label": "BLIND-001",
+    "unpersonalized_confirmed": true,
+    "context_type": "Unpersonalized Temporary Chat",
+    "context_reference": "operator-generated-context-reference",
+    "captured_at": "2026-11-14T00:00:00Z",
+    "model_label": "record the exact visible model label",
+    "settings": "record actual settings",
+    "tools_used": "none",
+    "capture_reference": "reference-to-retained-raw-capture",
+    "canonical_prompt_sha256": "64-character-prompt-hash",
+    "raw_response_sha256": "64-character-response-hash",
+    "architecture_instruction_sha256": "64-character-hash-for-non-baseline"
+  },
+  "assessor": {
+    "assessor_id": "independent-blind-scorer",
+    "blinded_condition": true,
+    "independent": true
+  },
+  "adversarial_review": {
+    "reviewer_id": "separate-independent-reviewer",
+    "blinded_condition": true,
+    "independent": true,
+    "checks": [
+      {"check_id": "CHECK-001", "outcome": "pass", "finding": "Evidence-backed finding."}
+    ]
+  }
+}
+```
