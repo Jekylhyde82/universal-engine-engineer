@@ -28,7 +28,8 @@
     "independent_review_reference",
     "trial_execution",
     "assessor",
-    "adversarial_review"
+    "adversarial_review",
+    "assessment"
   ],
   "properties": {
     "schema_version": {
@@ -331,6 +332,122 @@
                 "type": "string"
               }
             }
+          }
+        }
+      }
+    },
+    "assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version",
+        "scorer",
+        "adversarial_reviewer",
+        "rationales"
+      ],
+      "properties": {
+        "protocol_version": {
+          "const": "1.0"
+        },
+        "scorer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "evaluator_id",
+            "provider",
+            "model",
+            "version",
+            "instruction_sha256",
+            "calibration_status",
+            "calibration_reference",
+            "calibration_sha256"
+          ],
+          "properties": {
+            "evaluator_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "instruction_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "calibration_status": {
+              "const": "PASS"
+            },
+            "calibration_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "calibration_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "adversarial_reviewer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "evaluator_id",
+            "provider",
+            "model",
+            "version",
+            "instruction_sha256",
+            "calibration_status",
+            "calibration_reference",
+            "calibration_sha256"
+          ],
+          "properties": {
+            "evaluator_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1
+            },
+            "model": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "instruction_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "calibration_status": {
+              "const": "PASS"
+            },
+            "calibration_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "calibration_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        },
+        "rationales": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }
