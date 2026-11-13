@@ -347,6 +347,20 @@ def test_pl005_missing_arm_fails_closed(tmp_path):
     assert "Fused descriptive score:" not in text
 
 
+def test_pl005_evaluator_configuration_drift_suppresses_comparison(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    path = records / "PL-005-fused-3.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record["assessment"]["scorer"]["model"] = "different-scorer-model"
+    path.write_text(json.dumps(record), encoding="utf-8")
+    report = tmp_path / "report.md"
+    assert _run_pl005_report(records, report) == 0
+    text = report.read_text(encoding="utf-8")
+    assert "scorer and adversarial evaluator configurations must remain frozen" in text
+    assert "Fused descriptive score:" not in text
+
+
 def test_pl005_hard_gate_failure_suppresses_comparison(tmp_path):
     records = tmp_path / "records"
     _write_pl005_records(records)
