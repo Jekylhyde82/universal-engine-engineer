@@ -61,6 +61,31 @@ performance-lab verify-manifest \
 
 Verification fails closed for schema errors, invalid signatures, public-key fingerprint mismatch, unexpected revision, signer ID/role mismatch, missing or altered artifacts, duplicate paths, traversal, or symlink escape.
 
-## Current integration boundary
+## Report-time enforcement
 
-The commands are available and CI-tested. The existing capture and report commands do not yet automatically create a manifest, require one before report generation, or prove that submitted trial-context metadata is authentic. Treat a successful manifest verification as evidence-integrity verification only—not as proof of model quality, evaluator independence, or production readiness.
+The public `performance-lab report` command now requires all of the following:
+
+- `--evidence-root`: the evidence directory containing the records.
+- `--manifest`: the signed manifest to verify.
+- `--revision`: the exact candidate commit SHA.
+- `--public-key`: an independently trusted Ed25519 public key.
+
+The report command verifies the manifest signature, external key fingerprint, expected revision, optional externally expected signer identity/role, and every listed artifact byte. It then requires every input run-record file to appear in the verified manifest with kind `run_record`, and requires every record's `commit_sha` to equal the expected candidate revision. Missing or unsealed records fail closed before a report is written.
+
+Example:
+
+```bash
+performance-lab report \
+  --records artifacts/performance-lab/records \
+  --evidence-root artifacts/performance-lab \
+  --manifest /secure/evidence/performance-lab-manifest.json \
+  --revision <FROZEN_40_CHARACTER_COMMIT_SHA> \
+  --public-key /secure/keys/performance-lab-ed25519-public.pem \
+  --expected-signer-id <TRUSTED_SIGNER_ID> \
+  --expected-signer-role evidence-custodian \
+  --out artifacts/performance-lab/report.md
+```
+
+The capture command still does not automatically seal evidence. The operator must retain the raw captures and run records, prepare an artifact list, and seal them after freezing the candidate revision. The manifest must cover every run-record file used by the report; raw captures should also be listed as separate artifacts when retained separately.
+
+This enforcement verifies integrity and revision binding; it does not prove that a capture was genuinely performed in an isolated context, authenticate a real-world human identity, establish evaluator independence, or certify benchmark quality. Trial-context metadata and assessor separation remain separate acceptance gates.
