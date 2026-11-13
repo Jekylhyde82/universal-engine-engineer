@@ -183,3 +183,22 @@ Artifact path validation now rejects backslash-containing paths as non-canonical
 GitHub Actions run 43429912937 passed on the exact code/test commit a8c6c242b16229a1818b0f7098dbf35cde32d6f2. Dependency installation and benchmark asset/record validation passed; pytest reported 25 passed, 0 failed.
 
 The evidence-sealing usage guide is in docs/performance-lab-v1.0/EVIDENCE_SEALING.md. The manifest API and CLI are verified, but automatic capture sealing, report-time manifest enforcement, trial-context schema parity, blind-assessor separation, and authentic experimental evidence remain outstanding.
+
+
+### A-13 — Fail-closed report eligibility for mandatory hard gates
+
+**Disposition: Implemented and CI-verified on exact code/test commit `f850cc8417518a71b2a26e3322b5b24ddc273d3c`.**
+
+A report-integrity review found that the report displayed mandatory hard-gate failures but could still calculate weighted scores and a PL-005 fused-versus-comparator delta when a record had failed or unassessed gates. This could allow a failed gate to appear alongside a comparative score, contrary to the stated fail-closed policy.
+
+The report generator now:
+- exposes a separate evidence-gate status for every test/condition row;
+- withholds weighted scores unless every record in that condition has an explicit `pass` decision and every mandatory hard gate is explicitly `pass`;
+- blocks the PL-005 fusion comparison if any of its eleven arms contains a failed or unassessed hard gate or lacks an explicit PASS decision; and
+- preserves hard-gate failure and unassessed counts in the report.
+
+Regression tests cover both failed and unassessed mandatory gates. Synthetic comparison fixtures now explicitly mark their gates and review decisions as passing; these remain synthetic software tests, not benchmark evidence.
+
+**Verification history:** the first implementation run (43456877582) exposed one stale test assertion that did not include the new evidence-gate column; 26 tests passed and one assertion failed. The assertion was corrected without weakening the implementation. GitHub Actions run 43456996213 then completed successfully on exact commit `f850cc8417518a71b2a26e3322b5b24ddc273d3c`: asset/record validation passed and pytest reported **27 passed, 0 failed**.
+
+This verifies report eligibility logic only. It does not close the separate GENESIS provenance-parity gaps: automatic capture sealing, report-time signed-manifest enforcement, trial-context/isolation metadata, blind-label and assessor separation, or independent identity-to-key verification. Authentic trials and independent release approval remain outstanding.
