@@ -230,8 +230,53 @@ def command_run(args) -> int:
 def command_report(args) -> int:
     records = []
     schema = load_json(SCHEMA)
-    for path in sorted(Path(args.records).glob("PL-*.json")):
+    record_paths = sorted(Path(args.records).glob("PL-*.json"))
+
+    # The public CLI requires a trusted, revision-bound manifest before it
+    # will produce a comparison report. Direct function calls remain available
+    # to isolated unit tests of report arithmetic; they are not a release path.
+    manifest_revision = None
+    if getattr(args, "manifest", None):
+        try:
+            evidence_root = Path(args.evidence_root).resolve(strict=True)
+            manifest = load_json(Path(args.manifest))
+            manifest_errors = verify_evidence_manifest(
+                manifest,
+                evidence_root=evidence_root,
+                trusted_public_key_pem=Path(args.public_key).read_bytes(),
+                expected_revision=args.revision,
+                expected_signer_id=args.expected_signer_id,
+                expected_signer_role=args.expected_signer_role,
+            )
+            if manifest_errors:
+                print("MANIFEST_INVALID: " + "; ".join(manifest_errors), file=sys.stderr)
+                return 1
+            sealed_records = {
+                item["path"] for item in manifest["artifacts"]
+                if item["kind"] == "run_record"
+            }
+            for record_path in record_paths:
+                try:
+                    relative = record_path.resolve(strict=True).relative_to(evidence_root).as_posix()
+                except (OSError, ValueError) as exc:
+                    print(f"UNSEALED_RECORD: {record_path} is outside the evidence root: {exc}", file=sys.stderr)
+                    return 1
+                if relative not in sealed_records:
+                    print(f"UNSEALED_RECORD: {relative} is not covered as a run_record by the verified manifest", file=sys.stderr)
+                    return 1
+            manifest_revision = args.revision
+        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+            print(f"MANIFEST_INVALID: {exc}", file=sys.stderr)
+            return 1
+
+    for path in record_paths:
         record = load_json(path)
+        if manifest_revision and record.get("commit_sha") != manifest_revision:
+            print(
+                f"REVISION_MISMATCH: {path} must declare commit_sha {manifest_revision}",
+                file=sys.stderr,
+            )
+            return 1
         problems = validate_record(record, schema)
         if problems:
             print(f"INVALID {path}: {'; '.join(problems)}", file=sys.stderr)
@@ -297,6 +342,7 @@ def command_report(args) -> int:
 
     lines = [
         "# Performance Lab comparison report", "",
+        (f"Verified Ed25519 evidence manifest: PASS; candidate revision: {manifest_revision}." if manifest_revision else "UNSEALED UNIT-TEST REPORT — not a release artifact."), "",
         f"Each condition requires at least {minimum_repetitions} distinct repetitions. Comparisons require identical assessed-dimension identities; equal aggregate weight coverage alone is insufficient.", "",
         "| Test | Condition | Runs | Repetition gate | Evidence gate | Assessed dimensions | Assessed weight | Weighted score /100 | Worst dimension | Hard-gate failures | Gates not assessed | Decisions |",
         "|---|---:|---:|---|---|---|---:|---:|---|---:|---:|---|"
@@ -454,6 +500,12 @@ def main(argv=None) -> int:
     report = sub.add_parser("report", help="create a descriptive comparison report from validated records")
     report.add_argument("--records", default="artifacts/performance-lab")
     report.add_argument("--out", default="artifacts/performance-lab/report.md")
+    report.add_argument("--evidence-root", required=True, help="root containing the sealed run records and raw evidence")
+    report.add_argument("--manifest", required=True, help="revision-bound signed evidence manifest")
+    report.add_argument("--revision", required=True, help="exact candidate commit SHA expected in the manifest and every run record")
+    report.add_argument("--public-key", required=True, help="independently trusted Ed25519 public-key PEM")
+    report.add_argument("--expected-signer-id", help="externally trusted signer identity")
+    report.add_argument("--expected-signer-role", choices=["evidence-custodian", "independent-reviewer", "release-approver"])
     report.set_defaults(func=command_report)
     seal = sub.add_parser("seal", help="sign listed evidence artifacts with an Ed25519 key")
     seal.add_argument("--evidence-root", required=True)
