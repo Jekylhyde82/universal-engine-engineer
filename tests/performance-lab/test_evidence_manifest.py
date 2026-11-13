@@ -134,7 +134,7 @@ def test_manifest_rejects_duplicate_artifact_paths(evidence_root, keys):
 
 
 def test_manifest_rejects_symlink_escape(evidence_root, keys, tmp_path):
-    outside = tmp_path / "outside.txt"
+    outside = evidence_root.parent / "outside-evidence-artifact.txt"
     outside.write_text("secret", encoding="utf-8")
     link = evidence_root / "escape.txt"
     link.symlink_to(outside)
