@@ -4,16 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "universal-engineer-performance-lab"
-version = "1.0.1"
+version = "1.0.2"
 description = "Evidence-first benchmark runner for the Universal Engine / Engineer Performance Lab"
 requires-python = ">=3.10"
-dependencies = ["jsonschema>=4.23,<5"]
+dependencies = ["jsonschema>=4.23,<5", "cryptography>=43,<47"]
 
 [project.optional-dependencies]
 test = ["pytest>=8,<9"]
 
 [project.scripts]
 performance-lab = "performance_lab.runner:main"
+performance-lab-provenance = "performance_lab.provenance.evidence_manifest:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests/performance-lab"]
