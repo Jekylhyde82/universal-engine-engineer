@@ -145,3 +145,64 @@ def test_manifest_rejects_symlink_escape(evidence_root, keys, tmp_path):
             signer_role="evidence-custodian", artifacts=[{"path": "escape.txt", "kind": "raw"}],
             private_key_pem=private_pem, created_at=CREATED,
         )
+
+
+def test_cli_seal_and_verify_manifest(evidence_root, keys, tmp_path):
+    import os
+    from performance_lab.runner import main
+
+    private_pem, public_pem = keys
+    private_path = tmp_path / "signing-key.pem"
+    public_path = tmp_path / "trusted-key.pem"
+    private_path.write_bytes(private_pem)
+    private_path.chmod(0o600)
+    public_path.write_bytes(public_pem)
+    artifacts_path = tmp_path / "artifacts.json"
+    artifacts_path.write_text(
+        json.dumps([
+            {"path": "raw/trial-001.txt", "kind": "raw_trial_output"},
+            {"path": "report.json", "kind": "comparison_report"},
+        ]),
+        encoding="utf-8",
+    )
+    manifest_path = tmp_path / "evidence-manifest.json"
+
+    assert main([
+        "seal", "--evidence-root", str(evidence_root),
+        "--artifacts-json", str(artifacts_path),
+        "--revision", REVISION, "--signer-id", "custodian-01",
+        "--signer-role", "evidence-custodian",
+        "--private-key", str(private_path), "--out", str(manifest_path),
+    ]) == 0
+    assert main([
+        "verify-manifest", "--evidence-root", str(evidence_root),
+        "--manifest", str(manifest_path), "--revision", REVISION,
+        "--public-key", str(public_path), "--expected-signer-id", "custodian-01",
+        "--expected-signer-role", "evidence-custodian",
+    ]) == 0
+    assert main([
+        "verify-manifest", "--evidence-root", str(evidence_root),
+        "--manifest", str(manifest_path), "--revision", "b" * 40,
+        "--public-key", str(public_path),
+    ]) == 1
+
+
+def test_cli_refuses_insecure_private_key_permissions(evidence_root, keys, tmp_path):
+    from performance_lab.runner import main
+
+    private_pem, _ = keys
+    private_path = tmp_path / "world-readable-key.pem"
+    private_path.write_bytes(private_pem)
+    private_path.chmod(0o644)
+    artifacts_path = tmp_path / "artifacts.json"
+    artifacts_path.write_text(
+        json.dumps([{"path": "report.json", "kind": "comparison_report"}]),
+        encoding="utf-8",
+    )
+    assert main([
+        "seal", "--evidence-root", str(evidence_root),
+        "--artifacts-json", str(artifacts_path),
+        "--revision", REVISION, "--signer-id", "custodian-01",
+        "--signer-role", "evidence-custodian",
+        "--private-key", str(private_path), "--out", str(tmp_path / "manifest.json"),
+    ]) == 2
