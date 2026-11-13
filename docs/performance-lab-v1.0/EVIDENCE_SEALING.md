@@ -174,3 +174,10 @@ The capture runner now requires each calibration reference to resolve to a retai
 ## Frozen evaluator protocol across fusion arms
 
 The PL-005 report gate compares evaluator signatures across all eleven arms and all repetitions. The scorer signature and adversarial-evaluator signature must each remain identical across evaluator ID, provider, model, version, instruction hash, calibration reference and calibration hash. Any drift blocks the fusion comparison, even if all individual records otherwise pass their schema and evidence gates.
+
+
+## Retained raw capture artifacts
+
+Every run record's `trial_execution.capture_reference` is a traversal-free path relative to the evidence root. During capture, the runner retains the supplied verbatim output at that path, computes/records the raw-response hash, and includes the file in the signed manifest as `raw_trial_output`. The report command requires the verified manifest to cover that exact path and hash. This prevents a record from claiming a raw capture that is absent from the signed evidence package.
+
+The runner still receives operator-supplied output; it does not directly capture the ChatGPT UI or independently prove the source session. The operator must ensure the supplied text is the complete, unmodified response and retain any original UI/export/screenshot evidence needed by the protocol. A runner-created copy is a retained artifact, not independent proof of capture authenticity.
