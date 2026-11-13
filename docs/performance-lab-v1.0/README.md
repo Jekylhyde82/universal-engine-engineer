@@ -214,3 +214,8 @@ These controls provide structured provenance and fail-closed consistency checks.
 Each record now requires distinct scorer and adversarial-evaluator metadata: evaluator ID, provider, model, version, instruction hash, calibration PASS status, calibration reference, and calibration artifact hash. The scorer and adversarial evaluator cannot share the same provider/model/version tuple. Every scored dimension must have a non-empty rationale, with exact one-to-one coverage between score keys and rationale keys.
 
 The capture runner requires calibration references to resolve to files inside the evidence root, verifies each declared SHA-256, and includes the calibration files in the signed manifest. The report command requires those references and hashes to match entries in the independently verified manifest. This proves artifact integrity/linkage, not calibration quality or evaluator competence. Human calibration approval and external evaluator-identity verification remain required; an asserted PASS value is not proof of calibration.
+
+
+## 17. Frozen evaluator configuration across fusion arms
+
+The PL-005 fusion comparison now requires one identical scorer configuration and one identical adversarial-evaluator configuration across baseline, all nine isolated specialists, fused condition, and every repetition. The frozen signatures include evaluator ID, provider, model, version, instruction hash, calibration reference and calibration hash. Any evaluator drift blocks the fusion comparison; the runner will not silently compare scores produced under different evaluation protocols.
