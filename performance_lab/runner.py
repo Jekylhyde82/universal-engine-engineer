@@ -266,7 +266,7 @@ def command_run(args) -> int:
         manifest_path = Path(args.manifest_out)
         manifest_path.parent.mkdir(parents=True, exist_ok=True)
         temporary = manifest_path.with_name(manifest_path.name + ".tmp")
-        temporary.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+        temporary.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         temporary.replace(manifest_path)
     except (OSError, KeyError, TypeError, ValueError) as exc:
         print(f"CAPTURE_UNSEALED: records were written but evidence sealing failed: {exc}", file=sys.stderr)
