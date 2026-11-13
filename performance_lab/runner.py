@@ -111,6 +111,15 @@ def validate_record(record: dict, schema: dict) -> list[str]:
         elif not execution.get("architecture_instruction_sha256"):
             errors.append("non-baseline trial requires architecture_instruction_sha256")
     if not errors:
+        assessor = record["assessor"]
+        adversarial = record["adversarial_review"]
+        if assessor["assessor_id"] == adversarial["reviewer_id"]:
+            errors.append("scorer/assessor and adversarial reviewer must be distinct identities")
+        if record["reviewer"] and record["reviewer"] != adversarial["reviewer_id"]:
+            errors.append("reviewer identity must match adversarial_review.reviewer_id")
+        if record["decision"] == "pass" and any(item["outcome"] != "pass" for item in adversarial["checks"]):
+            errors.append("pass decision requires every adversarial check to explicitly pass")
+    if not errors:
         gates = record["hard_gates"]
         if record["decision"] == "pass":
             if not record["reviewer"].strip() or not record["independent_review_reference"].strip():
@@ -201,6 +210,20 @@ def command_run(args) -> int:
                 if execution.get("unpersonalized_confirmed") is not True:
                     print(f"{test_id}/{condition}/{index}: verified Unpersonalized Temporary Chat confirmation required", file=sys.stderr)
                     return 2
+                assessor = result.get("assessor")
+                adversarial = result.get("adversarial_review")
+                if not isinstance(assessor, dict) or not isinstance(adversarial, dict):
+                    print(f"{test_id}/{condition}/{index}: separate assessor and adversarial_review attestations required", file=sys.stderr)
+                    return 2
+                if assessor.get("blinded_condition") is not True or assessor.get("independent") is not True:
+                    print(f"{test_id}/{condition}/{index}: assessor must attest blinding and independence", file=sys.stderr)
+                    return 2
+                if adversarial.get("blinded_condition") is not True or adversarial.get("independent") is not True:
+                    print(f"{test_id}/{condition}/{index}: adversarial reviewer must attest blinding and independence", file=sys.stderr)
+                    return 2
+                if assessor.get("assessor_id") == adversarial.get("reviewer_id"):
+                    print(f"{test_id}/{condition}/{index}: scorer and adversarial reviewer must be distinct", file=sys.stderr)
+                    return 2
             prepared[test_id][condition] = (config, selected)
 
     revision = args.revision
@@ -264,7 +287,9 @@ def command_run(args) -> int:
                         **result["trial_execution"],
                         "canonical_prompt_sha256": sha256(case["input"]),
                         "raw_response_sha256": sha256(output)
-                    }
+                    },
+                    "assessor": result["assessor"],
+                    "adversarial_review": result["adversarial_review"]
                 }
                 problems = validate_record(record, schema)
                 if problems:
