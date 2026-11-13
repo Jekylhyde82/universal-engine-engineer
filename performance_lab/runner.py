@@ -347,7 +347,7 @@ def command_report(args) -> int:
               "- Hash validation detects altered raw outputs or pilot inputs, but does not authenticate the operator or reviewer.",
               "- A failed hard gate cannot be offset by a weighted score.",
               "- This report does not establish improvement unless configurations, raw outputs, scoring and confounders are independently checked."]
-    Path(args.out).write_text("\\n".join(lines) + "\\n", encoding="utf-8")
+    Path(args.out).write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"Wrote {args.out}")
     return 0
 
