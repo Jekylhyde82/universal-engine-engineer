@@ -202,3 +202,24 @@ Regression tests cover both failed and unassessed mandatory gates. Synthetic com
 **Verification history:** the first implementation run (43456877582) exposed one stale test assertion that did not include the new evidence-gate column; 26 tests passed and one assertion failed. The assertion was corrected without weakening the implementation. GitHub Actions run 43456996213 then completed successfully on exact commit `f850cc8417518a71b2a26e3322b5b24ddc273d3c`: asset/record validation passed and pytest reported **27 passed, 0 failed**.
 
 This verifies report eligibility logic only. It does not close the separate GENESIS provenance-parity gaps: automatic capture sealing, report-time signed-manifest enforcement, trial-context/isolation metadata, blind-label and assessor separation, or independent identity-to-key verification. Authentic trials and independent release approval remain outstanding.
+
+
+### A-14 — Report-time signed-manifest enforcement
+
+**Disposition: Implemented; exact-head CI verification pending.**
+
+The public `performance-lab report` CLI previously accepted records and generated a comparison report without requiring the signed evidence-manifest verification command to have been run. This left a gap between the available Ed25519 manifest primitive and the ordinary reporting path.
+
+The report CLI now requires an evidence root, manifest, expected 40-character candidate revision, and independently supplied trusted public key. Before reading records for comparison it:
+- verifies the manifest schema and Ed25519 signature;
+- verifies the public-key fingerprint against the external trust key;
+- verifies the exact expected candidate revision and optional externally expected signer ID/role;
+- re-hashes every listed artifact from disk;
+- requires every input run-record file to be listed in the verified manifest as kind `run_record`; and
+- requires each included run record's `commit_sha` to equal the expected candidate revision.
+
+Missing, unsealed, altered, stale-revision, or incorrectly signed evidence fails closed before report output is written. Unit tests cover a valid signed-manifest report path and rejection of a run record omitted from the manifest.
+
+**Scope limitation:** this does not automatically seal captures at capture time. Operators must freeze the candidate revision, retain raw captures and run records, list the evidence artifacts, and seal them with a protected private key. The report gate verifies integrity and revision binding, not real-world identity, actual isolation, assessor independence, or benchmark quality.
+
+**Verification:** implementation and regression tests committed on the PR branch; exact-head CI result must be inspected before this finding can be marked CI-verified. The PR remains draft and unmerged.
