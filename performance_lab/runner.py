@@ -309,6 +309,31 @@ def command_run(args) -> int:
     except OSError as exc:
         print(f"cannot read protected signing key: {exc}", file=sys.stderr)
         return 2
+    calibration_artifacts = {}
+    for test_id in TEST_IDS:
+        for condition in conditions_for_test(test_id):
+            for result in prepared[test_id][condition][1]:
+                assessment = result["assessment"]
+                for evaluator_role in ("scorer", "adversarial_reviewer"):
+                    evaluator = assessment[evaluator_role]
+                    reference = evaluator["calibration_reference"]
+                    relative_path = Path(reference)
+                    if relative_path.is_absolute() or ".." in relative_path.parts:
+                        print(f"invalid calibration artifact path: {reference}", file=sys.stderr)
+                        return 2
+                    try:
+                        resolved = (resolved_root / relative_path).resolve(strict=True)
+                        relative = resolved.relative_to(resolved_root).as_posix()
+                        if not resolved.is_file():
+                            raise ValueError("calibration reference is not a regular file")
+                        actual_hash = hashlib.sha256(resolved.read_bytes()).hexdigest()
+                    except (OSError, ValueError) as exc:
+                        print(f"calibration artifact unavailable or outside evidence root: {reference}: {exc}", file=sys.stderr)
+                        return 2
+                    if actual_hash != evaluator["calibration_sha256"]:
+                        print(f"calibration artifact hash mismatch: {reference}", file=sys.stderr)
+                        return 2
+                    calibration_artifacts[relative] = "calibration_reference"
     created = 0
     for test_id in TEST_IDS:
         case = cases[test_id]
@@ -366,7 +391,11 @@ def command_run(args) -> int:
             {"path": path.resolve(strict=True).relative_to(resolved_root).as_posix(), "kind": "run_record"}
             for path in sorted(out.glob("PL-*.json"))
         ]
-        if len(artifacts) != created:
+        artifacts.extend(
+            {"path": path, "kind": kind}
+            for path, kind in sorted(calibration_artifacts.items())
+        )
+        if sum(item["kind"] == "run_record" for item in artifacts) != created:
             raise ValueError("capture batch record count changed before evidence sealing")
         manifest = create_evidence_manifest(
             evidence_root=resolved_root,
@@ -393,6 +422,7 @@ def command_report(args) -> int:
     records = []
     schema = load_json(SCHEMA)
     record_paths = sorted(Path(args.records).glob("PL-*.json"))
+    verified_artifacts = {}
 
     # The public CLI requires a trusted, revision-bound manifest before it
     # will produce a comparison report. Direct function calls remain available
@@ -413,6 +443,7 @@ def command_report(args) -> int:
             if manifest_errors:
                 print("MANIFEST_INVALID: " + "; ".join(manifest_errors), file=sys.stderr)
                 return 1
+            verified_artifacts = {item["path"]: item for item in manifest["artifacts"]}
             sealed_records = {
                 item["path"] for item in manifest["artifacts"]
                 if item["kind"] == "run_record"
@@ -443,6 +474,22 @@ def command_report(args) -> int:
         if problems:
             print(f"INVALID {path}: {'; '.join(problems)}", file=sys.stderr)
             return 1
+        if manifest_revision:
+            for evaluator_role in ("scorer", "adversarial_reviewer"):
+                evaluator = record["assessment"][evaluator_role]
+                reference = evaluator["calibration_reference"]
+                artifact = verified_artifacts.get(reference)
+                if (
+                    artifact is None
+                    or artifact["kind"] != "calibration_reference"
+                    or artifact["sha256"] != evaluator["calibration_sha256"]
+                ):
+                    print(
+                        f"CALIBRATION_UNSEALED: {path} {evaluator_role} reference "
+                        f"{reference!r} is not covered by the verified manifest with its declared hash",
+                        file=sys.stderr,
+                    )
+                    return 1
         if record["condition"] not in conditions_for_test(record["test_id"]):
             expected = ", ".join(conditions_for_test(record["test_id"]))
             print(
