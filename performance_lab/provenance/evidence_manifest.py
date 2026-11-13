@@ -77,7 +77,8 @@ def sign_manifest(payload_path: Path, private_key_path: Path, evidence_root: Pat
     validate_manifest({**payload, "signature": {
         "algorithm": "Ed25519", "public_key_sha256": "0" * 64, "value": "A" * 88
     }})
-    _verify_artifact_bytes(payload, evidence_root)\n    private_key = serialization.load_pem_private_key(private_key_path.read_bytes(), password=None)
+    _verify_artifact_bytes(payload, evidence_root)
+    private_key = serialization.load_pem_private_key(private_key_path.read_bytes(), password=None)
     if not isinstance(private_key, Ed25519PrivateKey):
         raise ValueError("private key must be Ed25519 PEM")
     public_bytes = _public_raw(private_key.public_key())
