@@ -62,6 +62,42 @@ def test_valid_record_passes_schema():
     assert validate_record(record, schema) == []
 
 
+def test_assessor_and_adversarial_reviewer_must_be_distinct_and_blinded(tmp_path):
+    records = tmp_path / "records"
+    _write_pl005_records(records)
+    path = records / "PL-005-baseline-1.json"
+    record = json.loads(path.read_text(encoding="utf-8"))
+    schema = load_json(SCHEMA)
+    record["adversarial_review"]["reviewer_id"] = record["assessor"]["assessor_id"]
+    assert any("must be distinct identities" in error for error in validate_record(record, schema))
+    record["adversarial_review"]["reviewer_id"] = "separate-reviewer"
+    record["assessor"]["blinded_condition"] = False
+    assert validate_record(record, schema)
+
+
+def test_run_preflight_rejects_unconfirmed_context_without_partial_records(tmp_path):
+    payload = {}
+    for test_id in TEST_IDS:
+        payload[test_id] = {}
+        for condition in conditions_for_test(test_id):
+            payload[test_id][condition + "_configuration"] = {"model": "synthetic-fixture"}
+            payload[test_id][condition] = [
+                {
+                    "output": f"{test_id}/{condition}/{rep}",
+                    "trial_execution": _trial_execution(test_id, condition, rep, f"{test_id}/{condition}/{rep}"),
+                    **_assessor_pair()
+                }
+                for rep in (1, 2, 3)
+            ]
+    payload["PL-001"]["baseline"][0]["trial_execution"]["unpersonalized_confirmed"] = False
+    response_path = tmp_path / "responses.json"
+    response_path.write_text(json.dumps(payload), encoding="utf-8")
+    output_dir = tmp_path / "records"
+    args = SimpleNamespace(responses=str(response_path), repetitions=3, operator="unit-test", out=str(output_dir))
+    assert command_run(args) == 2
+    assert not output_dir.exists() or list(output_dir.iterdir()) == []
+
+
 def test_schema_rejects_unknown_test_id():
     schema = load_json(SCHEMA)
     record = {
