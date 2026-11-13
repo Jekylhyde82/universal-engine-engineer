@@ -130,3 +130,34 @@ The report now counts a dimension as assessed only when every record in that con
 
 The previous failed test run 43408980584 was investigated. The implementation behavior was correct; the test asserted an internal diagnostic string instead of the report's stable tabular output. The test was corrected to assert the actual fused-condition dimension and coverage row. The final exact code/test revision then passed.
 
+
+
+### A-10 — Python Ed25519 evidence-manifest foundation
+
+**Disposition: Implemented as a reusable API and schema; CI verification pending; runner integration outstanding.**
+
+The Python branch now adds a strict evidence-manifest JSON Schema and a reusable Python API for deterministic canonical JSON, SHA-256 artifact hashing, Ed25519 signing, trusted-public-key verification, key-fingerprint checking, expected-revision checking, optional externally expected signer identity/role checks, duplicate-path rejection, traversal rejection, symlink-escape rejection, and artifact-byte revalidation. The API is exported from the package. A cryptography runtime dependency and positive/negative tests have also been added.
+
+Tests cover valid signing and verification, tampered payloads, wrong revisions, untrusted keys, artifact tampering, duplicate paths, path traversal, and symlink escape.
+
+**Important limitations:** this is a manifest primitive, not yet end-to-end provenance parity. The existing performance-lab run and report commands do not yet automatically create or require a signed manifest. The Python run-record schema still does not enforce GENESIS-equivalent trial context metadata, blind labels, scorer/adversarial-reviewer separation, or raw-artifact capture references. Signer identity remains an externally supplied assertion associated with a trusted key; the API does not independently prove a real-world person's identity. Private keys must remain outside the repository and be supplied by a protected signing environment.
+
+**Acceptance work remaining:**
+1. Pass CI on the exact branch head containing this change.
+2. Integrate manifest creation/verification into a dedicated evidence-seal command without exposing private keys in logs or run records.
+3. Add a versioned trial-execution schema and blind trial matrix with exact case/condition/repetition coverage.
+4. Preserve raw captures as separate immutable artifacts and require manifest references before a report can claim sealed evidence.
+5. Add end-to-end tests proving the CLI fails closed on absent, invalid, stale-revision, or artifact-mismatched manifests.
+6. Independently review rubric mapping before changing score semantics.
+
+## Current disposition — 2026-11-13
+
+- Python reporting repetition, dimension-identity, partial-dimension, and invalid test/condition defects: implemented and regression-tested.
+- Earlier Python code/test revision 155725c5f30c964ddde321ede870f33480224a56 passed in GitHub Actions run 43409092478.
+- Python Ed25519 manifest foundation: committed; latest-head CI pending.
+- GENESIS current candidate PR #22 head 9541042f909e1e1f52eb49f1f96f2062d553f42d passed CI in run 42846696349 on that exact head.
+- Authentic GENESIS trials: 0/30; complete eligible pairs: 0/15, per PR #22 evidence report.
+- Python/GENESIS full provenance parity: not achieved.
+- Independent scoring, calibration, third-party review, measured improvement/synergy, and operational approval: not established.
+
+Both pull requests remain draft and unmerged. No merge, deployment, benchmark-quality, synergy, or operational-readiness claim is authorized by these harness checks.
