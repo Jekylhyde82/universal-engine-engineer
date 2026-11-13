@@ -206,7 +206,7 @@ This verifies report eligibility logic only. It does not close the separate GENE
 
 ### A-14 — Report-time signed-manifest enforcement
 
-**Disposition: Implemented; exact-head CI verification pending.**
+**Disposition: Implemented and CI-verified on exact head.**
 
 The public `performance-lab report` CLI previously accepted records and generated a comparison report without requiring the signed evidence-manifest verification command to have been run. This left a gap between the available Ed25519 manifest primitive and the ordinary reporting path.
 
@@ -223,3 +223,6 @@ Missing, unsealed, altered, stale-revision, or incorrectly signed evidence fails
 **Scope limitation:** this does not automatically seal captures at capture time. Operators must freeze the candidate revision, retain raw captures and run records, list the evidence artifacts, and seal them with a protected private key. The report gate verifies integrity and revision binding, not real-world identity, actual isolation, assessor independence, or benchmark quality.
 
 **Verification:** implementation and regression tests committed on the PR branch; exact-head CI result must be inspected before this finding can be marked CI-verified. The PR remains draft and unmerged.
+
+
+**Exact verification evidence:** GitHub Actions run 43461472818 passed on exact head `afe9dc2a98b8f8be382a73b02fc69fb8763670f8`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43461472818. Asset/record validation passed and pytest reported **29 passed, 0 failed**. This verifies the harness and tests only; it does not establish authentic model trials or production readiness.
