@@ -35,7 +35,7 @@ def _assessment(scores):
             "model": "model-A", "version": "1",
             "instruction_sha256": sha256("scorer instruction"),
             "calibration_status": "PASS",
-            "calibration_reference": "synthetic-calibration-reference",
+            "calibration_reference": "calibration/scorer.json",
             "calibration_sha256": sha256("synthetic scorer calibration")
         },
         "adversarial_reviewer": {
@@ -43,7 +43,7 @@ def _assessment(scores):
             "model": "model-B", "version": "1",
             "instruction_sha256": sha256("reviewer instruction"),
             "calibration_status": "PASS",
-            "calibration_reference": "synthetic-review-calibration-reference",
+            "calibration_reference": "calibration/adversarial-reviewer.json",
             "calibration_sha256": sha256("synthetic reviewer calibration")
         },
         "rationales": {key: "Synthetic fixture rationale; not a measured assessment." for key in scores}
