@@ -256,3 +256,12 @@ Every run record also requires separate assessor and adversarial-review attestat
 
 
 **Exact verification evidence:** GitHub Actions run 43464083063 passed on code/test head `27fa58a4194975d62730a4899984b318ccce05ca`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43464083063. Asset/record validation passed and pytest reported **32 passed, 0 failed**. The later audit-document commit does not change executable code or tests.
+
+
+### A-17 — Calibrated evaluator provenance and per-dimension rationales
+
+**Disposition: Implemented; exact-head CI verification pending.**
+
+Each run record now requires separate scorer and adversarial-evaluator metadata: evaluator ID, provider, model, version, instruction SHA-256, calibration PASS status, calibration reference, and calibration artifact SHA-256. The scorer and adversarial evaluator must have distinct identities and cannot share the same provider/model/version tuple. Every score key must have exactly one non-empty rationale; missing or extra rationales invalidate the record. Whole-batch capture preflight validates the assessment structure before writing any records.
+
+**Limitations:** the runner validates declarations, schema, distinctness and hash format. It does not independently retrieve calibration artifacts, authenticate evaluator identities, or establish calibration quality. Calibration evidence and human approval must be retained and independently checked in the signed evidence package. Synthetic evaluator fixtures are tests only, not proof of evaluator calibration.
