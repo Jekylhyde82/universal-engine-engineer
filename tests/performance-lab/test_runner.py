@@ -5,6 +5,28 @@ from types import SimpleNamespace
 from performance_lab.runner import ROOT, SCHEMA, TEST_IDS, canonical_json_hash, command_report, command_run, conditions_for_test, load_json, sha256, validate_assets, validate_record
 
 
+def _trial_execution(test_id, condition, repetition, output):
+    condition_index = conditions_for_test(test_id).index(condition) + 1
+    numeric_id = int(test_id[-3:]) * 1000 + condition_index * 100 + repetition
+    metadata = {
+        "trial_id": f"TRIAL-{numeric_id:03d}",
+        "blind_label": f"BLIND-{numeric_id:03d}",
+        "unpersonalized_confirmed": True,
+        "context_type": "Unpersonalized Temporary Chat",
+        "context_reference": f"synthetic-context-{numeric_id}",
+        "captured_at": "2026-11-14T00:00:00Z",
+        "model_label": "synthetic-test-model",
+        "settings": "synthetic fixture settings",
+        "tools_used": "none",
+        "capture_reference": f"synthetic-capture-{numeric_id}",
+        "canonical_prompt_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][int(test_id[-3:]) - 1]["input"]),
+        "raw_response_sha256": sha256(output),
+    }
+    if condition != "baseline":
+        metadata["architecture_instruction_sha256"] = sha256("synthetic architecture instruction")
+    return metadata
+
+
 def test_assets_cover_exactly_five_tests_and_rubric_totals_100():
     assert validate_assets() == []
     assert [x["id"] for x in load_json(ROOT / "tests/performance-lab/test-catalog.v1.0.json")["tests"]] == TEST_IDS
@@ -19,7 +41,7 @@ def test_valid_record_passes_schema():
         "repetition": 1, "input_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]["input"]), "configuration": {}, "configuration_sha256": canonical_json_hash({}),
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
         "scores": {"correctness": 4, "safety": "NOT_ASSESSED"},
-        "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
+        "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "", "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
     }
     assert validate_record(record, schema) == []
 
@@ -32,7 +54,8 @@ def test_schema_rejects_unknown_test_id():
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
         "repetition": 1, "input_sha256": sha256(load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]["input"]), "configuration": {},
         "raw_output": "fixture", "raw_output_sha256": sha256("fixture"),
-        "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": ""
+        "scores": {}, "hard_gates": {"safety":"not_assessed","no_fabricated_evidence":"not_assessed","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"not_assessed"}, "limitations": [], "confounders": [], "decision": "not_scored", "reviewer": "", "independent_review_reference": "",
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
     }
     assert validate_record(record, schema)
 
@@ -116,7 +139,8 @@ def test_pass_decision_requires_review_reference_and_all_gates_pass():
         "raw_output_sha256": sha256("fixture"), "scores": {},
         "hard_gates": {"safety":"pass","no_fabricated_evidence":"pass","no_unauthorized_side_effect":"not_assessed","no_critical_unreported_failure":"pass"},
         "limitations": [], "confounders": [], "decision": "pass", "reviewer": "reviewer-1",
-        "independent_review_reference": "review-123"
+        "independent_review_reference": "review-123",
+        "trial_execution": _trial_execution("PL-001", "baseline", 1, "fixture")
     }
     assert any("every mandatory hard gate" in error for error in validate_record(record, schema))
 
@@ -153,7 +177,8 @@ def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by
                 },
                 "limitations": [], "confounders": [], "decision": "pass",
                 "reviewer": "synthetic-independent-reviewer",
-                "independent_review_reference": "test://synthetic-review"
+                "independent_review_reference": "test://synthetic-review",
+                "trial_execution": _trial_execution("PL-005", condition, repetition, output)
             }
             (directory / f"PL-005-{condition}-{record_index}.json").write_text(
                 json.dumps(record), encoding="utf-8"
@@ -390,7 +415,12 @@ def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_pat
         for condition in conditions_for_test(test_id):
             payload[test_id][condition + "_configuration"] = {"model": "operator-supplied-fixture"}
             payload[test_id][condition] = [
-                {"output": f"{test_id}/{condition}/repetition-{rep}"}
+                {
+                    "output": f"{test_id}/{condition}/repetition-{rep}",
+                    "trial_execution": _trial_execution(
+                        test_id, condition, rep, f"{test_id}/{condition}/repetition-{rep}"
+                    )
+                }
                 for rep in (1, 2, 3)
             ]
     responses = tmp_path / "responses.json"
