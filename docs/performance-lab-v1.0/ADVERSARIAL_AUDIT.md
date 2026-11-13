@@ -63,3 +63,54 @@ Hard gates now require explicit tri-state values: pass, fail or not_assessed. Fo
 - Operational approval: not granted.
 
 No benchmark result, synergy claim, model improvement claim or operational claim should be made until the relevant trials are executed and independently reviewed.
+
+
+## Verification addendum — 2026-11-13
+
+### A-07 — Report repetition and dimension comparability
+
+**Disposition: Remediated in the report generator; regression-tested on the current PR head.**
+
+The report now requires at least the greater of three repetitions or the catalogue protocol minimum for every condition. Repetition numbers must be distinct; duplicate repetition identifiers fail the gate. PL-005 comparison requires the exact same assessed rubric-dimension identity set across baseline, all nine isolated specialist arms, and fused. Equal aggregate weight coverage is not accepted as equivalent evidence. Missing arms and underfilled arms fail closed as NOT_VERIFIED; mismatched dimensions are NOT_COMPARABLE. A descriptive score delta is explicitly not a synergy claim.
+
+Dedicated regression tests cover:
+- fewer than three repetitions;
+- duplicate repetition numbers;
+- equal total dimension weight with different dimension identities;
+- matching dimension identities; and
+- a missing PL-005 arm.
+
+**Exact verification evidence:** GitHub Actions run 43408768028 completed successfully on commit `ae5589d6f6ea51cb69c359307867805ed462edcc`. Dependency installation, `performance-lab validate --records tests/performance-lab`, and `pytest -q` all passed. This is harness verification only, not benchmark evidence.
+
+### A-08 — GENESIS evidence-protocol parity
+
+**Disposition: Partially aligned; full provenance parity is outstanding.**
+
+The separate GENESIS Performance Lab in `Jekylhyde82/7282ALLSPARXPRIME`, PR #22, head `9541042f909e1e1f52eb49f1f96f2062d553f42d`, establishes a stronger evidence protocol than the Python Performance Lab currently enforces. Its inspected Protocol 1.5 runbook and runner include:
+- a 20-column trial matrix with explicit Unpersonalized Temporary Chat confirmation, context/capture metadata, canonical prompt hashes, and architecture-instruction hashes;
+- blind labels and separation of subject, scorer, and adversarial reviewer;
+- recomputation of raw-response hashes;
+- an Ed25519-signed evidence manifest bound to an exact candidate revision, trusted-key fingerprint, relative artifact paths, and verified artifact bytes; and
+- fail-closed pair eligibility and calibration/governance requirements.
+
+The Python Performance Lab currently validates supplied outputs, fixed pilot-input/configuration/output hashes, reviewer-supplied scores, hard gates, repetition sufficiency, and report comparability. It does **not** yet enforce equivalent per-trial context-isolation metadata, blind assessor separation, retained raw-artifact references, signed revision-bound evidence manifests, or independent identity-to-key trust.
+
+Therefore, the Python report repair is verified, but full GENESIS evidence-protocol parity is **not** achieved. Do not describe the two labs as having equivalent provenance assurance.
+
+**Next alignment work (separate controlled change):**
+1. Define a Python run-record protocol revision with explicit trial-execution metadata and immutable raw-artifact references.
+2. Define a blind trial matrix and enforce exact case/condition/repetition coverage and assessor separation.
+3. Add a signed evidence-manifest format bound to the candidate revision and verify actual artifact bytes against an externally supplied trusted public key.
+4. Map the Python rubric and hard-gate semantics to GENESIS without silently changing existing score meaning; version any mapping and require human approval.
+5. Add negative tests for missing metadata, hash mismatch, invalid signatures, revision mismatch, path traversal, duplicate artifacts, and assessor conflicts.
+6. Keep all actual trials, calibration, independent scoring, and release approval as separate evidence gates.
+
+## Current disposition — 2026-11-13
+
+- Python reporting repetition and dimension-identity defects: remediated and regression-tested.
+- Exact Python PR-head CI: passed on `ae5589d6f6ea51cb69c359307867805ed462edcc`.
+- Python capture/report harness: verified by automated checks only.
+- GENESIS evidence-protocol parity: partial; explicit gap register recorded above.
+- Authentic model trials, independent scoring, calibration, third-party review, measured improvement/synergy, and operational approval: not established.
+
+The Python PR remains draft and unmerged. No merge, deployment, benchmark-quality, synergy, or operational-readiness claim is authorized by this CI result.
