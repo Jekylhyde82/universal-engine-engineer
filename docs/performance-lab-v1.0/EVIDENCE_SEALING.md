@@ -61,6 +61,27 @@ performance-lab verify-manifest \
 
 Verification fails closed for schema errors, invalid signatures, public-key fingerprint mismatch, unexpected revision, signer ID/role mismatch, missing or altered artifacts, duplicate paths, traversal, or symlink escape.
 
+## Automatic capture-batch sealing
+
+The public `performance-lab run` command now requires a frozen candidate revision and protected Ed25519 signing inputs. After validating the full supplied batch and writing its run records, it creates a signed manifest over every generated run-record file. It refuses to start if the private-key file is group/other accessible on POSIX systems. If sealing fails after capture, it reports `CAPTURE_UNSEALED` and the report command will reject the records until they are correctly sealed.
+
+Required capture options:
+
+```bash
+performance-lab run \
+  --responses responses.json \
+  --out artifacts/performance-lab/records \
+  --operator <OPERATOR_ID> \
+  --repetitions 3 \
+  --evidence-root artifacts/performance-lab \
+  --revision <FROZEN_40_CHARACTER_COMMIT_SHA> \
+  --signer-id <TRUSTED_SIGNER_ID> \
+  --signer-role evidence-custodian \
+  --private-key /secure/keys/performance-lab-ed25519-private.pem
+```
+
+The command binds every generated record to the supplied candidate revision and writes `evidence-manifest.json` under the evidence root by default. The supplied responses remain operator-provided; the runner does not invoke a model or independently establish that the outputs are authentic.
+
 ## Report-time enforcement
 
 The public `performance-lab report` command now requires all of the following:
