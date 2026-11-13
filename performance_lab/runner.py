@@ -111,6 +111,18 @@ def validate_record(record: dict, schema: dict) -> list[str]:
         elif not execution.get("architecture_instruction_sha256"):
             errors.append("non-baseline trial requires architecture_instruction_sha256")
     if not errors:
+        assessment = record["assessment"]
+        scorer = assessment["scorer"]
+        adversarial_evaluator = assessment["adversarial_reviewer"]
+        if scorer["evaluator_id"] == adversarial_evaluator["evaluator_id"]:
+            errors.append("scorer and adversarial evaluator must be distinct identities")
+        if (scorer["provider"], scorer["model"], scorer["version"]) == (
+            adversarial_evaluator["provider"], adversarial_evaluator["model"], adversarial_evaluator["version"]
+        ):
+            errors.append("scorer and adversarial evaluator cannot use the same provider/model/version tuple")
+        if set(assessment["rationales"]) != set(record["scores"]):
+            errors.append("assessment rationales must cover exactly the dimensions present in scores")
+    if not errors:
         assessor = record["assessor"]
         adversarial = record["adversarial_review"]
         if assessor["assessor_id"] == adversarial["reviewer_id"]:
@@ -212,8 +224,12 @@ def command_run(args) -> int:
                     return 2
                 assessor = result.get("assessor")
                 adversarial = result.get("adversarial_review")
+                assessment = result.get("assessment")
                 if not isinstance(assessor, dict) or not isinstance(adversarial, dict):
                     print(f"{test_id}/{condition}/{index}: separate assessor and adversarial_review attestations required", file=sys.stderr)
+                    return 2
+                if not isinstance(assessment, dict):
+                    print(f"{test_id}/{condition}/{index}: calibrated assessment metadata and rationales required", file=sys.stderr)
                     return 2
                 if assessor.get("blinded_condition") is not True or assessor.get("independent") is not True:
                     print(f"{test_id}/{condition}/{index}: assessor must attest blinding and independence", file=sys.stderr)
@@ -224,10 +240,24 @@ def command_run(args) -> int:
                 if assessor.get("assessor_id") == adversarial.get("reviewer_id"):
                     print(f"{test_id}/{condition}/{index}: scorer and adversarial reviewer must be distinct", file=sys.stderr)
                     return 2
+                evaluator = assessment.get("scorer", {})
+                adversarial_evaluator = assessment.get("adversarial_reviewer", {})
+                if evaluator.get("evaluator_id") == adversarial_evaluator.get("evaluator_id"):
+                    print(f"{test_id}/{condition}/{index}: scorer and adversarial evaluator IDs must differ", file=sys.stderr)
+                    return 2
+                if (evaluator.get("provider"), evaluator.get("model"), evaluator.get("version")) == (
+                    adversarial_evaluator.get("provider"), adversarial_evaluator.get("model"), adversarial_evaluator.get("version")
+                ):
+                    print(f"{test_id}/{condition}/{index}: scorer and adversarial evaluator configurations must differ", file=sys.stderr)
+                    return 2
+                if set(assessment.get("rationales", {})) != set(result.get("scores", {})):
+                    print(f"{test_id}/{condition}/{index}: rationale coverage must exactly match scored dimensions", file=sys.stderr)
+                    return 2
                 nested = [
                     ("trial_execution", execution),
                     ("assessor", assessor),
                     ("adversarial_review", adversarial),
+                    ("assessment", assessment),
                 ]
                 for field, value in nested:
                     nested_errors = list(Draft202012Validator(
@@ -317,7 +347,8 @@ def command_run(args) -> int:
                         "raw_response_sha256": sha256(output)
                     },
                     "assessor": result["assessor"],
-                    "adversarial_review": result["adversarial_review"]
+                    "adversarial_review": result["adversarial_review"],
+                    "assessment": result["assessment"]
                 }
                 problems = validate_record(record, schema)
                 if problems:
