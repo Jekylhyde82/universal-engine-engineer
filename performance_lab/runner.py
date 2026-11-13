@@ -232,6 +232,14 @@ def command_report(args) -> int:
         if problems:
             print(f"INVALID {path}: {'; '.join(problems)}", file=sys.stderr)
             return 1
+        if record["condition"] not in conditions_for_test(record["test_id"]):
+            expected = ", ".join(conditions_for_test(record["test_id"]))
+            print(
+                f"INVALID {path}: condition {record['condition']!r} is not valid for "
+                f"{record['test_id']}; expected one of: {expected}",
+                file=sys.stderr,
+            )
+            return 1
         records.append(record)
 
     rubric = load_json(RUBRIC)
@@ -250,10 +258,16 @@ def command_report(args) -> int:
         return True, "PASS"
 
     def assessed_dimensions(group: list[dict]) -> set[str]:
+        # A dimension counts as assessed only when every repetition has a
+        # valid numeric score. Partial scoring must not masquerade as full
+        # dimension coverage in a comparison.
         return {
             dimension for dimension in weights
-            if any(isinstance(r["scores"].get(dimension), int)
-                   and not isinstance(r["scores"].get(dimension), bool) for r in group)
+            if group and all(
+                isinstance(r["scores"].get(dimension), int)
+                and not isinstance(r["scores"].get(dimension), bool)
+                for r in group
+            )
         }
 
     def score_for(group: list[dict], dimensions: set[str]) -> tuple[float | None, int]:
