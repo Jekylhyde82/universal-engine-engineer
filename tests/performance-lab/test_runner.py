@@ -400,9 +400,7 @@ def test_pl005_matching_dimension_identity_sets_allow_comparison(tmp_path):
 
 
 def test_pl005_missing_arm_fails_closed(tmp_path):
-    records = tmp_pa
-
-th / "records"
+    records = tmp_path / "records"
     _write_pl005_records(records)
     (records / "PL-005-specialist_9-3.json").unlink()
     report = tmp_path / "report.md"
