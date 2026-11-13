@@ -178,8 +178,31 @@ def command_run(args) -> int:
                     return 2
             prepared[test_id][condition] = (config, selected)
 
+    revision = args.revision
+    if not getattr(args, "manifest_out", None):
+        args.manifest_out = str(Path(args.evidence_root) / "evidence-manifest.json")
+    if len(revision) != 40 or any(char not in "0123456789abcdef" for char in revision):
+        print("revision must be a 40-character lowercase Git commit SHA", file=sys.stderr)
+        return 2
+    evidence_root = Path(args.evidence_root)
+    evidence_root.mkdir(parents=True, exist_ok=True)
+    resolved_root = evidence_root.resolve(strict=True)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    try:
+        out.resolve(strict=True).relative_to(resolved_root)
+    except ValueError:
+        print("record output directory must be inside the evidence root", file=sys.stderr)
+        return 2
+    key_path = Path(args.private_key)
+    try:
+        if os.name == "posix" and stat.S_IMODE(key_path.stat().st_mode) & 0o077:
+            print("private key file permissions must exclude group and other access", file=sys.stderr)
+            return 2
+        private_key_pem = key_path.read_bytes()
+    except OSError as exc:
+        print(f"cannot read protected signing key: {exc}", file=sys.stderr)
+        return 2
     created = 0
     for test_id in TEST_IDS:
         case = cases[test_id]
@@ -210,7 +233,7 @@ def command_run(args) -> int:
                     "decision": result.get("decision", "not_scored"),
                     "reviewer": result.get("reviewer", ""),
                     "independent_review_reference": result.get("independent_review_reference", ""),
-                    "commit_sha": result.get("commit_sha", ""),
+                    "commit_sha": revision,
                     "notes": result.get("notes", "")
                 }
                 problems = validate_record(record, schema)
@@ -223,7 +246,32 @@ def command_run(args) -> int:
                     raise FileExistsError(target)
                 target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
                 created += 1
-    print(f"Captured {created} immutable run records in {out}. Outputs were supplied by the operator; no model was invoked.")
+    # Seal the complete capture batch before declaring the run successful.
+    try:
+        artifacts = [
+            {"path": path.resolve(strict=True).relative_to(resolved_root).as_posix(), "kind": "run_record"}
+            for path in sorted(out.glob("PL-*.json"))
+        ]
+        if len(artifacts) != created:
+            raise ValueError("capture batch record count changed before evidence sealing")
+        manifest = create_evidence_manifest(
+            evidence_root=resolved_root,
+            revision=revision,
+            signer_id=args.signer_id,
+            signer_role=args.signer_role,
+            artifacts=artifacts,
+            private_key_pem=private_key_pem,
+            created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        )
+        manifest_path = Path(args.manifest_out)
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = manifest_path.with_name(manifest_path.name + ".tmp")
+        temporary.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+        temporary.replace(manifest_path)
+    except (OSError, KeyError, TypeError, ValueError) as exc:
+        print(f"CAPTURE_UNSEALED: records were written but evidence sealing failed: {exc}", file=sys.stderr)
+        return 2
+    print(f"Captured and sealed {created} run records in {out}; manifest: {manifest_path}. Outputs were supplied by the operator; no model was invoked.")
     return 0
 
 
@@ -496,6 +544,12 @@ def main(argv=None) -> int:
     run.add_argument("--out", default="artifacts/performance-lab")
     run.add_argument("--operator", required=True)
     run.add_argument("--repetitions", type=int, default=3)
+    run.add_argument("--evidence-root", required=True, help="root directory for the sealed evidence batch")
+    run.add_argument("--revision", required=True, help="exact frozen 40-character candidate commit SHA")
+    run.add_argument("--signer-id", required=True)
+    run.add_argument("--signer-role", required=True, choices=["evidence-custodian", "independent-reviewer", "release-approver"])
+    run.add_argument("--private-key", required=True, help="protected Ed25519 private-key PEM; never commit this key")
+    run.add_argument("--manifest-out", help="manifest destination (defaults to evidence-root/evidence-manifest.json)")
     run.set_defaults(func=command_run)
     report = sub.add_parser("report", help="create a descriptive comparison report from validated records")
     report.add_argument("--records", default="artifacts/performance-lab")
