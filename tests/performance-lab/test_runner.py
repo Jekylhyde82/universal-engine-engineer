@@ -376,3 +376,60 @@ def test_cli_report_fails_closed_when_record_is_not_in_manifest(tmp_path, capsys
     ])
     assert result == 1
     assert "UNSEALED_RECORD:" in capsys.readouterr().err
+
+
+def test_cli_run_automatically_seals_capture_batch_and_report_accepts_it(tmp_path):
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from performance_lab.runner import main
+
+    revision = "c" * 40
+    payload = {}
+    for test_id in TEST_IDS:
+        payload[test_id] = {}
+        for condition in conditions_for_test(test_id):
+            payload[test_id][condition + "_configuration"] = {"model": "operator-supplied-fixture"}
+            payload[test_id][condition] = [
+                {"output": f"{test_id}/{condition}/repetition-{rep}"}
+                for rep in (1, 2, 3)
+            ]
+    responses = tmp_path / "responses.json"
+    responses.write_text(json.dumps(payload), encoding="utf-8")
+
+    private = Ed25519PrivateKey.generate()
+    private_pem = private.private_bytes(
+        serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    )
+    public_pem = private.public_key().public_bytes(
+        serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    private_path = tmp_path / "private.pem"
+    private_path.write_bytes(private_pem)
+    private_path.chmod(0o600)
+    public_path = tmp_path / "public.pem"
+    public_path.write_bytes(public_pem)
+
+    evidence_root = tmp_path / "evidence"
+    records = evidence_root / "records"
+    manifest = evidence_root / "evidence-manifest.json"
+    assert main([
+        "run", "--responses", str(responses), "--out", str(records),
+        "--operator", "test-operator", "--repetitions", "3",
+        "--evidence-root", str(evidence_root), "--revision", revision,
+        "--signer-id", "custodian-01", "--signer-role", "evidence-custodian",
+        "--private-key", str(private_path),
+    ]) == 0
+    assert len(list(records.glob("PL-*.json"))) == 57
+    manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+    assert manifest_data["revision"] == revision
+    assert len(manifest_data["artifacts"]) == 57
+    assert all(item["kind"] == "run_record" for item in manifest_data["artifacts"])
+
+    assert main([
+        "report", "--records", str(records), "--out", str(tmp_path / "report.md"),
+        "--evidence-root", str(evidence_root), "--manifest", str(manifest),
+        "--revision", revision, "--public-key", str(public_path),
+        "--expected-signer-id", "custodian-01",
+        "--expected-signer-role", "evidence-custodian",
+    ]) == 0
