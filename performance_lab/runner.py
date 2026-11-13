@@ -224,6 +224,34 @@ def command_run(args) -> int:
                 if assessor.get("assessor_id") == adversarial.get("reviewer_id"):
                     print(f"{test_id}/{condition}/{index}: scorer and adversarial reviewer must be distinct", file=sys.stderr)
                     return 2
+                nested = [
+                    ("trial_execution", execution),
+                    ("assessor", assessor),
+                    ("adversarial_review", adversarial),
+                ]
+                for field, value in nested:
+                    nested_errors = list(Draft202012Validator(
+                        schema["properties"][field], format_checker=FormatChecker()
+                    ).iter_errors(value))
+                    if nested_errors:
+                        print(
+                            f"{test_id}/{condition}/{index}: invalid {field} metadata: "
+                            + "; ".join(error.message for error in nested_errors),
+                            file=sys.stderr,
+                        )
+                        return 2
+                if execution.get("canonical_prompt_sha256") != sha256(cases[test_id]["input"]):
+                    print(f"{test_id}/{condition}/{index}: canonical prompt hash mismatch", file=sys.stderr)
+                    return 2
+                if execution.get("raw_response_sha256") != sha256(output):
+                    print(f"{test_id}/{condition}/{index}: raw response hash mismatch", file=sys.stderr)
+                    return 2
+                if condition == "baseline" and execution.get("architecture_instruction_sha256") not in (None, ""):
+                    print(f"{test_id}/{condition}/{index}: baseline must not include architecture instruction hash", file=sys.stderr)
+                    return 2
+                if condition != "baseline" and not execution.get("architecture_instruction_sha256"):
+                    print(f"{test_id}/{condition}/{index}: non-baseline requires architecture instruction hash", file=sys.stderr)
+                    return 2
             prepared[test_id][condition] = (config, selected)
 
     revision = args.revision
