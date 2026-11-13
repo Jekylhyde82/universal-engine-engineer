@@ -622,6 +622,63 @@ def command_report(args) -> int:
             dimension_label = ", ".join(sorted(dimensions)) or "NOT_ASSESSED"
             lines.append(f"| {test_id} | {condition} | {len(group)} | {rep_status} | {evidence_status} | {dimension_label} | {coverage} | {score} | {worst} | {gate_failures} | {gate_unassessed} | {decisions} |")
 
+    lines += ["", "## Paired baseline vs experimental comparisons", "",
+              "| Test | Pair status | Dimension | Mean paired delta (experimental − baseline) | Per-repetition deltas |",
+              "|---|---|---|---:|---|"]
+    evaluator_fields = ("evaluator_id", "provider", "model", "version", "instruction_sha256", "calibration_reference", "calibration_sha256")
+    for test_id in TEST_IDS[:4]:
+        baseline = group_for(test_id, "baseline")
+        experimental = group_for(test_id, "experimental")
+        base_ok, base_status = repetition_status(baseline)
+        exp_ok, exp_status = repetition_status(experimental)
+        reason = None
+        if not base_ok or not exp_ok:
+            reason = f"repetition gate: baseline={base_status}; experimental={exp_status}"
+        elif not evidence_gate_status(baseline) or not evidence_gate_status(experimental):
+            reason = "evidence/hard-gate review requirements not explicitly PASS"
+        else:
+            paired_records = baseline + experimental
+            scorer_configs = {
+                tuple(r["assessment"]["scorer"][field] for field in evaluator_fields)
+                for r in paired_records
+            }
+            adversarial_configs = {
+                tuple(r["assessment"]["adversarial_reviewer"][field] for field in evaluator_fields)
+                for r in paired_records
+            }
+            model_labels = {r["trial_execution"]["model_label"] for r in paired_records}
+            base_reps = {r["repetition"] for r in baseline}
+            exp_reps = {r["repetition"] for r in experimental}
+            if base_reps != exp_reps:
+                reason = "baseline and experimental repetition IDs do not match"
+            elif len(scorer_configs) != 1 or len(adversarial_configs) != 1:
+                reason = "scorer/adversarial evaluator configuration drift across paired conditions"
+            elif len(model_labels) != 1:
+                reason = "subject model label differs between paired conditions"
+            elif assessed_dimensions(baseline) != assessed_dimensions(experimental):
+                reason = "assessed rubric dimensions differ between paired conditions"
+            elif not assessed_dimensions(baseline):
+                reason = "no common numeric dimensions assessed"
+        if reason:
+            lines.append(f"| {test_id} | NOT_COMPARABLE | — | — | {reason} |")
+            continue
+        dimensions = assessed_dimensions(baseline)
+        for dimension in sorted(dimensions):
+            deltas = [
+                experimental_by_rep["scores"][dimension] - baseline_by_rep["scores"][dimension]
+                for baseline_by_rep, experimental_by_rep in (
+                    (
+                        next(r for r in baseline if r["repetition"] == repetition),
+                        next(r for r in experimental if r["repetition"] == repetition),
+                    )
+                    for repetition in sorted(base_reps)
+                )
+            ]
+            lines.append(
+                f"| {test_id} | PASS | {dimension} | {statistics.mean(deltas):+.2f} | "
+                + ", ".join(f"{delta:+d}" for delta in deltas) + " |"
+            )
+
     lines += ["", "## PL-005 fusion comparison", ""]
     comparator_names = ["baseline", *SPECIALIST_ARMS]
     comparator_groups = {name: group_for("PL-005", name) for name in comparator_names}
