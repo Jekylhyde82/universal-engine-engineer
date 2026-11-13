@@ -49,7 +49,7 @@ def _load_public_key(value: str | bytes) -> Ed25519PublicKey:
 
 def _safe_artifact(root: Path, relative_path: str) -> Path:
     candidate = PurePosixPath(relative_path)
-    if candidate.is_absolute() or not relative_path or ".." in candidate.parts:
+    if candidate.is_absolute() or not relative_path or "\\\\" in relative_path or ".." in candidate.parts:
         raise ValueError(f"Artifact path must be relative and traversal-free: {relative_path!r}")
     resolved_root = root.resolve(strict=True)
     resolved = (resolved_root / Path(*candidate.parts)).resolve(strict=True)
