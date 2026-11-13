@@ -107,10 +107,26 @@ Therefore, the Python report repair is verified, but full GENESIS evidence-proto
 
 ## Current disposition — 2026-11-13
 
-- Python reporting repetition and dimension-identity defects: remediated and regression-tested.
-- Exact Python PR-head CI: passed on `ae5589d6f6ea51cb69c359307867805ed462edcc`.
+- Python reporting repetition, dimension-identity, partial-dimension, and invalid test/condition defects: remediated and regression-tested.
+- Exact latest code/test CI: passed on `155725c5f30c964ddde321ede870f33480224a56` (run 43409092478).
 - Python capture/report harness: verified by automated checks only.
 - GENESIS evidence-protocol parity: partial; explicit gap register recorded above.
 - Authentic model trials, independent scoring, calibration, third-party review, measured improvement/synergy, and operational approval: not established.
 
 The Python PR remains draft and unmerged. No merge, deployment, benchmark-quality, synergy, or operational-readiness claim is authorized by this CI result.
+
+
+### A-09 — Partial dimension coverage and invalid test/condition combinations
+
+**Disposition: Remediated in the report generator; regression-tested.**
+
+A further review found two ways malformed records could weaken report interpretation:
+- A rubric dimension could be scored in only some repetitions yet still be counted as assessed for the whole condition.
+- A schema-valid condition could be attached to a test for which that condition is not part of the protocol, then be silently omitted from the report's expected condition groups.
+
+The report now counts a dimension as assessed only when every record in that condition has a valid integer score for it (booleans are excluded). It also rejects test/condition combinations that do not belong to the test protocol rather than silently ignoring them. Regression tests cover partial dimension coverage and invalid condition/test pairings.
+
+**Exact verification evidence:** GitHub Actions run 43409092478 passed on code-and-test commit `155725c5f30c964ddde321ede870f33480224a56`: https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/43409092478. Dependency installation, asset/record validation, and `pytest -q` all passed.
+
+The previous failed test run 43408980584 was investigated. The implementation behavior was correct; the test asserted an internal diagnostic string instead of the report's stable tabular output. The test was corrected to assert the actual fused-condition dimension and coverage row. The final exact code/test revision then passed.
+
