@@ -176,3 +176,25 @@ performance-lab report \
 ```
 
 The report gate establishes signed artifact integrity and candidate-revision binding. It does not independently prove real-world signer identity, trial isolation, evaluator independence, or benchmark quality. Capture-time automatic sealing, enforced trial-context metadata, blind assessor separation, and independent identity-to-key verification remain outstanding.
+
+
+## 14. Automatic capture-batch sealing
+
+The public `performance-lab run` command now requires a frozen candidate revision, an evidence root, signer ID/role, and a protected Ed25519 private key. After preflighting and writing the supplied batch, it automatically creates a signed manifest covering every generated run-record file. Each record is stamped with the same candidate revision. On POSIX systems, group/other-readable private-key files are rejected.
+
+Example:
+
+```bash
+performance-lab run \
+  --responses responses.json \
+  --out artifacts/performance-lab/records \
+  --operator <OPERATOR_ID> \
+  --repetitions 3 \
+  --evidence-root artifacts/performance-lab \
+  --revision <FROZEN_40_CHARACTER_COMMIT_SHA> \
+  --signer-id <TRUSTED_SIGNER_ID> \
+  --signer-role evidence-custodian \
+  --private-key /secure/keys/performance-lab-ed25519-private.pem
+```
+
+The generated manifest defaults to `<evidence-root>/evidence-manifest.json`. The capture runner records operator-supplied outputs; it does not invoke a model or independently establish capture authenticity. Preserve any separate raw capture artifacts and include them in the evidence package. A valid signature proves possession of the signing key, not the real-world identity of its holder.
