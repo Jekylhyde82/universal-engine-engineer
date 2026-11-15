@@ -2,7 +2,7 @@
   "register_id": "UCA-REG-001",
   "title": "Universal Capability Acquisition Register",
   "architecture": "U.N.I.V.E.R.S.A.L. E.N.G.I.N.E. / E.N.G.I.N.E.E.R.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "record_status": "RESEARCH_BASELINE_NOT_APPROVED",
   "research_date": "2026-11-06",
   "purpose": "Track discoverable open-source and source-available projects that may provide reusable capabilities. This register is a candidate backlog, not an integration approval, security clearance, licence opinion, or proof that any capability works in our environment.",
@@ -883,5 +883,80 @@
     "Reported licences are research leads, not legal clearance; verify exact pinned revisions and all included components.",
     "No upstream test suites were executed as part of this register creation.",
     "Priority labels represent proposed evaluation order, not approval."
-  ]
+  ],
+  "intrinsic_capabilities": [
+    {
+      "id": "CAP-UPSTREAM-001",
+      "name": "Continuous Upstream-Change Intelligence & Audit",
+      "category": "upstream_change_monitoring_and_dependency_governance",
+      "purpose": "Detect and assess upstream improvements, security advisories, breaking changes, deprecations, API/schema/protocol changes, CI changes and support lifecycle changes that may affect declared dependencies or planned technology choices.",
+      "status": "SPECIFIED_NOT_VERIFIED",
+      "cadence_target": "weekly",
+      "execution": "Scheduled through the existing weekly capability-discovery automation; not a repository-native CI workflow.",
+      "scope": {
+        "repository": "https://github.com/Jekylhyde82/universal-engine-engineer",
+        "inspect_default_branch_and_relevant_open_pull_request_branches": true,
+        "inspect_manifests_lockfiles_transitive_dependencies_ci_workflows_build_images_source_references_and_api_contracts": true,
+        "planned_only_watchlist": [
+          "LangGraph",
+          "llama.cpp",
+          "LlamaIndex",
+          "Qdrant",
+          "Promptfoo",
+          "DeepEval",
+          "OpenHands",
+          "SWE-agent",
+          "Goose"
+        ]
+      },
+      "outputs": [
+        "dated repository and branch/PR inventory",
+        "actual dependency inventory with exact versions and dependency paths",
+        "upstream improvements and release changes",
+        "security advisories, breaking changes, deprecations and support/licence changes",
+        "API/schema/protocol and CI compatibility impact",
+        "risk-ranked recommendations with authoritative evidence links",
+        "baseline comparison and explicit evidence gaps"
+      ],
+      "governance": {
+        "read_only": true,
+        "auto_upgrade": false,
+        "auto_install": false,
+        "auto_merge": false,
+        "auto_approve": false,
+        "production_mutation": false,
+        "approval_gates_required_for_adoption": true
+      },
+      "maturity": {
+        "declared": true,
+        "implemented": false,
+        "tested": false,
+        "independently_verified": false
+      },
+      "acceptance_criteria": [
+        "Inventory actual dependencies from repository manifests and lockfiles rather than architecture notes.",
+        "Inspect relevant open pull-request branches as well as the default branch.",
+        "Verify findings against authoritative upstream release, advisory, deprecation and support sources.",
+        "Detect beneficial improvements and breaking/security changes.",
+        "Distinguish installed dependencies from planned-only watchlist entries.",
+        "Compare each run with a dated prior baseline.",
+        "Report NO_CHANGE_FOUND separately from UNABLE_TO_VERIFY.",
+        "Produce repeatable reports without modifying dependencies or production state.",
+        "Pass independent review of audit scope, evidence and output integrity."
+      ],
+      "known_gaps": [
+        "Current default branch main exposes only README.md; active pull-request branches contain additional capability and engineering artefacts.",
+        "Actual dependency inventory must be assembled from the relevant working branches and manifests; no claim of installed status is made for the planned watchlist.",
+        "Weekly ChatGPT automation is configured, but the recurring audit has not yet completed its first run."
+      ],
+      "cross_references": [
+        "R05",
+        "R06",
+        "R07",
+        "R08",
+        "R09"
+      ]
+    }
+  ],
+  "updated_at": "2026-11-15"
 }
