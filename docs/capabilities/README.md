@@ -92,3 +92,14 @@ Approval is not implementation. Implementation is not testing. Testing is not in
 ## Design invariant
 
 **Build for capability today. Design for possibilities tomorrow. Engineer for evolution indefinitely.**
+
+
+## Intrinsic upstream-change audit
+
+The capability register now includes **CAP-UPSTREAM-001 — Continuous Upstream-Change Intelligence & Audit**. Its purpose is to detect both beneficial upstream improvements and breaking/security/deprecation changes, using authoritative sources and an auditable baseline.
+
+The audit runs as part of the existing weekly capability-discovery automation. It is read-only: it does not install, upgrade, merge, approve or change production dependencies. It inspects the default branch and relevant open pull-request branches, and distinguishes actual dependencies from planned technology candidates.
+
+Specification: [upstream-change-audit-spec.md](./upstream-change-audit-spec.md)
+
+The capability remains **SPECIFIED — NOT VERIFIED** until recurring reports, evidence capture, baseline comparison and independent acceptance tests are demonstrated.
