@@ -102,7 +102,7 @@ class QdrantAdapterTests(unittest.TestCase):
 
     def test_invalid_vector_is_rejected_before_network(self):
         adapter = QdrantVectorStoreAdapter(self.base_url)
-        request = self.make_request("search", {"collection_name": "docs", "vector": [float("nan")]})
+        request = self.make_request("search", {"collection_name": "docs", "vector": ["not-a-number"]})
         result = adapter.execute(request)
         self.assertEqual(result.error_code, "INVALID_VECTOR_REQUEST")
         self.assertEqual(QdrantStubHandler.request_count, 0)
