@@ -14,12 +14,12 @@ class ProviderKind(StrEnum):
     CODING_AGENT = "coding_agent"
 
 _REQUIRED_METHODS = {
-    ProviderKind.WORKFLOW: ("run", "resume"),
-    ProviderKind.INFERENCE: ("generate",),
-    ProviderKind.KNOWLEDGE: ("ingest", "retrieve"),
-    ProviderKind.VECTOR_STORE: ("upsert", "search"),
-    ProviderKind.EVALUATION: ("evaluate",),
-    ProviderKind.CODING_AGENT: ("propose_patch",),
+    ProviderKind.WORKFLOW: ("execute", "run", "resume"),
+    ProviderKind.INFERENCE: ("execute", "generate"),
+    ProviderKind.KNOWLEDGE: ("execute", "ingest", "retrieve"),
+    ProviderKind.VECTOR_STORE: ("execute", "upsert", "search"),
+    ProviderKind.EVALUATION: ("execute", "evaluate"),
+    ProviderKind.CODING_AGENT: ("execute", "propose_patch"),
 }
 
 @dataclass(frozen=True, slots=True)

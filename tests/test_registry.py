@@ -4,10 +4,14 @@ from universal_engine.lifecycle import CapabilityLifecycle, LifecycleState
 from universal_engine.providers.registry import ProviderKind, ProviderRegistry
 
 class MinimalInference:
+    def execute(self, request):
+        return None
     def generate(self, request):
         return None
 
 class MinimalWorkflow:
+    def execute(self, request):
+        return None
     def run(self, request):
         return None
     def resume(self, checkpoint_id, request):

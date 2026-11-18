@@ -38,6 +38,12 @@ class DispatchTests(unittest.TestCase):
         result = dispatch(provider, request)
         self.assertEqual(provider.calls, 0)
         self.assertEqual(result.status, ResultStatus.TIMED_OUT)
+    def test_rejects_non_contract_result(self):
+        request = make_request()
+        provider = RecordingProvider(result=None)
+        provider.execute = lambda request: None
+        with self.assertRaises(ContractViolation):
+            dispatch(provider, request)
     def test_rejects_mismatched_correlation(self):
         request = make_request()
         provider = RecordingProvider(ProviderResult(str(uuid4()), ResultStatus.SUCCEEDED))

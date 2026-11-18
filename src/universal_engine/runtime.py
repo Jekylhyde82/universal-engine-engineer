@@ -28,6 +28,8 @@ def dispatch(provider: ExecutableProvider, request: ProviderRequest) -> Provider
             error_code="DEADLINE_EXPIRED",
         )
     result = provider.execute(request)
+    if not isinstance(result, ProviderResult):
+        raise ContractViolation("provider must return a ProviderResult")
     if result.correlation_id != request.correlation_id:
         raise ContractViolation("provider result correlation_id does not match request")
     return result
