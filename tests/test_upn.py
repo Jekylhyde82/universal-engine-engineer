@@ -85,7 +85,7 @@ class UPNContractTests(unittest.TestCase):
                      "169.254.0.0/16", "224.0.0.0/4", "2001:4860::/32"):
             with self.subTest(cidr=cidr):
                 with self.assertRaises(ContractViolation):
-                    NetworkPeer("peer.home", FINGERPRINT, (cidr,))
+                    NetworkPeer("peer.home", "upn.home", FINGERPRINT, (cidr,))
 
     def test_peer_requires_sha256_fingerprint(self):
         with self.assertRaises(ContractViolation):
