@@ -60,7 +60,7 @@ def _classify(source: str, media_type: str, text: str | None) -> str:
         return "binary_or_unparsed"
     if suffix in {".py", ".js", ".ts", ".tsx", ".jsx", ".sh", ".ps1", ".sql"}:
         return "source_code"
-    if suffix in {".json", ".yaml", ".yml", ".toml", ".ini", ".cfg", ".xml"}:
+    if "json" in media_type or suffix in {".json", ".yaml", ".yml", ".toml", ".ini", ".cfg", ".xml"}:
         return "structured_data"
     if suffix in {".md", ".rst"}:
         return "documentation"
