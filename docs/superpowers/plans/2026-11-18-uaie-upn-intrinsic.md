@@ -35,23 +35,28 @@
 
 **Files:**
 - Create: `tests/test_upn.py`
+- Create: `tests/test_upn_provider.py`
 - Create: `src/universal_engine/upn.py`
 - Modify: `src/universal_engine/__init__.py`
+- Modify: `src/universal_engine/providers/registry.py`
+- Modify: `src/universal_engine/providers/interfaces.py`
+- Create: `tests/test_upn_provider.py`
 
 **Interfaces:**
 - `NetworkMode`: `EXISTING_PRIVATE`, `OWNED_PRIVATE`.
 - `TransportKind`: `WIREGUARD`, `HTTPS_API`, `LOCAL_ONLY`.
 - `NetworkProfile(profile_id, name, mode, transport, endpoint=None, enabled=False)`.
-- `NetworkPeer(peer_id, public_key_fingerprint, allowed_cidrs)`.
+- `NetworkPeer(peer_id, profile_id, public_key_fingerprint, allowed_cidrs)`.
 - `NetworkPolicy(policy_id, allowed_profile_ids, trusted_peer_fingerprints, allowed_cidrs, allow_inbound_peers=False, allow_internet_egress=False)`.
 - `NetworkDecision(allowed, reason, policy_id)`.
-- `UPNRegistry.register(profile, lifecycle)`, `get(profile_id)`, `list()`.
+- `UPNRegistry.register(profile, lifecycle)`, `get(profile_id)`, `list()`; `get` and `list` re-check lifecycle state so retirement revokes availability.
+- `ProviderKind.NETWORK` requires `execute`, `connect`, `disconnect` and `status`; `NetworkProvider` defines that structural contract.
 - `UPNPolicyEngine.evaluate(profile, peer, policy, operation="connect")`.
 
-- [ ] **Step 1: Write failing tests** for valid existing/owned profiles, HTTPS and WireGuard endpoint validation, no credentials/query/fragment, private route validation, default-route rejection, disabled profile denial, untrusted peer denial, route-scope denial, inbound denial and lifecycle-gated registration.
+- [ ] **Step 1: Write failing tests** for valid existing/owned profiles, HTTPS and WireGuard endpoint validation, no credentials/query/fragment, private route validation, default-route rejection, disabled profile denial, untrusted and cross-profile peer denial, route-scope denial, inbound denial, lifecycle-gated registration/retirement and network-provider registration.
 - [ ] **Step 2: Run the focused test file** and confirm the expected import/behavior failures.
-- [ ] **Step 3: Implement minimal immutable contracts, validation, registry and policy evaluation** in `src/universal_engine/upn.py`.
-- [ ] **Step 4: Export the public UPN types** from `src/universal_engine/__init__.py`.
+- [ ] **Step 3: Implement minimal immutable contracts, validation, registry and policy evaluation** in `src/universal_engine/upn.py`; bind each peer to one profile and re-check lifecycle state on lookup.
+- [ ] **Step 4: Add `ProviderKind.NETWORK` and its required methods to the provider registry, define `NetworkProvider`, and export the public UPN types** from the package.
 - [ ] **Step 5: Run focused and full Python test suites**; require all tests green.
 - [ ] **Step 6: Commit** as `feat: add governed UPN control-plane contracts`.
 
