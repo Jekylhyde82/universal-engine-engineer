@@ -106,13 +106,14 @@ class MainActivity : Activity() {
 
                 val hash = ContentHash.toHex(digest.digest())
                 val storedName = hash + ".blob"
-                destination = File(filesDir, storedName)
+                val finalFile = File(filesDir, storedName)
+                destination = finalFile
                 val inserted = synchronized(db) {
                     if (db.containsHash(hash)) {
                         false
                     } else {
                         IntakePolicy.checkQuota(db.totalBytes(), total)
-                        check(temp.renameTo(destination)) { "Could not atomically store the imported file." }
+                        check(temp.renameTo(finalFile)) { "Could not atomically store the imported file." }
                         db.insert(name, mime, total, hash, storedName, uri.toString())
                         true
                     }
