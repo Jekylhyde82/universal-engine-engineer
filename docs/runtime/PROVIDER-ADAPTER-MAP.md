@@ -17,13 +17,13 @@ The six-provider integration architecture and its nine-provider extension are bo
 ## Selection and implementation rules
 
 - The registry is an explicit allowlist. It performs no dynamic imports or auto-discovery.
-- An adapter can be registered only after its capability lifecycle reaches INTEGRATED.
-- Provider IDs are unique within one registry instance.
-- Required methods are checked at registration time.
+- Registration consults the in-memory capability lifecycle ledger and accepts only capabilities that reached INTEGRATED through permitted transitions.
+- Provider IDs are unique within one registry instance; required methods are checked at registration time.
+- The lifecycle ledger and registry are process-local development controls, not a distributed authorization service or tamper-proof audit log.
 - Promptfoo and DeepEval remain complementary evaluation tools.
 - OpenHands, SWE-agent and Goose overlap. Benchmark all candidates and mini-SWE-agent before selecting one initial executor.
 - Do not run the Qdrant service or coding-agent executors on the user's 4 GB Android handset by default; treat the handset as a control terminal unless measured benchmarks prove otherwise.
 
 ## Runtime status
 
-The provider-neutral interfaces and registry are implemented as local Python code. No third-party adapter, network integration, model, vector database or coding-agent executor is implemented by this map.
+Provider-neutral interfaces, a local lifecycle ledger, and an explicit registry are implemented. No third-party adapter, network integration, model, vector database or coding-agent executor is implemented by this map.

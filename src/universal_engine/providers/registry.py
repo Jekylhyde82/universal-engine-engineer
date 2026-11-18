@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 from ..contracts import ContractViolation
-from ..lifecycle import LifecycleState
+from ..lifecycle import CapabilityLifecycle, LifecycleState
 
 class ProviderKind(StrEnum):
     WORKFLOW = "workflow"
@@ -25,25 +25,28 @@ _REQUIRED_METHODS = {
 @dataclass(frozen=True, slots=True)
 class ProviderRegistration:
     provider_id: str
+    capability_id: str
     kind: ProviderKind
     adapter: Any
 
 class ProviderRegistry:
-    """In-memory registry; adapters are registered explicitly, never auto-loaded."""
+    """In-memory allowlist; adapters are registered explicitly, never auto-loaded."""
     def __init__(self) -> None:
         self._providers: dict[str, ProviderRegistration] = {}
 
-    def register(self, provider_id: str, kind: ProviderKind, adapter: Any, lifecycle_state: LifecycleState) -> ProviderRegistration:
-        if lifecycle_state is not LifecycleState.INTEGRATED:
-            raise ContractViolation("only lifecycle-integrated providers may be registered")
+    def register(self, provider_id: str, capability_id: str, kind: ProviderKind, adapter: Any, lifecycle: CapabilityLifecycle) -> ProviderRegistration:
+        if not isinstance(kind, ProviderKind):
+            raise ContractViolation("kind must be a ProviderKind")
         if not provider_id or not provider_id.strip():
             raise ContractViolation("provider_id is required")
         if provider_id in self._providers:
             raise ContractViolation(f"provider already registered: {provider_id}")
+        if lifecycle.state_of(capability_id) is not LifecycleState.INTEGRATED:
+            raise ContractViolation("only lifecycle-integrated capabilities may be registered")
         missing = [name for name in _REQUIRED_METHODS[kind] if not callable(getattr(adapter, name, None))]
         if missing:
             raise ContractViolation(f"provider {provider_id} is missing required methods: {', '.join(missing)}")
-        registration = ProviderRegistration(provider_id, kind, adapter)
+        registration = ProviderRegistration(provider_id, capability_id, kind, adapter)
         self._providers[provider_id] = registration
         return registration
 
