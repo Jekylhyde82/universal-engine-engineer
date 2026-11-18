@@ -1,0 +1,34 @@
+"""Provider-neutral structural interfaces for the approved integration domains."""
+from typing import Protocol
+from ..contracts import ProviderRequest, ProviderResult
+
+class ProviderAdapter(Protocol):
+    """Common execution entry point used by the runtime dispatch boundary."""
+    def execute(self, request: ProviderRequest) -> ProviderResult: ...
+
+class WorkflowProvider(ProviderAdapter, Protocol):
+    """Coordinates stateful workflows; it is not the global policy authority."""
+    def run(self, request: ProviderRequest) -> ProviderResult: ...
+    def resume(self, checkpoint_id: str, request: ProviderRequest) -> ProviderResult: ...
+
+class InferenceProvider(ProviderAdapter, Protocol):
+    """Produces model inference results behind a provider-neutral boundary."""
+    def generate(self, request: ProviderRequest) -> ProviderResult: ...
+
+class KnowledgeProvider(ProviderAdapter, Protocol):
+    """Ingests and retrieves knowledge/document context."""
+    def ingest(self, request: ProviderRequest) -> ProviderResult: ...
+    def retrieve(self, request: ProviderRequest) -> ProviderResult: ...
+
+class VectorStoreProvider(ProviderAdapter, Protocol):
+    """Persists and searches vector representations."""
+    def upsert(self, request: ProviderRequest) -> ProviderResult: ...
+    def search(self, request: ProviderRequest) -> ProviderResult: ...
+
+class EvaluationProvider(ProviderAdapter, Protocol):
+    """Evaluates prompts, models, agents, and retrieval outputs."""
+    def evaluate(self, request: ProviderRequest) -> ProviderResult: ...
+
+class CodingAgentProvider(ProviderAdapter, Protocol):
+    """Produces isolated patch proposals; it does not imply merge authority."""
+    def propose_patch(self, request: ProviderRequest) -> ProviderResult: ...
