@@ -89,7 +89,7 @@ class UPNContractTests(unittest.TestCase):
 
     def test_peer_requires_sha256_fingerprint(self):
         with self.assertRaises(ContractViolation):
-            NetworkPeer("peer.home", "not-a-fingerprint", ("10.20.0.0/24",))
+            NetworkPeer("peer.home", "upn.home", "not-a-fingerprint", ("10.20.0.0/24",))
 
     def test_policy_rejects_internet_egress_in_v01(self):
         with self.assertRaises(ContractViolation):
@@ -105,7 +105,7 @@ class UPNPolicyTests(unittest.TestCase):
             "upn.home", "Home mesh", NetworkMode.OWNED_PRIVATE,
             TransportKind.WIREGUARD, "udp://vpn.example.net:51820", enabled=True,
         )
-        self.peer = NetworkPeer("peer.phone", FINGERPRINT, ("10.20.0.0/24",))
+        self.peer = NetworkPeer("peer.phone", "upn.home", FINGERPRINT, ("10.20.0.0/24",))
         self.policy = NetworkPolicy(
             "policy.home", ("upn.home",), (FINGERPRINT,), ("10.20.0.0/16",),
         )
@@ -131,12 +131,17 @@ class UPNPolicyTests(unittest.TestCase):
         )
         self.assertFalse(UPNPolicyEngine().evaluate(self.profile, self.peer, policy).allowed)
 
+
+    def test_denies_peer_bound_to_a_different_profile(self):
+        peer = NetworkPeer("peer.phone", "upn.other", FINGERPRINT, ("10.20.0.0/24",))
+        self.assertFalse(UPNPolicyEngine().evaluate(self.profile, peer, self.policy).allowed)
+
     def test_denies_untrusted_peer(self):
-        peer = NetworkPeer("peer.unknown", OTHER_FINGERPRINT, ("10.20.0.0/24",))
+        peer = NetworkPeer("peer.unknown", "upn.home", OTHER_FINGERPRINT, ("10.20.0.0/24",))
         self.assertFalse(UPNPolicyEngine().evaluate(self.profile, peer, self.policy).allowed)
 
     def test_denies_route_outside_policy_scope(self):
-        peer = NetworkPeer("peer.outside", FINGERPRINT, ("10.30.0.0/24",))
+        peer = NetworkPeer("peer.outside", "upn.home", FINGERPRINT, ("10.30.0.0/24",))
         self.assertFalse(UPNPolicyEngine().evaluate(self.profile, peer, self.policy).allowed)
 
     def test_denies_inbound_peer_by_default(self):
@@ -174,6 +179,24 @@ class UPNRegistryTests(unittest.TestCase):
         self.assertEqual(registered, profile)
         self.assertEqual(registry.get(profile.profile_id), profile)
         self.assertEqual(registry.list(), (profile,))
+
+
+    def test_retired_profile_is_no_longer_available(self):
+        profile = NetworkProfile(
+            "upn.home", "Home mesh", NetworkMode.OWNED_PRIVATE,
+            TransportKind.WIREGUARD, "udp://vpn.example.net:51820",
+        )
+        lifecycle = CapabilityLifecycle()
+        lifecycle.discover(profile.profile_id)
+        lifecycle.advance(profile.profile_id, LifecycleState.PROPOSED)
+        lifecycle.advance(profile.profile_id, LifecycleState.UNDER_EVALUATION)
+        lifecycle.advance(profile.profile_id, LifecycleState.APPROVED)
+        lifecycle.advance(profile.profile_id, LifecycleState.INTEGRATED)
+        registry = UPNRegistry()
+        registry.register(profile, lifecycle)
+        lifecycle.advance(profile.profile_id, LifecycleState.RETIRED)
+        with self.assertRaises(ContractViolation):
+            registry.get(profile.profile_id)
 
     def test_duplicate_profile_registration_is_rejected(self):
         profile = NetworkProfile(
