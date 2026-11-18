@@ -1,7 +1,7 @@
 name: Python Core
 on:
   push:
-    branches: ["main", "runtime/**"]
+    branches: ["main", "runtime/**", "uaie/**"]
   pull_request:
     branches: ["main"]
 permissions:
