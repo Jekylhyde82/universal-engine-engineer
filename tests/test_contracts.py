@@ -29,6 +29,16 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(ContractViolation): make_request(payload=["not", "an", "object"])
     def test_rejects_non_finite_json(self):
         with self.assertRaises(ContractViolation): make_request(payload={"bad": float("nan")})
+    def test_rejects_non_string_json_keys(self):
+        with self.assertRaises(ContractViolation): make_request(payload={1: "bad"})
+    def test_rejects_non_string_capability_id(self):
+        with self.assertRaises(ContractViolation): make_request(capability_id=42)
+    def test_rejects_invalid_policy_type(self):
+        with self.assertRaises(ContractViolation): make_request(policy={"allowed": True})
+    def test_denied_result_requires_error_code(self):
+        with self.assertRaises(ContractViolation): ProviderResult(str(uuid4()), ResultStatus.DENIED)
+    def test_success_result_rejects_error_code(self):
+        with self.assertRaises(ContractViolation): ProviderResult(str(uuid4()), ResultStatus.SUCCEEDED, error_code="NOPE")
     def test_mock_provider_success(self):
         result = MockProvider().execute(make_request())
         self.assertEqual(result.status, ResultStatus.SUCCEEDED)
