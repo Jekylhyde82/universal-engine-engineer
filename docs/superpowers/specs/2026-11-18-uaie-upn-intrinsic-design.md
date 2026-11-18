@@ -20,6 +20,7 @@ This specification defines the first executable UPN control-plane slice alongsid
 - Provide dependency-free, typed contracts for network profiles, peers, route scopes, policy decisions and lifecycle-gated registration.
 - Fail closed: no profile is usable unless enabled, explicitly allowlisted, lifecycle-integrated and its peer identity and routes are trusted.
 - Require encrypted transports for network connections; reject credential-bearing or unsafe endpoints.
+- Bind every peer to one network profile and re-check lifecycle state at registry lookup so retirement revokes availability.
 - Keep acquisition, discovery and network configuration separate from execution, connection and integration approval.
 - Keep the Android client offline-first and least-privilege; future sync/network permission is a separate reviewed change.
 
