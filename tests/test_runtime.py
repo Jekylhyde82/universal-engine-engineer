@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+import time
 from universal_engine.contracts import ContractViolation, PolicyDecision, ProviderRequest, ProviderResult, ResultStatus
 from universal_engine.runtime import dispatch
 
@@ -32,8 +33,8 @@ class DispatchTests(unittest.TestCase):
         self.assertEqual(result.status, ResultStatus.DENIED)
     def test_expired_deadline_never_reaches_provider(self):
         provider = RecordingProvider()
-        request = make_request(deadline=datetime.now(timezone.utc)-timedelta(seconds=1))
-        object.__setattr__(request, "deadline", datetime.now(timezone.utc)-timedelta(seconds=1))
+        request = make_request(deadline=datetime.now(timezone.utc)+timedelta(milliseconds=5))
+        time.sleep(0.01)  # Simulate a request waiting in a queue past its deadline.
         result = dispatch(provider, request)
         self.assertEqual(provider.calls, 0)
         self.assertEqual(result.status, ResultStatus.TIMED_OUT)
