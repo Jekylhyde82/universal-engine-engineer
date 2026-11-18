@@ -1,0 +1,14 @@
+description: Local llama.cpp wiring smoke test
+prompts:
+  - "Reply with exactly READY. Do not add any other words."
+providers:
+  - id: openai:chat:local-model
+    config:
+      apiKeyRequired: false
+      useDefaultApiKey: false
+      temperature: 0
+      max_tokens: 16
+tests:
+  - assert:
+      - type: equals
+        value: READY
