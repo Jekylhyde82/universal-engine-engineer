@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0.0",
+  "reviewed_at": "2026-11-18",
+  "status": "candidate-registration-only",
+  "policy": {
+    "discovery_is_not_approval": true,
+    "installation_authorized": false,
+    "integration_claim_requires_implementation_and_tests": true,
+    "production_claim_requires_independent_verification": true
+  },
+  "sources": [
+    {
+      "id": "langgraph",
+      "name": "LangGraph",
+      "repository": "https://github.com/langchain-ai/langgraph",
+      "default_branch": "main",
+      "repository_license_spdx": "MIT",
+      "license_file": "https://github.com/langchain-ai/langgraph/blob/main/LICENSE",
+      "proposed_role": "Stateful workflow orchestration, durable execution, checkpointing and approval interrupts",
+      "integration_mode": "optional-workflow-adapter",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["exact commit and package pin", "checkpoint/recovery tests", "interrupt/approval tests", "idempotency and cancellation tests"]
+    },
+    {
+      "id": "llama-cpp",
+      "name": "llama.cpp",
+      "repository": "https://github.com/ggml-org/llama.cpp",
+      "default_branch": "master",
+      "repository_license_spdx": "MIT",
+      "license_file": "https://github.com/ggml-org/llama.cpp/blob/master/LICENSE",
+      "proposed_role": "Optional local inference runtime and constrained inference endpoint",
+      "integration_mode": "optional-inference-endpoint-adapter",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["runtime build and model hash", "model-specific licence", "quantization/context configuration", "target-device RAM/latency/thermal/battery benchmark", "API conformance"]
+    },
+    {
+      "id": "llama-index",
+      "name": "LlamaIndex",
+      "repository": "https://github.com/run-llama/llama_index",
+      "default_branch": "main",
+      "repository_license_spdx": "MIT",
+      "license_file": "https://github.com/run-llama/llama_index/blob/main/LICENSE",
+      "proposed_role": "Document parsing, ingestion, indexing and retrieval",
+      "integration_mode": "optional-knowledge-adapter",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["package-boundary review", "source-to-chunk provenance tests", "parser accuracy corpus", "access-filter and prompt-injection tests"]
+    },
+    {
+      "id": "qdrant",
+      "name": "Qdrant",
+      "repository": "https://github.com/qdrant/qdrant",
+      "default_branch": "master",
+      "repository_license_spdx": "Apache-2.0",
+      "license_file": "https://github.com/qdrant/qdrant/blob/master/LICENSE",
+      "proposed_role": "Optional vector database, similarity search and metadata filtering",
+      "integration_mode": "optional-vector-store-service-adapter",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["tenant isolation", "filter correctness", "recall/precision benchmark", "backup/restore", "deletion verification", "service resource profile"]
+    },
+    {
+      "id": "promptfoo",
+      "name": "Promptfoo",
+      "repository": "https://github.com/promptfoo/promptfoo",
+      "default_branch": "main",
+      "repository_license_spdx": "MIT",
+      "license_file": "https://github.com/promptfoo/promptfoo/blob/main/LICENSE",
+      "proposed_role": "Black-box prompt/model regression, comparison and red-team evaluation",
+      "integration_mode": "development-and-ci-evaluation-tool",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["versioned suites", "repeatable baselines", "adversarial coverage", "credential isolation", "false-negative/positive analysis"]
+    },
+    {
+      "id": "deepeval",
+      "name": "DeepEval",
+      "repository": "https://github.com/confident-ai/deepeval",
+      "default_branch": "main",
+      "repository_license_spdx": "Apache-2.0",
+      "license_file": "https://github.com/confident-ai/deepeval/blob/main/LICENSE",
+      "proposed_role": "Metric-based LLM, agent and RAG evaluation",
+      "integration_mode": "development-and-ci-evaluation-tool",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["metric and dataset pinning", "judge calibration", "human-reviewed samples", "repeatability", "cost and bias analysis"]
+    },
+    {
+      "id": "openhands",
+      "name": "OpenHands",
+      "repository": "https://github.com/OpenHands/OpenHands",
+      "default_branch": "main",
+      "repository_license_spdx": "MIT",
+      "license_file": "https://github.com/OpenHands/OpenHands/blob/main/LICENSE",
+      "proposed_role": "Delegated autonomous software engineering",
+      "integration_mode": "isolated-coding-agent-provider",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["runtime and sandbox review", "tool permission boundary tests", "isolated workspace tests", "network/secret controls", "patch-only trial", "rollback"]
+    },
+    {
+      "id": "swe-agent",
+      "name": "SWE-agent",
+      "repository": "https://github.com/SWE-agent/SWE-agent",
+      "default_branch": "main",
+      "repository_license_spdx": "MIT",
+      "license_file": "https://github.com/SWE-agent/SWE-agent/blob/main/LICENSE",
+      "proposed_role": "Research and benchmark comparator for autonomous issue-solving",
+      "integration_mode": "evaluation-only-agent-adapter",
+      "status": "deferred-as-primary-executor",
+      "upstream_commit_pinned": false,
+      "upstream_notice": "The maintainers' README recommends mini-SWE-agent for most new work; compare the successor before choosing a coding-agent executor.",
+      "successor_candidate": "https://github.com/SWE-agent/mini-swe-agent",
+      "required_evidence": ["benchmark against mini-SWE-agent and OpenHands/Goose", "sandbox review", "patch quality", "test pass rate", "reproducibility", "resource/cost profile"]
+    },
+    {
+      "id": "goose",
+      "name": "Goose",
+      "repository": "https://github.com/aaif-goose/goose",
+      "default_branch": "main",
+      "repository_license_spdx": "Apache-2.0",
+      "license_file": "https://github.com/aaif-goose/goose/blob/main/LICENSE",
+      "proposed_role": "Extensible local/CLI/API agent for coding and general tool workflows",
+      "integration_mode": "optional-tool-agent-provider",
+      "status": "candidate",
+      "upstream_commit_pinned": false,
+      "required_evidence": ["extension/MCP permission review", "tool allowlist tests", "credential isolation", "workspace isolation", "network policy", "rollback"]
+    }
+  ],
+  "overlap_policy": {
+    "promptfoo_vs_deepeval": "Complementary evaluation layers; avoid duplicate suites without an explicit cross-validation purpose.",
+    "llamaindex_vs_qdrant": "Knowledge ingestion/retrieval framework and vector persistence service remain separate contracts.",
+    "openhands_vs_swe_agent_vs_goose": "Alternative coding/tool-agent providers. Select one initial executor after benchmark and sandbox review; do not run all with unrestricted authority.",
+    "langgraph_vs_agent_providers": "LangGraph coordinates workflows; it does not replace global governance or grant execution authority."
+  },
+  "limitations": [
+    "SPDX identifiers were checked against upstream GitHub repository metadata on the review date; exact licence text and notices must be re-read at the pinned commit before distribution.",
+    "No exact upstream commit SHAs or package versions are pinned in this registration.",
+    "Model weights, datasets, optional extras, containers, plugins/extensions and transitive dependencies have separate licences and security requirements.",
+    "No candidate has been installed, executed, tested or integrated by this registration."
+  ]
+}
