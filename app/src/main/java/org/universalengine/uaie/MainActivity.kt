@@ -105,16 +105,23 @@ class MainActivity : Activity() {
                 } ?: error("Android could not open this file.")
 
                 val hash = ContentHash.toHex(digest.digest())
-                if (db.containsHash(hash)) {
+                val storedName = hash + ".blob"
+                destination = File(filesDir, storedName)
+                val inserted = synchronized(db) {
+                    if (db.containsHash(hash)) {
+                        false
+                    } else {
+                        IntakePolicy.checkQuota(db.totalBytes(), total)
+                        check(temp.renameTo(destination)) { "Could not atomically store the imported file." }
+                        db.insert(name, mime, total, hash, storedName, uri.toString())
+                        true
+                    }
+                }
+                if (!inserted) {
                     temp.delete()
                     runOnUiThread { status.text = "Already catalogued: duplicate SHA-256." }
                     return@Thread
                 }
-                IntakePolicy.checkQuota(db.totalBytes(), total)
-                val storedName = hash + ".blob"
-                destination = File(filesDir, storedName)
-                check(temp.renameTo(destination)) { "Could not atomically store the imported file." }
-                db.insert(name, mime, total, hash, storedName, uri.toString())
                 runOnUiThread {
                     status.text = "Imported and preserved locally • " + formatBytes(total)
                     renderCatalogue()
