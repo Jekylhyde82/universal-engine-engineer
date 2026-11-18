@@ -16,7 +16,7 @@ UAIE can discover, assimilate and evaluate networking technologies for either mo
 
 ## v0.1 control-plane scope
 
-The feature branch now contains immutable profile and peer contracts, strict endpoint and private-route validation, a deny-by-default policy evaluator, and lifecycle-gated registration. Unit tests are present. Exact-head CI verification is pending; do not mark the increment CI-tested until the current feature-head workflow passes.
+The feature branch now contains immutable profile and peer contracts, strict endpoint and private-route validation, profile-bound peer identity, a deny-by-default policy evaluator, lifecycle-gated registration with retirement re-checks, and a provider-neutral NETWORK adapter kind/interface. Unit tests are present. Exact-head CI verification is pending; do not mark the increment CI-tested until the current feature-head workflow passes.
 
 It does not open sockets, establish VPN tunnels, provision servers, create keys, change routes, configure firewalls or add Android network permissions. It does not implement cryptography.
 
