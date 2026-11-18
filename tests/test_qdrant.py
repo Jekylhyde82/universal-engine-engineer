@@ -88,6 +88,7 @@ class QdrantAdapterTests(unittest.TestCase):
         self.assertTrue(QdrantStubHandler.last_path.endswith("/points/query"))
 
     def test_api_key_header(self):
+        QdrantStubHandler.response_body = {"status": "ok", "result": {"points": []}}
         adapter = QdrantVectorStoreAdapter(self.base_url, api_key="test-key")
         request = self.make_request("search", {"collection_name": "docs", "vector": [0.1]})
         adapter.execute(request)
