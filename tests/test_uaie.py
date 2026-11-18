@@ -44,6 +44,22 @@ class UAIETests(unittest.TestCase):
         self.assertEqual(len(records), 2)
         self.assertTrue(self.engine.search("knowledge"))
 
+    def test_concurrent_duplicate_ingestion_is_idempotent(self):
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            records = list(pool.map(
+                lambda _: self.engine.ingest_text("same concurrent payload", "parallel.txt"),
+                range(8)))
+        self.assertEqual(len({record.record_id for record in records}), 1)
+        self.assertEqual(sum(1 for record in records if not record.duplicate), 1)
+
+    def test_integrated_record_cannot_be_rejected_or_reapproved(self):
+        record = self.engine.ingest_text("Lifecycle test", "lifecycle.txt")
+        self.engine.set_state(record.record_id, "approved")
+        self.engine.set_state(record.record_id, "integrated")
+        with self.assertRaises(UAIEError):
+            self.engine.set_state(record.record_id, "rejected")
+
     def test_size_limit(self):
         engine = UniversalAssimilationEngine(self.db, max_bytes=3)
         with self.assertRaises(UAIEError):
