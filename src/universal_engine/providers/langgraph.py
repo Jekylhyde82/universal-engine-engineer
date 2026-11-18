@@ -36,12 +36,12 @@ class LangGraphWorkflowAdapter:
         return self.execute(request)
 
     def resume(self, checkpoint_id: str, request: ProviderRequest) -> ProviderResult:
-        # The thread ID is the LangGraph checkpoint namespace. The optional
-        # checkpoint_id is accepted for interface compatibility and recorded
-        # in request payload by callers when they need a specific snapshot.
-        return self.execute(request)
+        return self._execute(request, checkpoint_id=checkpoint_id)
 
     def execute(self, request: ProviderRequest) -> ProviderResult:
+        return self._execute(request)
+
+    def _execute(self, request: ProviderRequest, *, checkpoint_id: str | None = None) -> ProviderResult:
         if not request.policy.allowed:
             return ProviderResult(request.correlation_id, ResultStatus.DENIED, {"reason": request.policy.reason}, "POLICY_DENIED")
         if request.deadline is not None and request.deadline <= datetime.now(timezone.utc):
@@ -57,8 +57,13 @@ class LangGraphWorkflowAdapter:
                     raise ValueError("run requires thread_id and an object input")
                 result = self.graph.invoke(payload["input"], config)
             elif request.operation == "resume":
-                if set(payload) != {"thread_id", "resume_value"}:
-                    raise ValueError("resume requires thread_id and resume_value")
+                if not {"thread_id", "resume_value"} <= set(payload) or not set(payload) <= {"thread_id", "resume_value", "checkpoint_id"}:
+                    raise ValueError("resume requires thread_id and resume_value, with optional checkpoint_id")
+                selected_checkpoint = checkpoint_id or payload.get("checkpoint_id")
+                if selected_checkpoint is not None:
+                    if not isinstance(selected_checkpoint, str) or not selected_checkpoint.strip():
+                        raise ValueError("checkpoint_id must be a non-empty string")
+                    config["configurable"]["checkpoint_id"] = selected_checkpoint
                 command = self._resume_command(payload["resume_value"])
                 result = self.graph.invoke(command, config)
             else:

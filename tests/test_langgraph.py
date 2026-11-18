@@ -58,6 +58,14 @@ class LangGraphAdapterTests(unittest.TestCase):
         self.assertEqual(result.status, ResultStatus.SUCCEEDED)
         self.assertEqual(builder.graph.calls[0][0], {"resume": "yes"})
 
+    def test_resume_uses_requested_checkpoint_id(self):
+        builder = FakeBuilder()
+        adapter = LangGraphWorkflowAdapter(builder, checkpointer=object(), resume_command_factory=lambda value: {"resume": value})
+        request = self.make_request("resume", {"thread_id": "thread-1", "resume_value": "yes"})
+        result = adapter.resume("checkpoint-7", request)
+        self.assertEqual(result.status, ResultStatus.SUCCEEDED)
+        self.assertEqual(builder.graph.calls[0][1]["configurable"]["checkpoint_id"], "checkpoint-7")
+
     def test_denied_request_never_invokes_graph(self):
         builder = FakeBuilder()
         adapter = LangGraphWorkflowAdapter(builder, checkpointer=object())
