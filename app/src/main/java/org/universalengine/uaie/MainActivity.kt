@@ -18,7 +18,6 @@ class MainActivity : Activity() {
     private lateinit var db: CatalogueDb
     private lateinit var list: LinearLayout
     private lateinit var status: TextView
-    private val maxFileBytes = 10L * 1024L * 1024L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,13 +85,13 @@ class MainActivity : Activity() {
                             val count = input.read(buffer)
                             if (count < 0) break
                             total += count
-                            require(total <= maxFileBytes) { "File exceeds the 10 MiB intake limit." }
+                            IntakePolicy.checkSize(total)
                             digest.update(buffer, 0, count)
                             output.write(buffer, 0, count)
                         }
                     }
                 } ?: error("Android could not open this file.")
-                val hash = digest.digest().joinToString("") { "%02x".format(it) }
+                val hash = ContentHash.toHex(digest.digest())
                 if (db.containsHash(hash)) {
                     temp.delete()
                     runOnUiThread { status.text = "Already catalogued: duplicate SHA-256." }
