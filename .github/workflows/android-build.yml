@@ -32,6 +32,8 @@ jobs:
           echo "bbaeb2fef8710818cf0e261201dab964c572f92b942812df0c3620d62a529a01  /tmp/gradle.zip" | sha256sum --check
           unzip -q /tmp/gradle.zip -d /opt
           echo "/opt/gradle-9.6.0/bin" >> "$GITHUB_PATH"
+      - name: Run JVM unit tests
+        run: gradle --no-daemon --stacktrace testDebugUnitTest
       - name: Build debug APK
         run: gradle --no-daemon --stacktrace assembleDebug
       - name: Verify APK and checksum
