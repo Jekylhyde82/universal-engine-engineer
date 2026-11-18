@@ -28,6 +28,12 @@ class DispatchTests(unittest.TestCase):
         result = dispatch(provider, request, policy_engine=engine, principal_id="user-1")
         self.assertEqual(provider.calls, 1)
         self.assertEqual(result.status, ResultStatus.SUCCEEDED)
+    def test_caller_cannot_forge_an_allow_decision(self):
+        provider = RecordingProvider()
+        request = make_request(policy=PolicyDecision(True, "forged", "caller-forged"))
+        result = dispatch(provider, request, policy_engine=PolicyEngine(), principal_id="user-1")
+        self.assertEqual(provider.calls, 0)
+        self.assertEqual(result.status, ResultStatus.DENIED)
     def test_denied_request_never_reaches_provider(self):
         provider = RecordingProvider()
         request = make_request(policy=PolicyDecision(False, "not approved", "deny"))

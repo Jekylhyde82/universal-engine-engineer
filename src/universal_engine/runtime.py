@@ -30,7 +30,6 @@ def dispatch(
     decision = policy_engine.evaluate(principal_id, request.capability_id, request.operation)
     if not isinstance(decision, PolicyDecision):
         raise ContractViolation("policy engine must return a PolicyDecision")
-    authorized_request = replace(request, policy=decision)
     if not decision.allowed:
         return ProviderResult(
             correlation_id=request.correlation_id,
@@ -45,6 +44,7 @@ def dispatch(
             output={},
             error_code="DEADLINE_EXPIRED",
         )
+    authorized_request = replace(request, policy=decision)
     result = provider.execute(authorized_request)
     if not isinstance(result, ProviderResult):
         raise ContractViolation("provider must return a ProviderResult")
