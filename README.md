@@ -10,8 +10,8 @@
 
 This repository contains the first executable runtime foundation. The six-provider integration architecture and its nine-provider extension are both design-stage-approved.
 
-Current development branch: `runtime/core-contracts-v0.1`  
-Current review: [Draft PR #16](https://github.com/Jekylhyde82/universal-engine-engineer/pull/16)
+Current integration stack: runtime foundation → UAIE local-first prototype → UPN private-network control-plane proposal.  
+Current UPN review: [Draft PR #23](https://github.com/Jekylhyde82/universal-engine-engineer/pull/23). The separate Android intake alpha is tracked in [PR #20](https://github.com/Jekylhyde82/universal-engine-engineer/pull/20).
 
 Implemented adapter boundaries:
 - LangGraph — checkpointed workflow execution.
@@ -123,6 +123,7 @@ The SQLite ledger is local persistence, not distributed consensus or tamper-proo
 - `src/universal_engine/lifecycle.py` — lifecycle state machine and in-memory ledger.
 - `src/universal_engine/persistence.py` — SQLite lifecycle ledger and hash-chain verification.
 - `src/universal_engine/providers/` — adapter interfaces, registry, mock and implemented adapters.
+- `src/universal_engine/upn.py` — UPN private-network profile contracts, route validation, policy and lifecycle-gated registry.
 - `tests/` — unit and local HTTP adapter tests.
 - `docs/runtime/` — decisions, adapter boundaries, research, threat model and limitations.
 
@@ -143,3 +144,17 @@ python -m unittest discover -s tests -v
 ```
 
 UAIE v0.1 acquires files and structured objects, preserves their original bytes and provenance, deduplicates by SHA-256, classifies and triages text, and records governed approval/integration states. It never executes acquired content. This is a working prototype, not a production-ready universal crawler or autonomous self-modifying system.
+
+
+## UPN — Universal Private Network (intrinsic capability)
+
+UPN is designed as one provider-neutral networking capability with two complementary modes:
+
+- **Existing private networks:** governed connections to private networks and services already operated by the user or an authorized organization.
+- **Owned private infrastructure:** profiles for private infrastructure operated and controlled by the Universal Engine project.
+
+The initial UPN control-plane proposal validates HTTPS/WireGuard endpoint declarations, binds peers to network profiles by SHA-256 public-key fingerprints, restricts routes to private unicast CIDRs, defaults to deny, and requires lifecycle integration before profile registration. The runtime registry also defines a provider-neutral `NETWORK` adapter contract.
+
+**Important:** this is not yet a live VPN or private network. The proposal performs no network I/O, key generation, route/firewall changes, infrastructure provisioning, Android permission changes or remote synchronization. It does not implement cryptography. Live transport, identity, key custody, revocation, isolated-network tests and independent security review remain future gates.
+
+UAIE is the discovery and assimilation capability for learning about network technologies; UPN is the governed networking capability. Acquiring network documentation or a transport does not authorize installation, execution or connection.

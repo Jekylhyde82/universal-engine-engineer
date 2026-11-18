@@ -15,6 +15,7 @@ class ProviderKind(StrEnum):
     VECTOR_STORE = "vector_store"
     EVALUATION = "evaluation"
     CODING_AGENT = "coding_agent"
+    NETWORK = "network"
 
 _REQUIRED_METHODS = {
     ProviderKind.WORKFLOW: ("execute", "run", "resume"),
@@ -23,6 +24,7 @@ _REQUIRED_METHODS = {
     ProviderKind.VECTOR_STORE: ("execute", "upsert", "search"),
     ProviderKind.EVALUATION: ("execute", "evaluate"),
     ProviderKind.CODING_AGENT: ("execute", "propose_patch"),
+    ProviderKind.NETWORK: ("execute", "connect", "disconnect", "status"),
 }
 
 @dataclass(frozen=True, slots=True)
