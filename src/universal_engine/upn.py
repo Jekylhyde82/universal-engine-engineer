@@ -140,11 +140,13 @@ class NetworkPeer:
     """A peer pinned by a SHA-256 fingerprint of its public identity key."""
 
     peer_id: str
+    profile_id: str
     public_key_fingerprint: str
     allowed_cidrs: tuple[str, ...]
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "peer_id", _validate_profile_id(self.peer_id, "peer_id"))
+        object.__setattr__(self, "profile_id", _validate_profile_id(self.profile_id, "profile_id"))
         if not isinstance(self.public_key_fingerprint, str) or not _SHA256_FINGERPRINT.fullmatch(
             self.public_key_fingerprint
         ):
@@ -209,6 +211,7 @@ class UPNRegistry:
 
     def __init__(self) -> None:
         self._profiles: dict[str, NetworkProfile] = {}
+        self._lifecycles: dict[str, LifecycleReader] = {}
 
     def register(self, profile: NetworkProfile, lifecycle: LifecycleReader) -> NetworkProfile:
         if not isinstance(profile, NetworkProfile):
@@ -218,16 +221,24 @@ class UPNRegistry:
         if lifecycle.state_of(profile.profile_id) is not LifecycleState.INTEGRATED:
             raise ContractViolation("only lifecycle-integrated network profiles may be registered")
         self._profiles[profile.profile_id] = profile
+        self._lifecycles[profile.profile_id] = lifecycle
         return profile
 
     def get(self, profile_id: str) -> NetworkProfile:
         try:
-            return self._profiles[profile_id]
+            profile = self._profiles[profile_id]
+            lifecycle = self._lifecycles[profile_id]
         except KeyError as exc:
             raise ContractViolation(f"network profile is not registered: {profile_id}") from exc
+        if lifecycle.state_of(profile_id) is not LifecycleState.INTEGRATED:
+            raise ContractViolation(f"network profile is not currently lifecycle-integrated: {profile_id}")
+        return profile
 
     def list(self) -> tuple[NetworkProfile, ...]:
-        return tuple(self._profiles.values())
+        return tuple(
+            profile for profile_id, profile in self._profiles.items()
+            if self._lifecycles[profile_id].state_of(profile_id) is LifecycleState.INTEGRATED
+        )
 
 
 class UPNPolicyEngine:
@@ -252,6 +263,8 @@ class UPNPolicyEngine:
             return deny("operation is not permitted by UPN v0.1")
         if not profile.enabled:
             return deny("network profile is disabled")
+        if peer.profile_id != profile.profile_id:
+            return deny("peer is not enrolled in this network profile")
         if profile.transport is TransportKind.LOCAL_ONLY:
             return deny("local-only profiles cannot establish network peer connections")
         if profile.profile_id not in policy.allowed_profile_ids:
