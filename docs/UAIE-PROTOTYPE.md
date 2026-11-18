@@ -64,6 +64,14 @@ The value score is an explainable keyword heuristic, not an authoritative measur
 - Integration requires an explicit approval transition.
 - The prototype does not claim that a stored item is safe, compatible, licensed or useful merely because it was acquired.
 
+## Intrinsic architecture relationship
+
+UAIE is a foundational capability of NINEFOLD INTRINSIC under the INTRINSIC BY DESIGN invariant. It is one integrated capability spanning discovery, acquisition, assimilation, comprehension, decomposition, evaluation, governed integration, verification and evolution. These responsibilities do not imply that every connector or autonomous process is already implemented.
+
+UPN (Universal Private Network) is the complementary, intrinsic networking capability. It is designed to support both explicitly authorized connections to existing private networks and project-owned private infrastructure. UAIE may discover and assimilate networking technologies and their documentation; UPN policy and the Engine lifecycle govern whether a network profile may be registered or used. Acquisition never authorizes execution or connection.
+
+The first UPN control-plane increment provides validated profile/peer contracts, private-route scope checks, deny-by-default policy evaluation and lifecycle-gated registration. It does not establish VPN tunnels, configure infrastructure, generate keys, open sockets or add Android network permissions. A profile being accepted by the library is not proof of a live or secure network.
+
 ## Next engineering increments
 
 1. Add connector interface contracts and a permission-scoped web/repository acquisition adapter.
