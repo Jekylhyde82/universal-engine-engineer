@@ -1,23 +1,41 @@
 """Policy-enforcing dispatch boundary for provider adapters."""
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import Protocol
-from .contracts import ContractViolation, ProviderRequest, ProviderResult, ResultStatus
+
+from .contracts import ContractViolation, PolicyDecision, ProviderRequest, ProviderResult, ResultStatus
+
 
 class ExecutableProvider(Protocol):
     def execute(self, request: ProviderRequest) -> ProviderResult: ...
 
-def dispatch(provider: ExecutableProvider, request: ProviderRequest) -> ProviderResult:
-    """Enforce policy and correlation invariants around one provider call.
 
-    The policy decision must be made upstream. This function enforces the
-    decision; it does not grant permissions or turn workflow providers into
-    policy authorities.
+class PolicyEvaluator(Protocol):
+    def evaluate(self, principal_id: str, capability_id: str, operation: str) -> PolicyDecision: ...
+
+
+def dispatch(
+    provider: ExecutableProvider,
+    request: ProviderRequest,
+    *,
+    policy_engine: PolicyEvaluator,
+    principal_id: str,
+) -> ProviderResult:
+    """Evaluate trusted in-process policy before executing one provider.
+
+    The principal ID must originate from an authenticated identity layer.
+    Provider execute methods are internal adapter entry points and must not be
+    exposed directly to untrusted callers.
     """
-    if not request.policy.allowed:
+    decision = policy_engine.evaluate(principal_id, request.capability_id, request.operation)
+    if not isinstance(decision, PolicyDecision):
+        raise ContractViolation("policy engine must return a PolicyDecision")
+    authorized_request = replace(request, policy=decision)
+    if not decision.allowed:
         return ProviderResult(
             correlation_id=request.correlation_id,
             status=ResultStatus.DENIED,
-            output={"reason": request.policy.reason},
+            output={"reason": decision.reason},
             error_code="POLICY_DENIED",
         )
     if request.deadline is not None and request.deadline <= datetime.now(timezone.utc):
@@ -27,7 +45,7 @@ def dispatch(provider: ExecutableProvider, request: ProviderRequest) -> Provider
             output={},
             error_code="DEADLINE_EXPIRED",
         )
-    result = provider.execute(request)
+    result = provider.execute(authorized_request)
     if not isinstance(result, ProviderResult):
         raise ContractViolation("provider must return a ProviderResult")
     if result.correlation_id != request.correlation_id:

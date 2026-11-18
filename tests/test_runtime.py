@@ -4,6 +4,7 @@ from uuid import uuid4
 import time
 from universal_engine.contracts import ContractViolation, PolicyDecision, ProviderRequest, ProviderResult, ResultStatus
 from universal_engine.runtime import dispatch
+from universal_engine.policy import PolicyEngine, PolicyRule
 
 class RecordingProvider:
     def __init__(self, result=None):
@@ -22,33 +23,37 @@ def make_request(**overrides):
 class DispatchTests(unittest.TestCase):
     def test_allowed_request_reaches_provider(self):
         provider = RecordingProvider()
-        result = dispatch(provider, make_request())
+        request = make_request()
+        engine = PolicyEngine([PolicyRule("allow", "user-1", request.capability_id, request.operation, True, "approved")])
+        result = dispatch(provider, request, policy_engine=engine, principal_id="user-1")
         self.assertEqual(provider.calls, 1)
         self.assertEqual(result.status, ResultStatus.SUCCEEDED)
     def test_denied_request_never_reaches_provider(self):
         provider = RecordingProvider()
         request = make_request(policy=PolicyDecision(False, "not approved", "deny"))
-        result = dispatch(provider, request)
+        result = dispatch(provider, request, policy_engine=PolicyEngine(), principal_id="user-1")
         self.assertEqual(provider.calls, 0)
         self.assertEqual(result.status, ResultStatus.DENIED)
     def test_expired_deadline_never_reaches_provider(self):
         provider = RecordingProvider()
         request = make_request(deadline=datetime.now(timezone.utc)+timedelta(milliseconds=5))
         time.sleep(0.01)  # Simulate a request waiting in a queue past its deadline.
-        result = dispatch(provider, request)
+        result = dispatch(provider, request, policy_engine=PolicyEngine([PolicyRule("allow", "user-1", request.capability_id, request.operation, True, "approved")]), principal_id="user-1")
         self.assertEqual(provider.calls, 0)
         self.assertEqual(result.status, ResultStatus.TIMED_OUT)
     def test_rejects_non_contract_result(self):
         request = make_request()
         provider = RecordingProvider(result=None)
         provider.execute = lambda request: None
+        engine = PolicyEngine([PolicyRule("allow", "user-1", request.capability_id, request.operation, True, "approved")])
         with self.assertRaises(ContractViolation):
-            dispatch(provider, request)
+            dispatch(provider, request, policy_engine=engine, principal_id="user-1")
     def test_rejects_mismatched_correlation(self):
         request = make_request()
         provider = RecordingProvider(ProviderResult(str(uuid4()), ResultStatus.SUCCEEDED))
+        engine = PolicyEngine([PolicyRule("allow", "user-1", request.capability_id, request.operation, True, "approved")])
         with self.assertRaises(ContractViolation):
-            dispatch(provider, request)
+            dispatch(provider, request, policy_engine=engine, principal_id="user-1")
 
 if __name__ == "__main__":
     unittest.main()
