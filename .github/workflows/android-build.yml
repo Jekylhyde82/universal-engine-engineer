@@ -1,7 +1,7 @@
 name: UAIE Android build
 on:
   pull_request:
-    branches: [main]
+    branches: [main, uaie/working-prototype-v0.1]
     paths: ["app/**", "*.gradle.kts", "settings.gradle.kts", "gradle.properties", ".github/workflows/android-build.yml"]
   push:
     branches: ["android/uaie-client-v0.1"]
