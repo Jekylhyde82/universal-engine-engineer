@@ -1,6 +1,6 @@
 # UAIE Android Client — Delivery Specification v0.1
 
-**Status:** Initial implementation specification — NOT IMPLEMENTED  
+**Status:** Native offline-intake alpha implemented; CI build and unit tests verified. Production release gates remain open.  
 **Canonical system:** MULTIVERSAL OMNIVELOCITY PRIME — GENIUS ENGINEER PRIME  
 **Foundation:** NINEFOLD INTRINSIC  
 **Governing invariant:** INTRINSIC BY DESIGN  
@@ -105,8 +105,30 @@ The APK is **NOT READY** until all applicable gates pass with evidence attached 
 7. Signing, release notes, checksum, SBOM and rollback/support plan complete.
 8. Authorized human release approval recorded.
 
-## 8. Current status and exclusions
+## 8. Current implementation status (2026-11-18)
 
-The existing UAIE v0.1 branch contains a Python local-first prototype. It does not contain an Android app, Gradle project, APK or Android CI build. This specification does not claim otherwise.
+### Implemented on `android/uaie-client-v0.1` (PR #20)
 
-No production API endpoint, account, credentials, signing key, cloud service or billing resource is assumed to exist. Provisioning and production deployment require their own security and approval gates.
+- Native Kotlin Android app, Gradle build and Android CI.
+- Android Storage Access Framework picker and single-item Sharesheet intake.
+- Streamed file copy and SHA-256 hashing; 10 MiB per-file limit.
+- App-private original-byte storage; imported content is never executed.
+- SQLite catalogue with unique content hash, display name, MIME type, byte size, source URI and import timestamp.
+- Schema migration from catalogue v1 to v2.
+- Duplicate-content detection and a 100 MiB catalogue quota.
+- Temporary-file staging, fsync and same-directory rename before catalogue insertion; failed catalogue insertion cleans up the staged destination.
+- Unit tests for per-file limits, quota boundaries and hash formatting.
+- CI build at commit `e445a4ac2d95c8b091c2de346d6476736f90b628` passed, including four unit tests. A later hardening commit adds three additional policy tests and must be revalidated by CI before it is considered verified.
+
+### Known limitations / acceptance blockers
+
+- No remote sync, backend authentication, identity, authorization or connector integration.
+- No full-text search, export, resumable/background transfer, cancellation or visible progress.
+- The current catalogue quota is a fixed 100 MiB policy, not a user-configurable setting.
+- The UI uses a basic worker thread; lifecycle/process-death recovery and concurrent import stress tests remain outstanding.
+- A database/file reconciliation routine for orphaned files is not yet implemented.
+- Sharesheet currently handles one `ACTION_SEND` item, not `ACTION_SEND_MULTIPLE`.
+- Automated unit tests do not substitute for Android instrumentation tests.
+- Physical OPPO A6 / Android 16 acceptance remains outstanding.
+
+No production API endpoint, account, credentials, signing key, cloud service or billing resource is assumed to exist. Provisioning and production deployment require their own security and approval gates. The downloadable debug APK is a test artifact, not a production release.
