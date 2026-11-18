@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from ipaddress import ip_network, IPv4Network, IPv6Network
+from ipaddress import ip_network
 import re
 from typing import Protocol
 from urllib.parse import urlsplit
@@ -56,7 +56,7 @@ def _validate_endpoint(transport: TransportKind, endpoint: str | None) -> str | 
         return None
     if not isinstance(endpoint, str) or not endpoint.strip():
         raise ContractViolation("remote transport endpoint is required")
-    endpoint = endpoint.strip()
+    endpoint = _required_text(endpoint, "endpoint")
     try:
         parsed = urlsplit(endpoint)
         hostname = parsed.hostname
