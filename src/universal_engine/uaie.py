@@ -139,17 +139,16 @@ class UniversalAssimilationEngine:
         now = _now()
         state = "assimilated" if text is not None else "discovered"
         with self._connect() as db:
-            existing = db.execute("SELECT * FROM assimilations WHERE content_hash=?", (digest,)).fetchone()
-            if existing:
-                return self._row_to_record(existing, duplicate=True)
-            db.execute("""INSERT INTO assimilations
+            cursor = db.execute("""INSERT OR IGNORE INTO assimilations
                 (record_id,content_hash,source,media_type,category,byte_size,content,
                  extracted_text,value_score,signals_json,state,created_at)
                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (record_id,digest,source,guessed,category,len(content),content,text,
                  score,json.dumps(signals),state,now))
-            row = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
-        return self._row_to_record(row)
+            row = db.execute("SELECT * FROM assimilations WHERE content_hash=?", (digest,)).fetchone()
+        # INSERT OR IGNORE makes concurrent duplicate intake idempotent under SQLite's
+        # unique constraint instead of leaking an IntegrityError to the caller.
+        return self._row_to_record(row, duplicate=cursor.rowcount == 0)
 
     def ingest_text(self, text: str, source: str = "inline://user-input") -> AssimilationRecord:
         if not isinstance(text, str):
@@ -217,7 +216,6 @@ class UniversalAssimilationEngine:
         allowed = {"approved", "integrated", "rejected"}
         if state not in allowed:
             raise UAIEError(f"state must be one of: {', '.join(sorted(allowed))}")
-        current = self.get(record_id)
         transitions = {
             "discovered": {"approved", "rejected"},
             "assimilated": {"approved", "rejected"},
@@ -225,12 +223,19 @@ class UniversalAssimilationEngine:
             "integrated": set(),
             "rejected": set(),
         }
-        if state not in transitions[current.state]:
-            raise UAIEError(f"invalid transition: {current.state} -> {state}")
         with self._connect() as db:
-            db.execute("UPDATE assimilations SET state=? WHERE record_id=?", (state, record_id))
+            # Serialize read/validate/write so concurrent callers cannot race a
+            # lifecycle transition or bypass the approval-before-integration rule.
+            db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
-        return self._row_to_record(row)
+            if row is None:
+                raise UAIEError(f"unknown record: {record_id}")
+            current_state = row["state"]
+            if state not in transitions[current_state]:
+                raise UAIEError(f"invalid transition: {current_state} -> {state}")
+            db.execute("UPDATE assimilations SET state=? WHERE record_id=?", (state, record_id))
+            updated = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_record(updated)
 
     def export_record(self, record_id: str) -> dict[str, Any]:
         with self._connect() as db:
