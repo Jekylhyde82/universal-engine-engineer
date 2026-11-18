@@ -1,9 +1,12 @@
 """Explicit allowlist registry for integrated provider adapters."""
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any
+from typing import Any, Protocol
 from ..contracts import ContractViolation
-from ..lifecycle import CapabilityLifecycle, LifecycleState
+from ..lifecycle import LifecycleState
+
+class LifecycleStateReader(Protocol):
+    def state_of(self, capability_id: str) -> LifecycleState: ...
 
 class ProviderKind(StrEnum):
     WORKFLOW = "workflow"
@@ -34,7 +37,7 @@ class ProviderRegistry:
     def __init__(self) -> None:
         self._providers: dict[str, ProviderRegistration] = {}
 
-    def register(self, provider_id: str, capability_id: str, kind: ProviderKind, adapter: Any, lifecycle: CapabilityLifecycle) -> ProviderRegistration:
+    def register(self, provider_id: str, capability_id: str, kind: ProviderKind, adapter: Any, lifecycle: LifecycleStateReader) -> ProviderRegistration:
         if not isinstance(kind, ProviderKind):
             raise ContractViolation("kind must be a ProviderKind")
         if not provider_id or not provider_id.strip():
