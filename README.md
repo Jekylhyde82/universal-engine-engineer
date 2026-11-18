@@ -127,3 +127,19 @@ The SQLite ledger is local persistence, not distributed consensus or tamper-proo
 - `docs/runtime/` — decisions, adapter boundaries, research, threat model and limitations.
 
 May our RAM never run out, our dependencies never conflict, and our builds always pass!
+
+
+## UAIE — Universal Assimilation and Integration Engine
+
+The first local-first working prototype is documented in [UAIE Prototype v0.1](docs/UAIE-PROTOTYPE.md).
+
+Quick start (Python 3.11+):
+
+```bash
+python -m pip install .
+python -m universal_engine.uaie --db ./uaie.sqlite3 ingest ./inbox
+python -m universal_engine.uaie --db ./uaie.sqlite3 search security
+python -m unittest discover -s tests -v
+```
+
+UAIE v0.1 acquires files and structured objects, preserves their original bytes and provenance, deduplicates by SHA-256, classifies and triages text, and records governed approval/integration states. It never executes acquired content. This is a working prototype, not a production-ready universal crawler or autonomous self-modifying system.
