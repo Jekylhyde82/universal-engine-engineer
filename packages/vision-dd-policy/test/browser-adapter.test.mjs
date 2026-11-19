@@ -18,6 +18,7 @@ function fakePage(initialUrl = "https://example.test/start") {
     calls,
     state,
     route: async (_pattern, handler) => { state.routeHandler = handler; },
+    routeWebSocket: async (_pattern, handler) => { state.webSocketHandler = handler; },
     url: () => currentUrl,
     viewportSize: () => ({ width: 1280, height: 720 }),
     evaluate: async () => ({
@@ -245,4 +246,32 @@ test("navigation with hidden query or fragment parameters is denied in v1", asyn
   });
   await assert.rejects(() => adapter.execute({ request, grant: makeGrant(request) }), /query or fragment/i);
   assert.equal(page.calls.length, 0);
+});
+
+test("browser adapter blocks WebSockets to origins outside the allowlist", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let closed = 0;
+  let connected = 0;
+  await page.state.webSocketHandler({
+    url: () => "wss://evil.test/socket",
+    close: async () => { closed += 1; },
+    connectToServer: () => { connected += 1; },
+  });
+  assert.equal(closed, 1);
+  assert.equal(connected, 0);
+});
+
+test("browser adapter forwards WebSockets only to an allowlisted secure origin", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let connected = 0;
+  const serverSocket = { onClose: () => {} };
+  await page.state.webSocketHandler({
+    url: () => "wss://example.test/socket",
+    close: async () => { throw new Error("must not close"); },
+    connectToServer: () => { connected += 1; return serverSocket; },
+    onClose: () => {},
+  });
+  assert.equal(connected, 1);
 });
