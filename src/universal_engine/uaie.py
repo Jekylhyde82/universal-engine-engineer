@@ -330,6 +330,51 @@ class UniversalAcquisitionIntegrationEngine:
             row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
         return self._row_to_acquisition(row)
 
+    def update_acquisition_assessment(self, record_id: str, *,
+                                      potential_market_value: str | None = None,
+                                      revenue_models: Iterable[str] | None = None,
+                                      development_timeline: str | None = None,
+                                      development_cost: str | None = None,
+                                      integration_cost: str | None = None,
+                                      risk_assessment: str | None = None,
+                                      evidence_verification_status: str | None = None) -> AcquisitionRegisterEntry:
+        """Update assessment fields without changing immutable Original Idea Value."""
+        text_fields = {
+            "potential_market_value": potential_market_value,
+            "development_timeline": development_timeline,
+            "development_cost": development_cost,
+            "integration_cost": integration_cost,
+            "risk_assessment": risk_assessment,
+            "evidence_verification_status": evidence_verification_status,
+        }
+        updates: dict[str, Any] = {}
+        for field, value in text_fields.items():
+            if value is not None:
+                if not isinstance(value, str) or not value.strip() or len(value) > 4000:
+                    raise UAIEError(f"{field} must be a non-empty string of at most 4000 characters")
+                updates[field] = value.strip()
+        if revenue_models is not None:
+            if isinstance(revenue_models, (str, bytes)):
+                raise UAIEError("revenue_models must be an iterable of model descriptions, not a string")
+            models = tuple(revenue_models)
+            if len(models) > 20 or any(not isinstance(x, str) or not x.strip() or len(x) > 256 for x in models):
+                raise UAIEError("revenue_models must contain at most 20 non-empty strings of at most 256 characters")
+            updates["revenue_models_json"] = json.dumps(models, ensure_ascii=False)
+        if not updates:
+            raise UAIEError("at least one assessment field must be supplied")
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+            if row is None:
+                raise UAIEError(f"unknown acquisition register entry for record: {record_id}")
+            if row["lifecycle_status"] not in {"discovered", "proposed", "under_evaluation"}:
+                raise UAIEError("assessment fields are locked after approval, rejection or retirement")
+            assignments = ", ".join(f"{field}=?" for field in updates)
+            values = list(updates.values()) + [_now(), record_id]
+            db.execute(f"UPDATE acquisition_register SET {assignments},updated_at=? WHERE record_id=?", values)
+            updated = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_acquisition(updated)
+
     def get_acquisition(self, record_id: str) -> AcquisitionRegisterEntry:
         with self._connect() as db:
             row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
