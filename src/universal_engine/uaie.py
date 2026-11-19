@@ -341,7 +341,12 @@ class UniversalAcquisitionEngine:
         return result
 
 
-# Backwards-compatible aliases for existing prototype callers and stored records.\nUniversalAssimilationEngine = UniversalAcquisitionEngine\nAcquisitionRecord = AssimilationRecord\n\n\ndef _print(record: AssimilationRecord) -> None:
+# Backwards-compatible aliases for existing prototype callers and stored records.
+UniversalAssimilationEngine = UniversalAcquisitionEngine
+AcquisitionRecord = AssimilationRecord
+
+
+def _print(record: AssimilationRecord) -> None:
     print(json.dumps(asdict(record), indent=2))
 
 
