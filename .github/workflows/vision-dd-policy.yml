@@ -6,12 +6,6 @@ on:
       - "packages/vision-dd-policy/**"
       - ".github/workflows/vision-dd-policy.yml"
       - "docs/architecture/vision-dd/**"
-  push:
-    branches:
-      - "architecture/vision-dd-production-spec"
-    paths:
-      - "packages/vision-dd-policy/**"
-      - ".github/workflows/vision-dd-policy.yml"
 
 concurrency:
   group: vision-dd-v2-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
