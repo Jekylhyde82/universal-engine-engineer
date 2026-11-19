@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { openEvidenceStream } from "./evidence.mjs";
 import {
   executeCanonicalFusionCommand,
@@ -58,7 +59,7 @@ async function handle(message) {
     policyVersion,
   });
   const detail = command.type === "state.write"
-    ? { key: command.key, valueDigest: result.key }
+    ? { key: command.key, valueDigest: createHash("sha256").update(JSON.stringify(command.value)).digest("hex") }
     : command.type === "state.read"
       ? { key: command.key, found: result.found }
       : { status: result.status };
