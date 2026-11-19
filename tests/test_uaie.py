@@ -100,6 +100,18 @@ class UAIETests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertEqual(result["failure_sequence"], 1)
 
+    def test_audit_chain_detects_deleted_tail_after_later_append(self):
+        import sqlite3
+        self.engine.ingest_text("event one", "audit/one.md")
+        self.engine.ingest_text("event two", "audit/two.md")
+        with sqlite3.connect(self.db) as db:
+            db.execute("DELETE FROM audit_events WHERE sequence=2")
+        self.engine.ingest_text("event three", "audit/three.md")
+        result = self.engine.verify_audit_chain()
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["failure_sequence"], 3)
+
+
     def test_audit_chain_records_lifecycle_and_assessment_events(self):
         record = self.engine.ingest_text("audited lifecycle", "audit/lifecycle.md")
         self.engine.record_capability_assessment(
