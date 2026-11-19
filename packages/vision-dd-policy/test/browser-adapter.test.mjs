@@ -14,11 +14,14 @@ function fakePage(initialUrl = "https://example.test/start") {
   let currentUrl = initialUrl;
   const calls = [];
   const state = {};
+  const context = {
+    route: async (_pattern, handler) => { state.routeHandler = handler; },
+    routeWebSocket: async (_pattern, handler) => { state.webSocketHandler = handler; },
+  };
   return {
     calls,
     state,
-    route: async (_pattern, handler) => { state.routeHandler = handler; },
-    routeWebSocket: async (_pattern, handler) => { state.webSocketHandler = handler; },
+    context,
     url: () => currentUrl,
     viewportSize: () => ({ width: 1280, height: 720 }),
     evaluate: async () => ({
@@ -38,6 +41,7 @@ function fakePage(initialUrl = "https://example.test/start") {
 async function observedAdapter(page, overrides = {}) {
   const adapter = createBrowserAdapter({
     page,
+    context: page.context,
     sessionId: "browser-session-1",
     allowedOrigins: ["https://example.test"],
     publicKeyPem,
@@ -87,7 +91,7 @@ function makeGrant(request) {
 
 test("observation requires explicit user consent", async () => {
   const adapter = createBrowserAdapter({
-    page: fakePage(), sessionId: "browser-session-1",
+    page: fakePage(), context: fakePage().context, sessionId: "browser-session-1",
     allowedOrigins: ["https://example.test"],
     publicKeyPem, policyVersion: "policy-7",
     grantNonceLedger: { consume: async () => true }, requestConsent: async () => false, clock: () => now,
@@ -124,7 +128,7 @@ test("visual frame is captured only with separate explicit visual consent", asyn
 test("browser observation refuses an origin outside the allowlist", async () => {
   const page = fakePage("https://evil.test/");
   const adapter = createBrowserAdapter({
-    page, sessionId: "browser-session-1", allowedOrigins: ["https://example.test"],
+    page, context: page.context, sessionId: "browser-session-1", allowedOrigins: ["https://example.test"],
     publicKeyPem, policyVersion: "policy-7",
     grantNonceLedger: { consume: async () => true }, requestConsent: async () => true, clock: () => now,
   });
