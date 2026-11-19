@@ -13,7 +13,7 @@
 | 4 | Planning | Typed plans with preconditions, postconditions, risk class and bounded scope | Schema tests and plan evaluation |
 | 5 | Policy and approval | Deny-by-default; action/session/digest-bound one-use grants; revocation; R3 approval; R4 denial | Policy unit tests, bypass tests and approval audit |
 | 6 | Execution | Only allowlisted actions; fresh pre-action checks; no arbitrary commands; bounded timeouts | Adapter conformance and sandbox tests |
-| 7 | Failure and recovery | No blind retry of non-idempotent actions; UNKNOWN reconciliation; bounded recovery | Fault injection and duplicate-action tests |
+| 7 | Failure, isolation and recovery | No blind retry of non-idempotent actions; UNKNOWN reconciliation; bounded recovery; nine unique execution contexts, state namespaces, evidence streams and fault domains; no shared mutable state or implicit permission inheritance | Fault injection, cross-instance access-denial, evidence-attribution and duplicate-action tests |
 | 8 | Independent verification | Verifier can disagree with executor; VERIFIED only on sufficient independent evidence | End-to-end evidence tests and reviewer report |
 | 9 | Memory, audit and operations | Provenance, minimised retention, tamper-evident evidence, monitoring, kill switch, backup/restore and rollback rehearsal | Audit, privacy, resilience and operational test reports |
 
