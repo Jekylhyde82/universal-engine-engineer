@@ -43,7 +43,7 @@ async function withTempDir(fn) {
   try { await fn(directory); } finally { await rm(directory, { recursive: true, force: true }); }
 }
 
-test("grant is signed and bound to exact action, actor, app, session and policy", () => {
+test("grant is signed and bound to exact action, actor, app, session and policy", async () => {
   const request = action();
   const grant = createGrant({
     request,
@@ -52,7 +52,7 @@ test("grant is signed and bound to exact action, actor, app, session and policy"
     now,
     ttlMs: 10_000,
   });
-  const result = verifyGrant({
+  const result = await verifyGrant({
     grant, publicKeyPem, expectedRequest: request,
     expectedPolicyVersion: "policy-7", now: now + 1,
     consumeGrantId: async () => true,
