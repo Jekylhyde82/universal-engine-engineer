@@ -19,7 +19,7 @@ Implemented in the feature branch:
 - Local append-only hash-chained action audit ledger with locking, fsync, partial-tail recovery, canonical-record enforcement, restrictive permissions, bounded capacity and atomic duplicate action-ID prevention.
 - Real Chromium CI integration tests plus JavaScript syntax checks and CodeQL workflow.
 
-Latest verified real-browser CI run on PR head `5441cf6b1c0f71417674a3a361606651af5dc7c0`: **119 tests passed, 0 failed, 0 cancelled, 0 skipped**, including real Chromium integration tests against a temporary local fixture (run `44460534258`). CodeQL is pending for this exact head (run `44460534283`); the previous code-tested commit passed CodeQL.
+Latest verified implementation commit: `3e910c4468b9ed8458557933fe47ecc833626737`. Policy CI passed **119 tests, 0 failed, 0 cancelled, 0 skipped** (run `44460278822`), including real Chromium integration tests against a temporary local fixture. CodeQL passed on the same implementation commit (run `44460279083`). Subsequent branch commits are documentation-only.
 
 Still not production-ready: real identity provider, trusted approval-signature provider/key lifecycle, independent read-only verifier process, calibrated vision model, screenshot redaction, durable externally anchored action audit ledger, AFI PRIME/EB9PRIME runtime integration, Android implementation, deployment/operations and independent security approval.
 
