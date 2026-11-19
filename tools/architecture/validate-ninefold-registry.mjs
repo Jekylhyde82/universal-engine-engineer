@@ -53,7 +53,7 @@ assert(registry.instance_isolation_contract.shared_logic === "ONE_VERSIONED_CANO
 assert(registry.instance_isolation_contract.shared_governance === "ONE_CANONICAL_GOVERNANCE_POLICY_WITH_INSTANCE_SCOPED_ENFORCEMENT", "instances must share canonical governance with scoped enforcement.");
 assert(registry.instance_isolation_contract.shared_mutable_state === false, "instances must not share mutable execution state.");
 assert(registry.instance_isolation_contract.implicit_permission_inheritance === false, "permissions must not be implicitly inherited across instances.");
-assert(registry.instance_isolation_contract.implementation_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "registry must not claim instance isolation is implemented.");
+assert(registry.instance_isolation_contract.implementation_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "registry must distinguish prototype from production implementation.");
 const instanceFieldIds = ["execution_context_id", "state_namespace", "evidence_stream_id", "fault_domain_id"];
 for (const field of instanceFieldIds) {
   const values = registry.fusion_core_instances.map((core) => core[field]);
