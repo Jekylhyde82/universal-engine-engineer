@@ -1,12 +1,12 @@
 # UAIE Working Prototype v0.1
 
-**U.A.I.E. — Universal Assimilation and Integration Engine**  
+**U.A.I.E. — Universal Acquisition and Integration Engine**  
 Foundational architecture: NINEFOLD INTRINSIC  
 Governing invariant: INTRINSIC BY DESIGN
 
 ## What this prototype does now
 
-UAIE v0.1 is a working, local-first acquisition and assimilation engine. It can:
+UAIE v0.1 is a working, local-first acquisition and integration engine. It can:
 
 - Ingest individual files or recursively ingest a directory.
 - Accept text and JSON-compatible structured objects through its Python API.
@@ -37,9 +37,9 @@ The default database is `uaie.sqlite3` in the current directory. Use `--db` to s
 ## Python API
 
 ```python
-from universal_engine.uaie import UniversalAssimilationEngine
+from universal_engine.uaie import UniversalAcquisitionEngine
 
-uaie = UniversalAssimilationEngine("uaie.sqlite3")
+uaie = UniversalAcquisitionEngine("uaie.sqlite3")
 record = uaie.ingest_text(
     "A new API capability with security controls and tests",
     source="notes/candidate.md",
@@ -75,3 +75,16 @@ The value score is an explainable keyword heuristic, not an authoritative measur
 6. Add authentication, distributed authorization, audit anchoring, backup/restore and independent security review before production.
 
 **PROOF BEFORE CLAIM. EVIDENCE BEFORE CONFIDENCE. VERIFICATION BEFORE COMPLETION.**
+
+
+## Universal Capability Acquisition Register — required portfolio fields
+
+The register is the governed portfolio record for candidate capabilities. Each assessed candidate must preserve:
+- **Original Idea Value** — the original concept, wording or contribution and its attribution; never silently overwrite it with an AI-generated reformulation.
+- **Potential market value** — an evidence-labelled estimate or explicitly marked unknown.
+- **Revenue models** — one or more candidate models, or an explicit not-assessed status.
+- **Development timeline** — estimate, assumptions and confidence, or unknown.
+- **Risk assessment** — identified risks, severity, mitigations and unresolved issues.
+- **Evidence and verification status** — source references, test evidence and current verification state.
+
+Missing evidence must remain missing/unknown rather than being invented. The current prototype's heuristic value score is triage only and must not be substituted for these fields or treated as a commercial valuation.
