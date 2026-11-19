@@ -90,4 +90,11 @@ This local API adapter is the post-acquisition verification step: it can confirm
 - A live local inventory smoke test requires a user-authorised LM Studio host and token if authentication is enabled.
 - Production readiness requires an approved catalogue access method, robust register linkage, licence review, hardware/resource evaluation, independent model benchmarks, security review, audit/retention policy, backup/restore, monitoring and deployment documentation.
 
+## Official references
+
+- [LM Studio Hub Terms of Use](https://lmstudio.ai/hub-terms) — integrations must use officially supported interfaces.
+- [LM Studio CLI: `lms get`](https://lmstudio.ai/docs/cli/local-models/get) — official model search and download workflow.
+- [LM Studio REST API: List Models](https://lmstudio.ai/docs/developer/rest/list) — official local model inventory contract.
+- [LM Studio REST API overview](https://lmstudio.ai/docs/developer/rest) — supported local inference and model-management endpoints.
+
 **Evidence rule:** specified, implemented, CI-tested, live-smoke-tested, independently verified and production-operational are distinct states.
