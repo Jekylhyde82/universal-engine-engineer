@@ -53,6 +53,34 @@ Responsible for:
 
 Unified Fusion Synergy — AFI PRIME is one current architecture identity, not separate AFI and Fusion components. It is not the policy enforcement point, cannot grant itself execution authority and cannot certify its own results. Model confidence is not a permission.
 
+### 2.2.1 Nine scoped AFI PRIME instance boundaries
+
+The shared fusion function is instantiated once within each UMIC. Each of the nine instances must be isolated along four independently testable dimensions:
+
+| Boundary | Required contract | Prohibited shortcut |
+|---|---|---|
+| Execution context | Unique instance ID, isolated lifecycle, bounded resources, cancellation and health state | Treating nine logical labels inside one unbounded process as proven isolation |
+| State | Unique namespace and ownership; typed/versioned cross-instance messages only | Shared mutable state or direct unlogged writes into another instance |
+| Evidence | Unique append-only stream with instance, function-version, policy-version and task/action provenance | One merged log that loses originating instance identity |
+| Fault containment | Unique fault domain, timeout, quarantine, recovery and explicit degradation signals | Letting one instance failure corrupt peer state or silently disable all nine |
+
+All instances consume the same canonical, versioned AFI PRIME logic and governance definitions. Runtime state, credentials, action grants, evidence streams and fault state remain instance-scoped. Common identity does not imply common privilege: every cross-instance request is independently authorised for its actor, source instance, destination instance, data and purpose.
+
+A shared governance policy may be centrally versioned, but its enforcement must be scoped to the instance and action being evaluated. No fusion instance may mint its own authority, approve its own high-risk action or certify its own result. Independent verification remains outside the instance being verified.
+
+Cross-instance communication must use typed, versioned contracts with schema validation, provenance, data classification, size/time limits, replay protection where relevant and an auditable decision. Failure or unavailability of a peer must produce an explicit degraded/unknown state rather than fabricated completion.
+
+**Runtime status:** NOT IMPLEMENTED. These are acceptance requirements, not claims about the current Node.js policy package. The current package's per-run browser profile and action ledger do not demonstrate nine AFI PRIME runtime instances or the four required isolation dimensions.
+
+**Minimum proof-of-capability tests:**
+1. Assert nine unique execution-context IDs and verify context handles cannot cross instance boundaries.
+2. Attempt cross-instance state reads/writes without a governed contract; all must be denied and audited.
+3. Verify each instance's evidence events remain attributable after entity-level aggregation.
+4. Inject process, task, timeout, storage and dependency faults into one instance; peer instances must remain intact or enter an explicit bounded degraded state.
+5. Attempt permission/grant reuse across instances; reject mismatched instance, actor, task, resource and policy bindings.
+6. Roll the shared AFI PRIME logic version forward/backward under controlled compatibility checks without merging instance state or evidence.
+7. Verify independent read-only verification can inspect each instance's evidence without granting the verifier execution authority.
+
 ### 2.3 Policy enforcement point — independent authority
 
 A deterministic service or module, separate from the model's planning prompt, must:
