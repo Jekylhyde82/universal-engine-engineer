@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { constants } from "node:fs";
-import { mkdir, lstat, readFile, open, truncate, unlink } from "node:fs/promises";
+import { mkdir, lstat, open, unlink } from "node:fs/promises";
 import { dirname } from "node:path";
 
 const ZERO_HASH = "0".repeat(64);
