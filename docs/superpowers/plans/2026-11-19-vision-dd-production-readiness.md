@@ -15,6 +15,8 @@ Implemented in the feature branch:
 - Isolated Chromium host with fresh private profile, service workers blocked, downloads/extensions disabled, external popups closed and raw browser handles withheld from the caller.
 - Terminal consent provider with explicit YES confirmation and terminal-output sanitization.
 - Signed independent readback verification primitive.
+- Governed action orchestrator that separates policy, executor and verifier roles and refuses to proceed when an audit append fails.
+- Local append-only hash-chained action audit ledger with locking, fsync, partial-tail recovery, canonical-record enforcement, restrictive permissions and bounded capacity.
 - Real Chromium CI integration tests plus JavaScript syntax checks and CodeQL workflow.
 
 Latest previously verified real-browser CI run: 69 passing tests, 0 failures at `75ff874873ed1784009a5ea06c076ea51546a70a`. The new host/consent changes are pending their own latest CI and CodeQL results.
@@ -68,7 +70,7 @@ Preserve distinct responsibilities:
 
 ### P2 — Independent verification and evidence
 1. **Partially implemented:** signed readback verification primitive rejects executor self-verification, stale evidence, scope mismatch and invalid signatures. A separate authenticated read-only verifier provider remains outstanding.
-2. Nonce replay ledger exists; the append-only task/action evidence ledger, redaction, external integrity anchoring and retention policy remain outstanding.
+2. Local nonce replay and action audit ledgers are implemented. External signed integrity checkpoints, protected backup/restore, retention/access controls and screenshot redaction remain outstanding.
 3. **Partially implemented:** executor reports AWAITING_VERIFICATION or UNKNOWN; reconciliation workflow and durable recovery evidence remain outstanding.
 4. Initial adversarial tests cover stale observations, origin changes/redirects, popup blocking, approval/grant replay and signature tampering. Visual prompt injection, account/session switching and broader fault-injection campaigns remain outstanding.
 
