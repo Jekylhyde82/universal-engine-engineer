@@ -111,3 +111,12 @@ test("audit ledger rejects non-canonical JSON record encodings", async () => {
     await assert.rejects(() => ledger.verifyIntegrity(), /non-canonical/i);
   });
 });
+
+test("audit ledger fails closed on a pre-existing stale lock", async () => {
+  await withTempDir(async (directory) => {
+    const path = join(directory, "events.jsonl");
+    await writeFile(path + ".lock", "stale-lock", { mode: 0o600 });
+    const ledger = new FileActionAuditLedger(path, { lockTimeoutMs: 30, retryMs: 5 });
+    await assert.rejects(() => ledger.append({ event_type: "ACTION_PROPOSED" }), /lock timeout/i);
+  });
+});
