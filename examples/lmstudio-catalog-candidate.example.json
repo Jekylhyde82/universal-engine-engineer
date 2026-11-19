@@ -1,0 +1,31 @@
+{
+  "model_id": "publisher/model-name",
+  "display_name": "Replace with the catalog model name",
+  "catalog_url": "https://lmstudio.ai/models/model-name",
+  "quantization": null,
+  "publisher": null,
+  "architecture": null,
+  "parameter_sizes": [],
+  "max_context": null,
+  "minimum_memory": null,
+  "availability": [],
+  "capabilities": {
+    "vision": false,
+    "reasoning": false,
+    "tool_use": false,
+    "audio": false,
+    "video": false
+  },
+  "license_text": "NOT_PROVIDED",
+  "description": "Replace with a user-reviewed description.",
+  "artifact_links": [],
+  "metadata": {},
+  "original_idea_value": "Describe the original user idea that motivated acquiring this capability.",
+  "potential_market_value": "NOT_ASSESSED",
+  "revenue_models": [],
+  "development_timeline": "NOT_ASSESSED",
+  "development_cost": "NOT_ASSESSED",
+  "integration_cost": "NOT_ASSESSED",
+  "risk_assessment": "PENDING",
+  "evidence_verification_status": "USER_SUPPLIED_UNVERIFIED"
+}
