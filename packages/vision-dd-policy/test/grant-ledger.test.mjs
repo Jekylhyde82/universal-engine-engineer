@@ -71,23 +71,23 @@ test("grant signature tampering is rejected", async () => {
 test("grant for another action or policy is rejected", async () => {
   const request = action();
   const grant = createGrant({ request, decision: decision(request), privateKeyPem, now });
-  assert.equal(verifyGrant({
+  assert.equal((await verifyGrant({
     grant, publicKeyPem, expectedRequest: action({ action_id: "different-action" }),
     expectedPolicyVersion: "policy-7", now,
-  }).valid, false);
-  assert.equal(verifyGrant({
+  })).valid, false);
+  assert.equal((await verifyGrant({
     grant, publicKeyPem, expectedRequest: request,
     expectedPolicyVersion: "policy-8", now,
-  }).valid, false);
+  })).valid, false);
 });
 
 test("expired grant is rejected", async () => {
   const request = action();
   const grant = createGrant({ request, decision: decision(request), privateKeyPem, now, ttlMs: 1000 });
-  assert.equal(verifyGrant({
+  assert.equal((await verifyGrant({
     grant, publicKeyPem, expectedRequest: request,
     expectedPolicyVersion: "policy-7", now: now + 1000,
-  }).valid, false);
+  })).valid, false);
 });
 
 test("grant cannot be issued from a non-eligible policy decision", () => {
