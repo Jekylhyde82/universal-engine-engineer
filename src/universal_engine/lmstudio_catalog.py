@@ -145,8 +145,12 @@ class _DetailText(HTMLParser):
 
 def _safe_catalog_url(url: str) -> str:
     parsed = urllib.parse.urlsplit(url)
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise LMStudioCatalogError("catalog URL contains an invalid port") from exc
     if (parsed.scheme != "https" or parsed.hostname != ALLOWED_HOST
-            or parsed.username or parsed.password or parsed.port not in (None, 443)
+            or parsed.username or parsed.password or port not in (None, 443)
             or parsed.query or parsed.fragment):
         raise LMStudioCatalogError("only clean HTTPS URLs on lmstudio.ai are permitted")
     return urllib.parse.urlunsplit(("https", ALLOWED_HOST, parsed.path or "/models", "", ""))
@@ -191,8 +195,8 @@ def _build_entry(slug: str, detail_url: str, card_text: str, detail_html: str) -
         ("audio", ("audio",)),
         ("video", ("video",)),
     ) if any(needle in lower for needle in needles))
-    availability = tuple(value for value, needle in (("local", "local"), ("cloud", "cloud"))
-                         if needle in card_text.casefold())
+    availability = tuple(value for value, pattern in (("local", r"\\blocal\\s*[—-]\\s*available"), ("cloud", r"\\bcloud\\s*[—-]\\s*available"))
+                         if re.search(pattern, card_text, flags=re.IGNORECASE))
     params = tuple(dict.fromkeys(re.findall(r"\b\d+(?:\.\d+)?\s*(?:B|M)\b", combined, flags=re.I)))
     context = _extract_card_value(combined, r"\b(\d+(?:\.\d+)?\s*[KMB])\s*(?:token\s+)?context")
     memory = _extract_card_value(combined, r"(?:at least\s+)?(\d+(?:\.\d+)?\s*(?:GB|MB|TB))\s+(?:of\s+)?RAM")
