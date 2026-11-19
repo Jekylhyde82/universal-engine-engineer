@@ -80,6 +80,9 @@ Cross-instance communication must use typed, versioned contracts with schema val
 5. Attempt permission/grant reuse across instances; reject mismatched instance, actor, task, resource and policy bindings.
 6. Roll the shared AFI PRIME logic version forward/backward under controlled compatibility checks without merging instance state or evidence.
 7. Verify independent read-only verification can inspect each instance's evidence without granting the verifier execution authority.
+8. Verify child processes receive only an allowlisted environment and do not inherit parent secrets or Node injection flags.
+9. Verify runtime restart reopens the same instance evidence stream, validates the full hash chain and rejects tampering rather than creating a new empty stream.
+10. Verify per-instance state, evidence growth and IPC concurrency limits fail closed when exceeded, without affecting peer instances.
 
 ### 2.3 Policy enforcement point — independent authority
 
