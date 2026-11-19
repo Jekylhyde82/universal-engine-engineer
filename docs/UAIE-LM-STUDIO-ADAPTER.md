@@ -61,7 +61,7 @@ pip install -e .
 uaie-lmstudio-catalog candidate.json --db uaie.sqlite3
 ```
 
-The installed `uaie-lmstudio-catalog` command creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. The core engine is also available as `uaie`. After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
+The installed `uaie-lmstudio-catalog` command creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. The core engine is also available as `uaie`. After a human reviews and approves the candidate, the operator may either run the displayed `lms get` command or call the official REST download method with `approved=True`. The API method starts a download job and returns its status; `get_download_status` can poll that job. Quantization through the REST API is accepted only with an explicitly selected Hugging Face artifact URL; for a catalog identifier with a quantization suffix, use the reviewed CLI proposal. No download occurs during discovery, candidate intake or AFI fusion.
 
 ## Universal Capability Acquisition Register
 
@@ -74,6 +74,24 @@ The register retains Original Idea Value, potential market value, revenue models
 AFI extracts explicit model facts and preserves the candidate's source, declared capabilities, model identity, quantization, parameter-size notes, memory/context information, artifact references and licence statement.
 
 The profile is labelled `USER_SUPPLIED_CATALOG_METADATA` and `METADATA_ONLY_NOT_BENCHMARKED`. Publisher claims are not converted into verified capability claims. `performance_verified` and `integration_approved` remain false.
+
+## Explicitly approved acquisition API
+
+The official LM Studio native API documents `POST /api/v1/models/download` and `GET /api/v1/models/download/status/{job_id}`. UAIE exposes these as `download_model`, `download_catalog_candidate` and `get_download_status`.
+
+The download function refuses to make a network request unless the caller passes the literal `approved=True`. It validates model identifiers, Hugging Face artifact URLs, quantization, loopback server location and response shape. It never loads the model into memory. The candidate wrapper additionally requires a Hugging Face URL to be one of the artifact links already reviewed in that candidate.
+
+Example (this starts a real download only when deliberately executed against a running LM Studio host):
+
+```python
+from universal_engine.lmstudio_catalog import candidate_from_mapping, download_catalog_candidate
+
+candidate = candidate_from_mapping(candidate_data)
+job = download_catalog_candidate(candidate, approved=True, api_token=api_token)
+print(job)
+```
+
+Do not set `approved=True` in unattended discovery or assimilation workflows.
 
 ## Local inventory adapter
 
@@ -102,6 +120,8 @@ This local API adapter is the post-acquisition verification step: it can confirm
 - [LM Studio Hub Terms of Use](https://lmstudio.ai/hub-terms) — integrations must use officially supported interfaces.
 - [LM Studio CLI: `lms get`](https://lmstudio.ai/docs/cli/local-models/get) — official model search and download workflow.
 - [LM Studio REST API: List Models](https://lmstudio.ai/docs/developer/rest/list) — official local model inventory contract.
+- [LM Studio REST API: Download a Model](https://lmstudio.ai/docs/developer/rest/download) — official approval-gated model download job contract.
+- [LM Studio REST API: Quickstart](https://lmstudio.ai/docs/developer/rest/quickstart) — API authentication and download-job overview.
 - [LM Studio REST API overview](https://lmstudio.ai/docs/developer/rest) — supported local inference and model-management endpoints.
 
 **Evidence rule:** specified, implemented, CI-tested, live-smoke-tested, independently verified and production-operational are distinct states.
