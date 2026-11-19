@@ -292,7 +292,16 @@ Required telemetry:
 
 No screenshots, raw page text, credentials or sensitive user content in ordinary logs. Provide kill switch, session revocation, adapter disablement, safe shutdown and incident export.
 
-## 12. Architecture decisions still required
+## 12. Prototype implementation slice
+
+A dependency-free reference package now exists at `packages/vision-dd-policy/`:
+- `src/policy.mjs` performs deterministic deny-by-default policy evaluation, canonical action digesting, risk classification from trusted policy configuration, policy-version-bound approval checks and bounded payload validation.
+- `src/action-state.mjs` guards permitted state transitions and requires references for grants, verification and recovery states.
+- `test/` contains automated unit tests executed by `.github/workflows/vision-dd-policy.yml`.
+
+The current GitHub Actions run reports 24 passing tests and zero failures on the recorded PR head. These are unit tests for the reference package only. The approval verifier and nonce consumer are injected interfaces; test implementations are fakes. No production signing keys, durable nonce store, authenticated grant issuer, actor authentication, device adapter, action ledger, independent outcome verifier or live integration exists. The package must not be wired directly to a real executor until those boundaries are implemented and independently reviewed.
+
+## 13. Architecture decisions still required
 
 Before implementation, record explicit decisions for:
 - supported first platform and app allowlist;
