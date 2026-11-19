@@ -93,24 +93,35 @@ class CatalogCandidateTests(unittest.TestCase):
             with self.subTest(metadata_type=type(metadata["payload"] if "payload" in metadata else metadata["value"])), self.assertRaises(LMStudioCatalogError):
                 candidate_from_mapping({**CANDIDATE, "metadata": metadata})
 
-    def test_catalog_candidate_download_requires_approval_and_reviewed_artifact(self):
+    def test_catalog_candidate_download_requires_dual_approval_and_reviewed_artifact(self):
         candidate = candidate_from_mapping({**CANDIDATE, "quantization": "Q4_K_M"})
-        with self.assertRaises(LMStudioCatalogError):
-            download_catalog_candidate(candidate, approved=True)
-        with self.assertRaises(LMStudioCatalogError):
-            download_catalog_candidate(
-                candidate, approved=True,
-                huggingface_model_url="https://huggingface.co/other/model")
-        seen = {}
-        def opener(request, timeout):
-            seen["body"] = json.loads(request.data.decode())
-            return FakeResponse(b'{"status":"already_downloaded"}')
-        job = download_catalog_candidate(
-            candidate, approved=True,
-            huggingface_model_url="https://huggingface.co/liquid-ai/lfm3-vl-2b",
-            opener=opener)
-        self.assertEqual(job.status, "already_downloaded")
-        self.assertEqual(seen["body"]["quantization"], "Q4_K_M")
+        with tempfile.TemporaryDirectory() as tmp:
+            engine = UniversalAcquisitionIntegrationEngine(Path(tmp) / "uaie.sqlite3")
+            catalog_record, _, register_entry = assimilate_catalog_candidate(engine, candidate)
+            with self.assertRaises(LMStudioCatalogError):
+                download_catalog_candidate(
+                    engine, candidate, catalog_record.record_id, approved=True)
+            engine.set_state(catalog_record.record_id, "approved")
+            engine.set_acquisition_lifecycle(catalog_record.record_id, "proposed")
+            engine.set_acquisition_lifecycle(catalog_record.record_id, "under_evaluation")
+            engine.set_acquisition_lifecycle(catalog_record.record_id, "approved")
+            with self.assertRaises(LMStudioCatalogError):
+                download_catalog_candidate(
+                    engine, candidate, catalog_record.record_id, approved=True)
+            with self.assertRaises(LMStudioCatalogError):
+                download_catalog_candidate(
+                    engine, candidate, catalog_record.record_id, approved=True,
+                    huggingface_model_url="https://huggingface.co/other/model")
+            seen = {}
+            def opener(request, timeout):
+                seen["body"] = json.loads(request.data.decode())
+                return FakeResponse(b'{"status":"already_downloaded"}')
+            job = download_catalog_candidate(
+                engine, candidate, catalog_record.record_id, approved=True,
+                huggingface_model_url="https://huggingface.co/liquid-ai/lfm3-vl-2b",
+                opener=opener)
+            self.assertEqual(job.status, "already_downloaded")
+            self.assertEqual(seen["body"]["quantization"], "Q4_K_M")
 
     def test_cli_imports_reviewed_json_and_only_prints_download_proposal(self):
         with tempfile.TemporaryDirectory() as tmp:
