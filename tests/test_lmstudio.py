@@ -102,7 +102,7 @@ class LMStudioAdapterTests(unittest.TestCase):
             engine = UniversalAssimilationEngine(Path(tmp) / "uaie.sqlite3")
             record = engine.ingest_object(MODEL, source="http://127.0.0.1:1234/api/v1/models#publisher/example-7b")
             self.assertEqual(record.state, "assimilated")
-            self.assertIn("integration", record.signals)
+            self.assertIn("capability", record.signals)
             self.assertEqual(engine.export_record(record.record_id)["source"],
                              "http://127.0.0.1:1234/api/v1/models#publisher/example-7b")
 
