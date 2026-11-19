@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 from .uaie import (
-    AssimilationRecord, UAIEError, UniversalAcquisitionIntegrationEngine,
+    AcquisitionRegisterEntry, AssimilationRecord, UAIEError, UniversalAcquisitionIntegrationEngine,
     UniversalAssimilationEngine,
 )
 from .lmstudio import (
@@ -28,7 +28,7 @@ from .lmstudio import (
 from .afi import AFIModelCapabilityProfile, AFIPrimeFusionAdapter
 
 __all__ += [
-    "AssimilationRecord", "UAIEError", "UniversalAcquisitionIntegrationEngine",
+    "AcquisitionRegisterEntry", "AssimilationRecord", "UAIEError", "UniversalAcquisitionIntegrationEngine",
     "UniversalAssimilationEngine", "CatalogAssimilationResult", "LMStudioError",
     "LMStudioModel", "assimilate_catalog", "list_models",
     "AFIModelCapabilityProfile", "AFIPrimeFusionAdapter",
