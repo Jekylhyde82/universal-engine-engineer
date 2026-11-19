@@ -2,7 +2,24 @@
 
 **Date:** 2026-11-19  
 **Parent:** NINEFOLD INTRINSIC  
-**Delivery status:** Active implementation plan; not a release approval.
+**Delivery status:** Active implementation; production remains NO-GO.
+
+## Current implementation checkpoint (2026-11-19)
+
+Implemented in the feature branch:
+- Deterministic deny-by-default policy evaluation and guarded action-state transitions.
+- Ed25519 action-bound grants with policy version, actor, task, action, application and session binding.
+- Single-host hash-chained nonce ledger with locking, fsync, restrictive permissions, bounded capacity and fail-closed recovery.
+- HTTP policy-grant service with injected authentication and approval-verification dependencies.
+- Trusted-consent-provider-gated browser observation, optional separately consented screenshot capture and navigation-only D.D. execution.
+- Isolated Chromium host with fresh private profile, service workers blocked, downloads/extensions disabled, external popups closed and raw browser handles withheld from the caller.
+- Terminal consent provider with explicit YES confirmation and terminal-output sanitization.
+- Signed independent readback verification primitive.
+- Real Chromium CI integration tests plus JavaScript syntax checks and CodeQL workflow.
+
+Latest previously verified real-browser CI run: 69 passing tests, 0 failures at `75ff874873ed1784009a5ea06c076ea51546a70a`. The new host/consent changes are pending their own latest CI and CodeQL results.
+
+Still not production-ready: real identity provider, trusted approval-signature provider/key lifecycle, independent read-only verifier process, calibrated vision model, screenshot redaction, durable externally anchored action audit ledger, AFI PRIME/EB9PRIME runtime integration, Android implementation, deployment/operations and independent security approval.
 
 ## Delivery objective
 
@@ -32,41 +49,42 @@ Preserve distinct responsibilities:
 - The browser adapter must run in an isolated, dedicated profile and bind each action to a live session and fresh observation.
 - No user device is accessed or activated by this repository change.
 - No credentials, private keys, approval secrets or personal data may be committed.
-- The policy package is a prototype until persistent replay protection, authenticated identity, grant issuance, executor enforcement and independent verification are implemented and reviewed.
+- The policy package remains a prototype despite the local replay ledger and signed grant primitives: production identity, approval/key management, independent verifier provider, externally anchored audit evidence and operational review remain outstanding.
 
 ## Implementation sequence
 
 ### P0 — Correct the policy boundary
-1. Add test-first Ed25519 grant signing and verification bound to action digest, policy version, actor, application, session, expiry and unique grant ID.
-2. Add a durable, crash-recoverable, append-only grant/nonce ledger with fail-closed behavior; document single-host filesystem assumptions and operational recovery.
-3. Add tests for signature tampering, scope mismatch, expiry, replay, corrupted/truncated ledger, concurrent nonce consumption and restart recovery.
-4. Expose only a minimal policy service interface; do not let the executor call the model or mint grants.
+1. **Implemented:** test-first Ed25519 grant signing and verification bound to action digest, policy version, actor, application, session, expiry and unique grant ID.
+2. **Implemented as a single-host prototype:** crash-recoverable append-only nonce ledger with fail-closed behavior, restrictive permissions, locking and capacity bounds.
+3. **Implemented:** tests for signature tampering, scope mismatch, expiry, replay, corrupted/truncated ledger, concurrent nonce consumption and restart recovery.
+4. **Implemented:** policy HTTP service interface; production identity and approval providers remain injected integration work. The executor cannot mint grants.
 
 ### P1 — Supervised browser adapter
-1. Add typed observation and action schemas; reject unknown fields and stale observations.
-2. Add an isolated Chromium adapter with origin allowlists, session binding, fresh-target checks and a strict action allowlist.
-3. Begin with observation, navigation to allowlisted origins and safe text entry into non-sensitive test fixtures.
-4. Add a global stop, session revoke, bounded timeouts and no-blind-retry semantics.
-5. Do not enable arbitrary click, form submission or consequential actions until risk/approval enforcement and verifier evidence are complete.
+1. **Implemented in the reference package:** strict action request validation and action digests bound to V.I.S.I.O.N. observation IDs.
+2. **Implemented and real-Chromium-tested:** isolated Chromium host, origin allowlist, session binding, fresh observation, request interception, blocked external redirects, private per-run profile, service-worker blocking and popup closure.
+3. **Implemented:** navigation only. Text entry, clicks and form interactions remain disabled.
+4. **Implemented:** stop switch, action serialization, bounded observation/navigation timeouts and no-blind-retry UNKNOWN state. Production session revocation remains outstanding.
+5. Consequential actions remain disabled pending trusted approval UX, policy grants and independent verification.
 
 ### P2 — Independent verification and evidence
-1. Add a verifier interface that obtains fresh state independently of the executor success flag.
-2. Add an append-only task/action evidence ledger with redaction, integrity checks and retention policy.
-3. Ensure uncertain external outcomes become UNKNOWN and require reconciliation.
-4. Add adversarial tests for visual prompt injection, stale frames, origin changes, account/session changes, approval replay and duplicate actions.
+1. **Partially implemented:** signed readback verification primitive rejects executor self-verification, stale evidence, scope mismatch and invalid signatures. A separate authenticated read-only verifier provider remains outstanding.
+2. Nonce replay ledger exists; the append-only task/action evidence ledger, redaction, external integrity anchoring and retention policy remain outstanding.
+3. **Partially implemented:** executor reports AWAITING_VERIFICATION or UNKNOWN; reconciliation workflow and durable recovery evidence remain outstanding.
+4. Initial adversarial tests cover stale observations, origin changes/redirects, popup blocking, approval/grant replay and signature tampering. Visual prompt injection, account/session switching and broader fault-injection campaigns remain outstanding.
 
 ### P3 — Operational readiness
-1. Add lint, type/schema validation, coverage, dependency/license scanning, secret scanning and SBOM generation.
-2. Add reproducible build and artifact provenance.
-3. Add staging deployment instructions, monitoring, incident response, backup/restore and rollback/kill-switch rehearsals.
-4. Obtain independent code/security review against the exact release commit.
-5. Keep production NO-GO until every applicable acceptance group and release gate has evidence.
+1. **Partially implemented:** JavaScript syntax checks and CodeQL workflow are configured. Dependency/license scanning, secret scanning, SBOM and coverage thresholds remain outstanding.
+2. Reproducible release build and artifact provenance remain outstanding.
+3. Staging, monitoring, incident response, backup/restore and rollback/kill-switch rehearsals remain outstanding.
+4. Independent code/security review against the exact release commit remains outstanding.
+5. Production remains NO-GO until every applicable acceptance group and release gate has evidence.
 
 ### P4 — Android and broader integration
-1. Build a native Android companion with explicit MediaProjection/accessibility consent and persistent user-visible operation indicators.
-2. Test on the supported OPPO/ColorOS/Android matrix; no accessibility permission is requested before its feature is ready.
-3. Integrate AFI PRIME and EB9PRIME through versioned, least-privilege interfaces.
-4. Keep Android production release separate from browser release until its own gates pass.
+1. Reuse the existing `android/uaie-client-v0.1` native Kotlin intake/control-terminal branch (PR #20) as the future mobile companion foundation; it currently has no screen capture or accessibility automation.
+2. Add explicit MediaProjection/accessibility consent and persistent user-visible operation indicators only in a separate Android feature branch.
+3. Test on the supported OPPO/ColorOS/Android matrix; no accessibility permission is requested before its feature is ready.
+4. Integrate AFI PRIME and EB9PRIME through versioned, least-privilege interfaces and reconcile the Node action-policy contract with the existing Python runtime policy engine.
+5. Keep Android production release separate from browser release until its own gates pass.
 
 ## Acceptance criteria
 
