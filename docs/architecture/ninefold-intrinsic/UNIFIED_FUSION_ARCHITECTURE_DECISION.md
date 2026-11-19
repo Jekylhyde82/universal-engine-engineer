@@ -12,9 +12,9 @@
 
 NINEFOLD INTRINSIC is to be represented as **one unified entity with one canonical identity and one intrinsically integrated intelligence architecture**.
 
-The nine former UMICs, their nine Master Core capability lineages, and their eighty-one Engine capability lineages are to be fused into that one entity through **one global Unified Fusion Synergy — AFI PRIME**.
+The architecture contains **nine unified UMICs**, each formed by integrating its one Master Core lineage and nine Engine lineage slots through one scoped instance of the same canonical **Unified Fusion Synergy — AFI PRIME** function. The nine unified UMICs are then intrinsically fused and governed as **one NINEFOLD INTRINSIC entity**.
 
-The previous model of nine separate UMIC entities, each with its own Unified Fusion Core, is superseded.
+There is one canonical fusion-function identity and nine scoped per-UMIC fusion-core instances. These are not nine competing fusion systems or nine top-level entities; they are nine governed instances of one shared fusion architecture.
 
 The previous model of AFI PRIME and Fusion Synergy as separate current architecture components is also superseded. They are one unified fusion function and one current architecture identity. Their historical provenance and constituent capability contributions remain traceable.
 
@@ -29,30 +29,44 @@ The architecture contains these preserved capability lineages:
 | Engine capability lineages | 81 | Preserved as individually identifiable specialist capabilities |
 | **Total preserved constituent lineages** | **99** | Integrated within one unified entity |
 
-The count of 99 refers to the preserved UMIC-domain, Master-Core and Engine lineages. It does **not** count Unified Fusion Synergy — AFI PRIME as another peer component. Unified Fusion Synergy — AFI PRIME is the fusion mechanism and unified fusion intelligence responsible for integrating them.
+The count of 99 refers to the preserved UMIC-domain, Master-Core and Engine lineages. The nine scoped fusion-core instances are not additional peer lineages: they are per-UMIC instances of one shared canonical fusion function. Each instance integrates one Master Core slot and nine Engine slots within its UMIC; the nine resulting unified UMICs form one entity. Exact source-to-slot lineage mapping remains pending reconciliation and must not be fabricated.
 
 ### Canonical relationship
 
 ```text
-                    NINEFOLD INTRINSIC
-                 ONE ENTITY / ONE IDENTITY
-                            |
-             UNIFIED FUSION SYNERGY — AFI PRIME
-                  ONE GLOBAL FUSION FUNCTION
-                            |
-                 INTRINSIC TOTAL FUSION
-                            |
-       +--------------------+--------------------+
-       |                    |                    |
-  9 UMIC DOMAIN        9 MASTER CORE        81 ENGINE
-     LINEAGES             LINEAGES           LINEAGES
-       |                    |                    |
-       +--------------------+--------------------+
-                            |
-                 ONE UNIFIED INTELLIGENCE
-                            |
-                  ONE GOVERNED ENTITY
+                         NINEFOLD INTRINSIC
+                         ONE ENTITY / IDENTITY
+                                  |
+                    +-------------+-------------+
+                    |             |             |
+                 UMIC 01       UMIC 02   ...  UMIC 09
+                    |             |             |
+              +-----+-----+ +-----+-----+ +-----+-----+
+              | Master    | | Master    | | Master    |
+              | Core slot | | Core slot | | Core slot |
+              +-----+-----+ +-----+-----+ +-----+-----+
+                    |             |             |
+              +-----+-----+ +-----+-----+ +-----+-----+
+              | 9 Engine  | | 9 Engine  | | 9 Engine  |
+              | slots     | | slots     | | slots     |
+              +-----+-----+ +-----+-----+ +-----+-----+
+                    |             |             |
+              +-----+-----+ +-----+-----+ +-----+-----+
+              | Scoped    | | Scoped    | | Scoped    |
+              | Unified   | | Unified   | | Unified   |
+              | Fusion    | | Fusion    | | Fusion    |
+              | Core 01   | | Core 02   | | Core 09   |
+              +-----+-----+ +-----+-----+ +-----+-----+
+                    |             |             |
+                    +-------------+-------------+
+                                  |
+                  ONE SHARED FUSION FUNCTION IDENTITY
+                  UNIFIED FUSION SYNERGY — AFI PRIME
+                                  |
+                   NINE UNIFIED UMICs / ONE ENTITY
 ```
+
+This is a logical architecture diagram, not a claim that a single process, executable, database or machine must contain every capability.
 
 This is a logical architecture diagram, not a claim that a single process, executable, database or machine must contain every capability.
 
@@ -60,7 +74,7 @@ This is a logical architecture diagram, not a claim that a single process, execu
 
 Fusion means that the constituent capabilities are designed and governed as one coherent intelligence architecture rather than as independent top-level intelligence systems connected by interfaces.
 
-Fusion does not mean erasing specialist expertise, flattening all responsibilities into one generic function, or removing internal security and accountability boundaries.
+Fusion means each UMIC's Master Core and nine Engine slots are internally unified through its scoped instance of the shared AFI PRIME fusion function, then the nine unified UMICs are fused into one coherent entity. Fusion does not mean erasing specialist expertise, flattening all responsibilities into one generic function, or removing internal security and accountability boundaries.
 
 The architecture must preserve:
 
@@ -158,10 +172,11 @@ The unified architecture must not have a fixed evolutionary ceiling, but every i
 
 The architecture is not implementation-complete until all applicable criteria are demonstrated:
 
-1. **Identity integrity:** one canonical NINEFOLD INTRINSIC identity; no competing top-level UMIC identities in the active architecture.
+1. **Identity integrity:** one canonical NINEFOLD INTRINSIC identity; nine unified UMICs are internal domains, not competing top-level entities.
 2. **Lineage preservation:** all 9 UMIC-domain, 9 Master-Core and 81 Engine capability lineages remain traceable.
-3. **Single fusion definition:** one canonical Unified Fusion Synergy — AFI PRIME identity and responsibility definition; no duplicate AFI/Fusion components.
-4. **Cross-domain synthesis:** tested examples demonstrate coherent use of multiple former UMIC domains and specialist Engines.
+3. **Nine scoped fusion cores:** each UMIC has one scoped instance of the shared fusion function, one Master Core slot and nine Engine slots.
+4. **Single fusion definition:** one canonical Unified Fusion Synergy — AFI PRIME identity and responsibility definition; nine governed instances, not duplicate AFI/Fusion components.
+5. **Cross-domain synthesis:** tested examples demonstrate coherent use of multiple unified UMICs and specialist Engines.
 5. **Specialist accountability:** each internal capability has an owner/responsibility, contract, evidence path and lifecycle status.
 6. **Fault containment:** failure injection demonstrates that an internal capability failure does not corrupt or disable the entire unified entity.
 7. **Security and authority:** tests show that internal fusion cannot bypass policy, permissions, approvals or data boundaries.
@@ -178,7 +193,7 @@ Before this decision is treated as the repository-wide canonical architecture:
 - identify conflicting or obsolete formulations, including nine independent UMICs and separate AFI/Fusion components;
 - update canonical definitions and cross-references consistently;
 - preserve historical records as superseded history rather than silently rewriting provenance;
-- reconcile registry counts and ensure the 9 + 9 + 81 lineages are represented exactly once;
+- reconcile registry counts and ensure the 9 UMICs, 9 Master Core lineages and 81 Engine lineages are represented exactly once, with nine scoped fusion-core instances and one final entity;
 - add schema and automated consistency checks where registries are machine-readable;
 - run tests against the exact resulting commit;
 - obtain independent review before merging or promoting the architecture.
