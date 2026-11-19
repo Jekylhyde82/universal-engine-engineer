@@ -44,13 +44,14 @@ This specification and prototype do not claim live access to the user's camera, 
 | Supervised browser observation adapter | Implemented; fake-page contract tests plus real Chromium integration tests |
 | Optional screenshot capture | Implemented behind separate trusted-consent-provider approval; no redaction or persistence |
 | Browser execution | Navigation only; grant, trusted consent-provider and fresh-observation gated; real Chromium integration tested against local fixture |
-| Browser network-origin restriction | Implemented in adapter via request interception; external redirect blocked in real Chromium integration test |
+| Browser network-origin restriction | HTTP and WebSocket allowlists implemented; real Chromium redirect/WebSocket tests; OS-level egress firewall still outstanding |
 | Independent readback verification primitive | Implemented; signed evidence contract only |
-| Governed action orchestrator | Implemented; requires injected durable audit writer |
+| Governed action orchestrator | Implemented; requires the local or an external durable audit writer and separate policy/executor/verifier authorities |
 | Real independent verifier provider | Not implemented |
 | Production Chromium host/launcher | Not implemented; local-fixture Chromium integration tests pass |
 | Production identity provider and key management | Not implemented |
-| Durable externally anchored action audit evidence | Not implemented; orchestrator refuses to proceed when injected audit append fails |
+| Local append-only action audit ledger | Implemented; hash-chained, fsynced, permission-restricted, bounded and fail-closed |
+| External audit anchoring, retention and recovery operations | Not implemented; independent checkpoints, protected backups and audit access service remain outstanding |
 | AFI PRIME runtime integration | Not implemented |
 | EB9PRIME governed persistence | Not implemented |
 | Android runtime and OS permission integration | Not implemented |
