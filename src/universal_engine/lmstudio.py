@@ -153,6 +153,19 @@ def _parse_model(item: Any) -> LMStudioModel:
 
 
 
+
+class _BlockRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request: Any, response: Any, code: int, message: str,
+                         headers: Any, new_url: str) -> None:
+        raise urllib.error.HTTPError(
+            request.full_url, code, "redirects are disabled for local LM Studio API calls",
+            headers, response)
+
+
+def _open_local_request(request: urllib.request.Request, timeout: float) -> Any:
+    return urllib.request.build_opener(_BlockRedirects()).open(request, timeout=timeout)
+
+
 def _ensure_loopback_response(response: Any, endpoint: str) -> None:
     """Prevent urllib redirects from forwarding credentials away from the local host."""
     final_url = response.geturl() if hasattr(response, "geturl") else endpoint
@@ -187,7 +200,7 @@ def list_models(
     if api_token:
         headers["Authorization"] = f"Bearer {api_token}"
     request = urllib.request.Request(endpoint + "/api/v1/models", headers=headers, method="GET")
-    open_request = opener or urllib.request.urlopen
+    open_request = opener or _open_local_request
     try:
         with open_request(request, timeout=timeout) as response:
             _ensure_loopback_response(response, endpoint)
