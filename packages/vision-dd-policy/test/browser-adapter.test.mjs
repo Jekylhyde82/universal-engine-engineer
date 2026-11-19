@@ -27,6 +27,7 @@ function fakePage(initialUrl = "https://example.test/start") {
     screenshot: async () => Buffer.from("test-png"),
     goto: async (url, options) => {
       calls.push({ url, options });
+      if (state.gotoGate) await state.gotoGate;
       currentUrl = url;
       return { status: () => 200 };
     },
@@ -202,4 +203,22 @@ test("browser adapter blocks external origins at the network request boundary", 
   });
   assert.equal(aborted, 1);
   assert.equal(continued, 0);
+});
+
+test("browser adapter serializes actions and rejects concurrent execution", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  let release;
+  page.state.gotoGate = new Promise((resolve) => { release = resolve; });
+  const request = makeNavigateRequest(observation.observation_id);
+  const grant = makeGrant(request);
+  const first = adapter.execute({ request, grant, userConsent: true });
+  while (page.calls.length === 0) await new Promise((resolve) => setImmediate(resolve));
+  await assert.rejects(
+    () => adapter.execute({ request, grant, userConsent: true }),
+    /already executing/i,
+  );
+  release();
+  const result = await first;
+  assert.equal(result.execution_state, "AWAITING_VERIFICATION");
 });
