@@ -154,7 +154,11 @@ export class FileActionAuditLedger {
       bytes = bytes.subarray(0, recoveredLength);
     }
 
-    const lines = bytes.toString("utf8").split("\n").filter(Boolean);
+    const text = bytes.toString("utf8");
+    const lines = text.length === 0 ? [] : text.slice(0, -1).split("\n");
+    if (lines.some((line) => line.length === 0)) {
+      throw new Error("Audit ledger contains an unexpected blank record.");
+    }
     let previousHash = ZERO_HASH;
     let sequence = 0;
     for (const line of lines) {
