@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chmod, mkdtemp, readFile, rm } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { generateKeyPairSync } from "node:crypto";
@@ -204,5 +204,16 @@ test("nonce ledger fails closed before exceeding its configured size limit", asy
   await withTempDir(async (directory) => {
     const ledger = new FileNonceLedger(join(directory, "nonces.jsonl"), { maxLedgerBytes: 128 });
     await assert.rejects(() => ledger.consume("nonce-1"), /size limit/i);
+  });
+});
+
+test("nonce ledger rejects blank complete records instead of silently skipping them", async () => {
+  await withTempDir(async (directory) => {
+    const path = join(directory, "nonces.jsonl");
+    const ledger = new FileNonceLedger(path);
+    await ledger.consume("nonce-1");
+    const bytes = await readFile(path, "utf8");
+    await writeFile(path, bytes.replace("\n", "\n\n"));
+    await assert.rejects(() => ledger.consume("nonce-2"), /blank record/i);
   });
 });
