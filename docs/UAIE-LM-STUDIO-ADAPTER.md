@@ -79,15 +79,31 @@ The profile is labelled `USER_SUPPLIED_CATALOG_METADATA` and `METADATA_ONLY_NOT_
 
 The official LM Studio native API documents `POST /api/v1/models/download` and `GET /api/v1/models/download/status/{job_id}`. UAIE exposes these as `download_model`, `download_catalog_candidate` and `get_download_status`.
 
-The download function refuses to make a network request unless the caller passes the literal `approved=True`. It validates model identifiers, Hugging Face artifact URLs, quantization, loopback server location and response shape. It never loads the model into memory. The candidate wrapper additionally requires a Hugging Face URL to be one of the artifact links already reviewed in that candidate.
+The download function refuses to make a network request unless the caller passes the literal `approved=True`. The candidate wrapper also checks that the exact model candidate is stored in the UAIE register and that both the UAIE assimilation record and acquisition-register lifecycle have reached `approved`. It validates model identifiers, Hugging Face artifact URLs, quantization, loopback server location and response shape. It never loads the model into memory. The candidate wrapper additionally requires a Hugging Face URL to be one of the artifact links already reviewed in that candidate.
 
 Example (this starts a real download only when deliberately executed against a running LM Studio host):
 
 ```python
-from universal_engine.lmstudio_catalog import candidate_from_mapping, download_catalog_candidate
+from universal_engine.lmstudio_catalog import (
+    candidate_from_mapping, assimilate_catalog_candidate,
+    download_catalog_candidate,
+)
+from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
-candidate = candidate_from_mapping(candidate_data)
-job = download_catalog_candidate(candidate, approved=True, api_token=api_token)
+uaie = UniversalAcquisitionIntegrationEngine("uaie.sqlite3")
+candidate = candidate_from_mapping(candidate_data)  # reviewed JSON record
+catalog_record, afi_record, acquisition = assimilate_catalog_candidate(uaie, candidate)
+
+# Approval is a deliberate operator action, not part of discovery.
+uaie.set_state(catalog_record.record_id, "approved")
+uaie.set_acquisition_lifecycle(catalog_record.record_id, "proposed")
+uaie.set_acquisition_lifecycle(catalog_record.record_id, "under_evaluation")
+uaie.set_acquisition_lifecycle(catalog_record.record_id, "approved")
+
+job = download_catalog_candidate(
+    uaie, candidate, catalog_record.record_id,
+    approved=True, api_token=api_token,
+)
 print(job)
 ```
 
