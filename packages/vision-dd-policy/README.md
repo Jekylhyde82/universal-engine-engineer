@@ -18,6 +18,7 @@ Dependency-free Node.js reference package for deterministic policy evaluation, s
 - Consent-provider-gated Playwright page adapter for bounded semantic observation and optional screenshot capture.
 - Strict browser request-origin allowlisting, stale-observation rejection, one-action-at-a-time execution, stop control and navigation-only action support.
 - Signed readback verifier that refuses to trust the executor's own assertion.
+- Governed action orchestrator that durably audits each state transition before proceeding and will not execute if the audit append fails.
 - Automated Node.js tests in GitHub Actions, including real Chromium integration tests against a local fixture and CodeQL static analysis.
 
 ## Validation evidence
@@ -31,6 +32,7 @@ This is not a complete runtime or production security boundary.
 - No production identity provider or real user/device authentication adapter is included. The HTTP service requires an injected authenticator.
 - Human approval signature verification is injected; tests use fakes. No trusted approval UI or production key-management/rotation service is included.
 - The local nonce ledger is single-host replay protection. Its hash chain is not independently tamper-proof; production audit evidence needs externally anchored checkpoints, backup and restore procedures.
+- The orchestrator requires an injected durable audit writer; a production append-only task/action audit ledger is not yet implemented.
 - No production deployment, staging environment, operational monitoring, incident response or independent penetration test is included.
 - The browser adapter accepts a Playwright-compatible page supplied by a trusted host. CI launches real Chromium for integration tests, but a production browser host/launcher, isolated persistent profile management and trusted user-facing consent UI are not yet implemented.
 - The adapter currently supports navigation only. It does not implement generic clicks, form submissions, typing, file access or arbitrary desktop control.
