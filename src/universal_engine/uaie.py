@@ -36,6 +36,19 @@ class UAIEError(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
+class CapabilityAssessment:
+    record_id: str
+    original_idea_value: str
+    market_value: str
+    revenue_models: tuple[str, ...]
+    development_timeline: str
+    risk_assessment: str
+    evidence: tuple[str, ...]
+    verification_status: str
+    updated_at: str
+
+
+@dataclass(frozen=True, slots=True)
 class AssimilationRecord:
     record_id: str
     content_hash: str
@@ -113,6 +126,18 @@ class UniversalAcquisitionEngine:
                 state TEXT NOT NULL CHECK(state IN
                   ('discovered','assimilated','approved','integrated','rejected')),
                 created_at TEXT NOT NULL
+            )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS capability_assessments (
+                record_id TEXT PRIMARY KEY,
+                original_idea_value TEXT NOT NULL,
+                market_value TEXT NOT NULL,
+                revenue_models_json TEXT NOT NULL,
+                development_timeline TEXT NOT NULL,
+                risk_assessment TEXT NOT NULL,
+                evidence_json TEXT NOT NULL,
+                verification_status TEXT NOT NULL CHECK(verification_status IN
+                  ('not_assessed','under_review','verified','failed')),
+                updated_at TEXT NOT NULL
             )""")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_source ON assimilations(source)")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_state ON assimilations(state)")
@@ -236,6 +261,74 @@ class UniversalAcquisitionEngine:
             db.execute("UPDATE assimilations SET state=? WHERE record_id=?", (state, record_id))
             updated = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         return self._row_to_record(updated)
+
+    def record_capability_assessment(
+        self, record_id: str, *, original_idea_value: str, market_value: str,
+        revenue_models: list[str] | tuple[str, ...], development_timeline: str,
+        risk_assessment: str, evidence: list[str] | tuple[str, ...],
+        verification_status: str = "not_assessed",
+    ) -> CapabilityAssessment:
+        """Persist mandatory portfolio fields without inventing missing evidence."""
+        required = {
+            "original_idea_value": original_idea_value,
+            "market_value": market_value,
+            "development_timeline": development_timeline,
+            "risk_assessment": risk_assessment,
+        }
+        for name, value in required.items():
+            if not isinstance(value, str) or not value.strip():
+                raise UAIEError(f"{name} is mandatory and must be non-empty")
+        if verification_status not in {"not_assessed", "under_review", "verified", "failed"}:
+            raise UAIEError("invalid verification_status")
+        if not isinstance(revenue_models, (list, tuple)) or not all(
+            isinstance(item, str) and item.strip() for item in revenue_models
+        ):
+            raise UAIEError("revenue_models must contain non-empty strings")
+        if not isinstance(evidence, (list, tuple)) or not all(
+            isinstance(item, str) and item.strip() for item in evidence
+        ):
+            raise UAIEError("evidence must contain non-empty source references")
+        now = _now()
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
+                raise UAIEError(f"unknown record: {record_id}")
+            db.execute("""INSERT INTO capability_assessments
+                (record_id,original_idea_value,market_value,revenue_models_json,
+                 development_timeline,risk_assessment,evidence_json,verification_status,updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(record_id) DO UPDATE SET
+                 original_idea_value=excluded.original_idea_value,
+                 market_value=excluded.market_value,
+                 revenue_models_json=excluded.revenue_models_json,
+                 development_timeline=excluded.development_timeline,
+                 risk_assessment=excluded.risk_assessment,
+                 evidence_json=excluded.evidence_json,
+                 verification_status=excluded.verification_status,
+                 updated_at=excluded.updated_at""",
+                (record_id, original_idea_value, market_value,
+                 json.dumps(list(revenue_models), ensure_ascii=False),
+                 development_timeline, risk_assessment,
+                 json.dumps(list(evidence), ensure_ascii=False), verification_status, now))
+        return self.get_capability_assessment(record_id)
+
+    def get_capability_assessment(self, record_id: str) -> CapabilityAssessment:
+        with self._connect() as db:
+            row = db.execute("SELECT * FROM capability_assessments WHERE record_id=?",
+                             (record_id,)).fetchone()
+        if row is None:
+            raise UAIEError(f"no capability assessment for record: {record_id}")
+        return CapabilityAssessment(
+            record_id=row["record_id"],
+            original_idea_value=row["original_idea_value"],
+            market_value=row["market_value"],
+            revenue_models=tuple(json.loads(row["revenue_models_json"])),
+            development_timeline=row["development_timeline"],
+            risk_assessment=row["risk_assessment"],
+            evidence=tuple(json.loads(row["evidence_json"])),
+            verification_status=row["verification_status"],
+            updated_at=row["updated_at"],
+        )
 
     def export_record(self, record_id: str) -> dict[str, Any]:
         with self._connect() as db:
