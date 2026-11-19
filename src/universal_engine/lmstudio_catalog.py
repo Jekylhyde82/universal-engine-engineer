@@ -6,10 +6,13 @@ prepares (but never executes) an lms get command, and fuses metadata through AFI
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
+import sys
 import urllib.parse
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Any, Mapping
 
 
@@ -180,6 +183,44 @@ def build_download_command(candidate: LMStudioCatalogCandidate) -> tuple[str, ..
         model_ref += "@" + candidate.quantization
     return ("lms", "get", model_ref)
 
+
+
+def main(argv: Any = None) -> int:
+    """Import a reviewed JSON candidate and print the official CLI proposal."""
+    parser = argparse.ArgumentParser(
+        description="Import a reviewed LM Studio catalog candidate into UAIE and AFI")
+    parser.add_argument("candidate_json", help="path to a user-reviewed candidate JSON file")
+    parser.add_argument("--db", default="uaie.sqlite3", help="UAIE SQLite database path")
+    args = parser.parse_args(argv)
+    try:
+        source_path = Path(args.candidate_json).expanduser()
+        if source_path.is_symlink() or not source_path.is_file():
+            raise LMStudioCatalogError("candidate path must be a regular non-symlink file")
+        raw = source_path.read_bytes()
+        if len(raw) > 256 * 1024:
+            raise LMStudioCatalogError("candidate JSON exceeds the 256 KiB limit")
+        value = json.loads(raw.decode("utf-8"))
+        candidate = candidate_from_mapping(value)
+        from .uaie import UniversalAcquisitionIntegrationEngine
+        engine = UniversalAcquisitionIntegrationEngine(args.db)
+        catalog_record, afi_record, register_entry = assimilate_catalog_candidate(engine, candidate)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, LMStudioCatalogError, ValueError) as exc:
+        print(f"UAIE catalog intake error: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps({
+        "catalog_record_id": catalog_record.record_id,
+        "afi_profile_record_id": afi_record.record_id,
+        "acquisition_id": register_entry.acquisition_id,
+        "lifecycle_status": register_entry.lifecycle_status,
+        "download_command_proposal": build_download_command(candidate),
+        "command_executed": False,
+        "model_downloaded": False,
+    }, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
 
 def assimilate_catalog_candidate(
     engine: Any,
