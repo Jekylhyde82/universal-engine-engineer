@@ -127,6 +127,13 @@ class UniversalAcquisitionEngine:
                   ('discovered','assimilated','approved','integrated','rejected')),
                 created_at TEXT NOT NULL
             )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS acquisition_sources (
+                record_id TEXT NOT NULL,
+                source TEXT NOT NULL,
+                media_type TEXT NOT NULL,
+                observed_at TEXT NOT NULL,
+                PRIMARY KEY(record_id, source, media_type)
+            )""")
             db.execute("""CREATE TABLE IF NOT EXISTS capability_assessments (
                 record_id TEXT PRIMARY KEY,
                 original_idea_value TEXT NOT NULL,
@@ -171,6 +178,9 @@ class UniversalAcquisitionEngine:
                 (record_id,digest,source,guessed,category,len(content),content,text,
                  score,json.dumps(signals),state,now))
             row = db.execute("SELECT * FROM assimilations WHERE content_hash=?", (digest,)).fetchone()
+            db.execute("""INSERT OR IGNORE INTO acquisition_sources
+                (record_id,source,media_type,observed_at) VALUES (?,?,?,?)""",
+                (row["record_id"], source, guessed, now))
         # INSERT OR IGNORE makes concurrent duplicate intake idempotent under SQLite's
         # unique constraint instead of leaking an IntegrityError to the caller.
         return self._row_to_record(row, duplicate=cursor.rowcount == 0)
@@ -215,6 +225,16 @@ class UniversalAcquisitionEngine:
             byte_size=row["byte_size"], value_score=row["value_score"],
             signals=tuple(json.loads(row["signals_json"])), state=row["state"],
             created_at=row["created_at"], duplicate=duplicate)
+
+    def get_sources(self, record_id: str) -> list[dict[str, str]]:
+        """Return every observed source for a content record, not only its first source."""
+        with self._connect() as db:
+            if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
+                raise UAIEError(f"unknown record: {record_id}")
+            rows = db.execute("""SELECT source,media_type,observed_at
+                FROM acquisition_sources WHERE record_id=? ORDER BY observed_at,source""",
+                (record_id,)).fetchall()
+        return [dict(row) for row in rows]
 
     def get(self, record_id: str) -> AcquisitionRecord:
         with self._connect() as db:
