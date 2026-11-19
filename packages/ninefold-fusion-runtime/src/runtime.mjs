@@ -157,6 +157,7 @@ export class NinefoldFusionRuntime {
       throw new Error("Instance " + instanceId + " is not READY.");
     }
 
+    if (entry.pending.size >= 64) throw new Error("Instance request concurrency limit reached.");
     const requestId = instanceId + "-" + entry.nextRequest++ + "-" + randomUUID();
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -199,6 +200,8 @@ export class NinefoldFusionRuntime {
 
   async crossInstanceRead({ actorId, sourceInstanceId, destinationInstanceId, key, purpose }) {
     if (sourceInstanceId === destinationInstanceId) throw new Error("Cross-instance access requires two different instances.");
+    if (typeof key !== "string" || key.length < 1 || key.length > 128) throw new TypeError("Cross-instance state key is invalid.");
+    if (purpose !== undefined && (typeof purpose !== "string" || purpose.length > 256)) throw new TypeError("Cross-instance purpose is invalid.");
     const authorize = this.options.authorizeCrossInstance;
     let allowed = false;
     if (typeof authorize === "function" && typeof actorId === "string" && actorId.length > 0) {
