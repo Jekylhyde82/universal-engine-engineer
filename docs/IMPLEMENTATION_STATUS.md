@@ -46,3 +46,31 @@ For each implementation claim, record:
 A merge, source CI pass, file copy or successful hash comparison does not prove the whole system is secure, correct, complete or operational. Claims must be limited to exactly what the evidence demonstrates.
 
 The current extracted packages are **PRESERVED / QUARANTINED**. They must remain outside the production execution path until target-specific compatibility, security, test and independent-verification gates are passed.
+
+
+## NINEFOLD INTRINSIC architecture reconciliation — 2026-11-19
+
+**Working branch:** `architecture/vision-dd-production-spec`  
+**Pull request:** [#25](https://github.com/Jekylhyde82/universal-engine-engineer/pull/25) — open, draft, not merged  
+**Latest recorded branch checkpoint before this addendum:** `cc210d826d0dcfa68faf9e7fcd0645d1cfaba1fa`
+
+### Architecture baseline now recorded
+
+- One NINEFOLD INTRINSIC entity and one canonical identity.
+- Nine unified UMIC domains, each with one Master Core lineage slot, nine Engine lineage slots and one scoped instance of the same canonical UNIFIED FUSION SYNERGY — AFI PRIME function.
+- One shared, versioned fusion-function identity and one governance model; nine scoped instances.
+- Each instance has a reserved unique execution-context ID, state namespace, evidence-stream ID and fault-domain ID.
+- No shared mutable runtime state or implicit permission inheritance; cross-instance access requires an explicit governed contract.
+- 99 preserved constituent lineage slots (9 UMIC-domain, 9 Master Core, 81 Engine); canonical names, responsibilities and source-to-slot mappings remain unresolved pending approved source evidence.
+- Master Charter, architecture decision record, registry, registry validator, registry README, V.I.S.I.O.N. technical specification, threat model, production gates and V.I.S.I.O.N. README updated to align with this model.
+
+### Evidence and limitations
+
+- The registry validator's new per-instance isolation assertions completed successfully in policy workflow `44472579827` at commit `458f9b102abc0f854da330f895de802156ffd919`; that workflow was later cancelled during Chromium installation when subsequent commits superseded it. This is evidence for the validator step only, not a full test pass.
+- The most recent complete policy run remains workflow `44471524792` at earlier commit `ce77229e9bfb9b7a3eec118878bac69ab6c504d3`: 132 tests passed, zero failed. Its matching CodeQL workflow `44471524806` completed successfully. These runs predate the new instance-isolation implementation assertions and subsequent architecture-document updates.
+- Later exact-head workflows were cancelled by subsequent pushes before completion. Full policy tests and CodeQL must complete against the final branch head before claiming current-head validation.
+- Runtime implementation of the nine AFI PRIME instances, independent state stores, evidence streams and fault domains is **NOT IMPLEMENTED**.
+- Full 99-lineage source reconciliation and independent verification are **NOT COMPLETE**.
+- Production remains **NO-GO**.
+
+This addendum supersedes no historical snapshot. It records the current architecture direction and separates successful earlier evidence from validation still required on the current head.
