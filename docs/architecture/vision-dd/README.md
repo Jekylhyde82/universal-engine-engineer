@@ -41,10 +41,10 @@ This specification and prototype do not claim live access to the user's camera, 
 | Ed25519 action-bound grant primitive | Implemented; unit-tested |
 | Local nonce replay ledger | Implemented; unit-tested; single-host prototype |
 | Policy HTTP service | Implemented; injected identity/approval adapters required |
-| Supervised browser observation adapter | Implemented; Playwright-compatible page contract; fake-page tests only |
+| Supervised browser observation adapter | Implemented; fake-page contract tests plus real Chromium integration tests |
 | Optional screenshot capture | Implemented behind separate visual consent; no redaction or persistence |
-| Browser execution | Navigation only; grant and fresh-observation gated |
-| Browser network-origin restriction | Implemented in adapter via request interception |
+| Browser execution | Navigation only; grant, trusted consent-provider and fresh-observation gated; real Chromium integration tested against local fixture |
+| Browser network-origin restriction | Implemented in adapter via request interception; external redirect blocked in real Chromium integration test |
 | Independent readback verification primitive | Implemented; signed evidence contract only |
 | Real independent verifier provider | Not implemented |
 | Real Chromium host/launcher | Not implemented or integration-tested |
