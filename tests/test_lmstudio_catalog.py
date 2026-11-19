@@ -4,11 +4,14 @@ import unittest
 from contextlib import redirect_stdout
 from io import StringIO
 from pathlib import Path
+from unittest.mock import patch
 
 from universal_engine.lmstudio_catalog import (
     LMStudioCatalogError, assimilate_catalog_candidate,
-    build_download_command, candidate_from_mapping, download_catalog_candidate, main,
+    build_download_command, candidate_from_mapping, download_catalog_candidate,
+    main, status_main,
 )
+from universal_engine.lmstudio import LMStudioDownloadJob
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
 
@@ -149,6 +152,38 @@ class CatalogCandidateTests(unittest.TestCase):
             self.assertFalse(payload["command_executed"])
             self.assertFalse(payload["model_downloaded"])
             self.assertEqual(payload["lifecycle_status"], "discovered")
+
+    def test_cli_download_requires_explicit_flag_and_approved_register(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            candidate_path = Path(tmp) / "candidate.json"
+            candidate_path.write_text(json.dumps(CANDIDATE), encoding="utf-8")
+            db_path = Path(tmp) / "uaie.sqlite3"
+            engine = UniversalAcquisitionIntegrationEngine(db_path)
+            candidate = candidate_from_mapping(CANDIDATE)
+            catalog_record, _, _ = assimilate_catalog_candidate(engine, candidate)
+            engine.set_state(catalog_record.record_id, "approved")
+            engine.set_acquisition_lifecycle(catalog_record.record_id, "proposed")
+            engine.set_acquisition_lifecycle(catalog_record.record_id, "under_evaluation")
+            engine.set_acquisition_lifecycle(catalog_record.record_id, "approved")
+            with patch("universal_engine.lmstudio_catalog.download_catalog_candidate",
+                       return_value=LMStudioDownloadJob("job_1", "downloading", 123, None, None)):
+                output = StringIO()
+                with redirect_stdout(output):
+                    result = main([str(candidate_path), "--db", str(db_path), "--download",
+                                   "--approved", "--record-id", catalog_record.record_id])
+            self.assertEqual(result, 0)
+            payload = json.loads(output.getvalue())
+            self.assertTrue(payload["download_started"])
+            self.assertEqual(payload["download_job"]["job_id"], "job_1")
+
+    def test_status_cli_reports_job_without_executing_download(self):
+        with patch("universal_engine.lmstudio.get_download_status",
+                   return_value=LMStudioDownloadJob("job_2", "completed", 456, None, "2026-11-20T00:00:00Z")):
+            output = StringIO()
+            with redirect_stdout(output):
+                result = status_main(["job_2"])
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.getvalue())["status"], "completed")
 
     def test_assimilates_candidate_and_fuses_afi_profile(self):
         with tempfile.TemporaryDirectory() as tmp:
