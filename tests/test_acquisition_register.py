@@ -56,6 +56,36 @@ class AcquisitionRegisterTests(unittest.TestCase):
         self.assertEqual(first.acquisition_id, second.acquisition_id)
         self.assertEqual(first.created_at, second.created_at)
 
+    def test_assessment_fields_update_without_overwriting_original_idea(self):
+        entry = self.engine.register_acquisition(
+            self.record.record_id, original_idea_value="Immutable original engineering idea."
+        )
+        updated = self.engine.update_acquisition_assessment(
+            self.record.record_id,
+            potential_market_value="Needs market research; preliminary estimate pending.",
+            revenue_models=("internal use", "licensed service"),
+            development_timeline="Two-week feasibility study proposed.",
+            risk_assessment="Model licence and hardware compatibility need review.",
+            evidence_verification_status="CATALOG_METADATA_CAPTURED_NOT_VERIFIED",
+        )
+        self.assertEqual(updated.original_idea_value, "Immutable original engineering idea.")
+        self.assertEqual(updated.potential_market_value, "Needs market research; preliminary estimate pending.")
+        self.assertEqual(updated.revenue_models, ("internal use", "licensed service"))
+        self.assertEqual(updated.evidence_verification_status, "CATALOG_METADATA_CAPTURED_NOT_VERIFIED")
+
+    def test_assessment_updates_lock_after_approval(self):
+        self.engine.register_acquisition(
+            self.record.record_id, original_idea_value="Test assessment lock."
+        )
+        self.engine.set_acquisition_lifecycle(self.record.record_id, "proposed")
+        self.engine.set_acquisition_lifecycle(self.record.record_id, "under_evaluation")
+        self.engine.set_state(self.record.record_id, "approved")
+        self.engine.set_acquisition_lifecycle(self.record.record_id, "approved")
+        with self.assertRaises(UAIEError):
+            self.engine.update_acquisition_assessment(
+                self.record.record_id, risk_assessment="Changed after approval."
+            )
+
     def test_lifecycle_requires_uaie_approval_before_register_approval_and_integration(self):
         entry = self.engine.register_acquisition(
             self.record.record_id, original_idea_value="Test governed lifecycle."
