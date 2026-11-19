@@ -10,7 +10,7 @@ This package demonstrates one shared canonical UNIFIED FUSION SYNERGY — AFI PR
 - One shared versioned fusion-function implementation loaded by all nine processes.
 - One unique state namespace per instance; state written in one process is not visible in another.
 - One append-only JSONL evidence stream per instance, hash-chained and checked on restart.
-- Cross-instance reads denied by default. A parent-side governance callback must explicitly authorise each cross-instance read; both sides record the decision.
+- Instance handles are issued only after an injected actor-to-instance governance check. Cross-instance reads are denied by default. A separate parent-side governance callback must explicitly authorise each cross-instance read; both sides record the decision.
 - Process-level fault containment: terminating one instance does not prevent healthy peer processes from operating.
 - Fault injection is disabled unless the runtime is created with test mode enabled.
 
