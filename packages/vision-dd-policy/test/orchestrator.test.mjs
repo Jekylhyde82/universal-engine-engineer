@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { runGovernedAction } from "../src/orchestrator.mjs";
+import { FileActionAuditLedger } from "../src/audit-ledger.mjs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const request = {
   schema_version: "1.0.0",
@@ -144,4 +148,19 @@ test("audit failure after execution returns an explicit unsafe-to-retry error", 
     return true;
   });
   assert.equal(d.executions, 1);
+});
+
+test("governed action lifecycle persists every transition to the hash-chained audit ledger", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "vision-dd-orchestrator-audit-"));
+  try {
+    const ledger = new FileActionAuditLedger(join(directory, "actions.jsonl"));
+    const d = dependencies({ appendAudit: (event) => ledger.append(event) });
+    const result = await runGovernedAction(d.options);
+    const integrity = await ledger.verifyIntegrity();
+    assert.equal(result.state, "VERIFIED");
+    assert.equal(integrity.valid, true);
+    assert.equal(integrity.records, 6);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
