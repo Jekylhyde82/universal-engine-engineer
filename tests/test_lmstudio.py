@@ -1,10 +1,9 @@
-import io
 import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import Mock
 
+from universal_engine.afi import AFIPrimeFusionAdapter
 from universal_engine.lmstudio import (
     LMStudioError, assimilate_catalog, list_models,
 )
@@ -91,11 +90,24 @@ class LMStudioAdapterTests(unittest.TestCase):
             engine = UniversalAssimilationEngine(Path(tmp) / "uaie.sqlite3")
             def opener(request, timeout):
                 return FakeResponse(json.dumps({"models": [MODEL]}).encode())
-            records = assimilate_catalog(engine, api_token=None, timeout=3, opener=opener)
-            self.assertEqual(len(records), 1)
-            self.assertEqual(records[0].state, "assimilated")
-            self.assertEqual(engine.export_record(records[0].record_id)["source"],
-                             "http://127.0.0.1:1234/api/v1/models#publisher/example-7b")
+            result = assimilate_catalog(engine, api_token=None, timeout=3, opener=opener)
+            self.assertEqual(len(result.model_records), 1)
+            self.assertEqual(len(result.afi_profile_records), 1)
+            self.assertEqual(result.model_records[0].state, "assimilated")
+            profile = engine.export_record(result.afi_profile_records[0].record_id)
+            self.assertEqual(profile["source"], "afi-prime://lm-studio-model-catalog/publisher/example-7b")
+            self.assertIn("tool_use_training", profile["extracted_text"])
+            self.assertIn("METADATA_ONLY_NOT_BENCHMARKED", profile["extracted_text"])
+
+    def test_afi_extracts_only_explicit_publisher_capability_facts(self):
+        from universal_engine.lmstudio import _parse_model
+        model = _parse_model(MODEL)
+        profile = AFIPrimeFusionAdapter.fuse_model(model)
+        self.assertIn("tool_use_training", profile.capability_facts)
+        self.assertNotIn("vision_input", profile.capability_facts)
+        self.assertFalse(profile.performance_verified)
+        self.assertFalse(profile.integration_approved)
+        self.assertEqual(profile.evidence_class, "PUBLISHER_REPORTED_METADATA")
 
     def test_catalog_metadata_can_be_stored_as_provenance_record(self):
         with tempfile.TemporaryDirectory() as tmp:
