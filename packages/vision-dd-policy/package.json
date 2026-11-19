@@ -1,0 +1,23 @@
+{
+  "name": "@ninefold/vision-dd-policy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Governed V.I.S.I.O.N. perception and D.D. supervised execution runtime primitives.",
+  "scripts": {
+    "test": "node --test",
+    "check": "for file in src/*.mjs test/*.mjs; do node --check \"$file\"; done"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "playwright": "1.65.1"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./policy": "./src/policy.mjs",
+    "./browser": "./src/browser-adapter.mjs",
+    "./auth": "./src/jwt-authenticator.mjs"
+  }
+}

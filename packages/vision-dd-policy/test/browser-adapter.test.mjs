@@ -1,0 +1,387 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { generateKeyPairSync } from "node:crypto";
+import { createBrowserAdapter } from "../src/browser-adapter.mjs";
+import { computeActionDigest } from "../src/policy.mjs";
+import { createGrant } from "../src/grant.mjs";
+
+const now = Date.parse("2026-11-19T03:00:00.000Z");
+const { publicKey, privateKey } = generateKeyPairSync("ed25519");
+const publicKeyPem = publicKey.export({ type: "spki", format: "pem" });
+const privateKeyPem = privateKey.export({ type: "pkcs8", format: "pem" });
+
+function fakePage(initialUrl = "https://example.test/start") {
+  let currentUrl = initialUrl;
+  const calls = [];
+  const state = {};
+  const context = {
+    route: async (_pattern, handler) => { state.routeHandler = handler; },
+    routeWebSocket: async (_pattern, handler) => { state.webSocketHandler = handler; },
+  };
+  return {
+    calls,
+    state,
+    context,
+    url: () => currentUrl,
+    viewportSize: () => ({ width: 1280, height: 720 }),
+    evaluate: async () => ({
+      url: currentUrl,
+      title: "Test page",
+      elements: [{ role: "link", label: "Help", x: 10, y: 20, width: 40, height: 20, disabled: false }],
+    }),
+    screenshot: async () => Buffer.from("test-png"),
+    goto: async (url, options) => {
+      calls.push({ url, options });
+      if (state.gotoGate) await state.gotoGate;
+      currentUrl = url;
+      return { status: () => 200 };
+    },
+  };
+}
+
+async function observedAdapter(page, overrides = {}) {
+  const adapter = createBrowserAdapter({
+    page,
+    context: page.context,
+    sessionId: "browser-session-1",
+    allowedOrigins: ["https://example.test"],
+    publicKeyPem,
+    policyVersion: "policy-7",
+    grantNonceLedger: { consume: async () => true },
+    requestConsent: async () => true,
+    clock: () => now,
+    ...overrides,
+  });
+  const observation = await adapter.observe();
+  return { adapter, observation };
+}
+
+function makeNavigateRequest(observationId, overrides = {}) {
+  const request = {
+    schema_version: "1.0.0",
+    task_id: "task-1",
+    action_id: "action-1",
+    actor_id: "user-1",
+    target_application: "https://example.test",
+    target_session_id: "browser-session-1",
+    action_type: "navigate",
+    parameters: { url: "https://example.test/help" },
+    requested_at: new Date(now - 1000).toISOString(),
+    expires_at: new Date(now + 10_000).toISOString(),
+    observation_id: observationId,
+    ...overrides,
+  };
+  return request;
+}
+
+function makeGrant(request) {
+  return createGrant({
+    request,
+    decision: {
+      decision: "ELIGIBLE_FOR_GRANT",
+      reason: "ALLOWLISTED_LOW_RISK_ACTION",
+      policy_version: "policy-7",
+      risk_class: "R1",
+      action_digest: computeActionDigest(request),
+    },
+    privateKeyPem,
+    now,
+    ttlMs: 5000,
+  });
+}
+
+test("observation requires explicit user consent", async () => {
+  const page = fakePage();
+  const adapter = createBrowserAdapter({
+    page, context: page.context, sessionId: "browser-session-1",
+    allowedOrigins: ["https://example.test"],
+    publicKeyPem, policyVersion: "policy-7",
+    grantNonceLedger: { consume: async () => true }, requestConsent: async () => false, clock: () => now,
+  });
+  await assert.rejects(() => adapter.observe(), /consent/i);
+});
+
+test("observation is provenance-bound, time-limited and excludes raw form values", async () => {
+  const page = fakePage();
+  const { observation } = await observedAdapter(page);
+  assert.equal(observation.source_session_id, "browser-session-1");
+  assert.equal(observation.application_identity, "https://example.test");
+  assert.ok(observation.observation_id);
+  assert.ok(observation.content_digest.startsWith("sha256:"));
+  assert.equal(observation.detected_elements.length, 1);
+  assert.equal(Object.hasOwn(observation.detected_elements[0], "value"), false);
+  assert.ok(observation.expiry_at);
+  assert.equal(observation.redaction_applied, false);
+});
+
+test("visual frame is captured only with separate explicit visual consent", async () => {
+  const page = fakePage();
+  let visualAllowed = false;
+  const { adapter } = await observedAdapter(page, {
+    requestConsent: async ({ purpose }) => purpose !== "VISUAL_FRAME_CAPTURE" || visualAllowed,
+  });
+  await assert.rejects(() => adapter.observe({ includeScreenshot: true }), /visual consent/i);
+  visualAllowed = true;
+  const observation = await adapter.observe({ includeScreenshot: true });
+  assert.equal(observation.visual_frame.mime_type, "image/png");
+  assert.equal(observation.visual_frame.data_base64, Buffer.from("test-png").toString("base64"));
+});
+
+test("browser observation refuses an origin outside the allowlist", async () => {
+  const page = fakePage("https://evil.test/");
+  const adapter = createBrowserAdapter({
+    page, context: page.context, sessionId: "browser-session-1", allowedOrigins: ["https://example.test"],
+    publicKeyPem, policyVersion: "policy-7",
+    grantNonceLedger: { consume: async () => true }, requestConsent: async () => true, clock: () => now,
+  });
+  await assert.rejects(() => adapter.observe(), /origin/i);
+});
+
+test("navigation refuses an origin outside the allowlist", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  const request = makeNavigateRequest(observation.observation_id, {
+    parameters: { url: "https://evil.test/collect" },
+  });
+  await assert.rejects(() => adapter.execute({
+    request, grant: makeGrant(request), 
+  }), /origin/i);
+  assert.equal(page.calls.length, 0);
+});
+
+test("navigation refuses stale observations before grant consumption", async () => {
+  const page = fakePage();
+  let consumed = 0;
+  const { adapter, observation } = await observedAdapter(page, {
+    grantNonceLedger: { consume: async () => { consumed += 1; return true; } },
+  });
+  const request = makeNavigateRequest(observation.observation_id);
+  const grant = makeGrant(request);
+  page.url = () => "https://example.test/changed";
+  await assert.rejects(() => adapter.execute({ request, grant }), /stale/i);
+  assert.equal(consumed, 0);
+});
+
+test("navigation requires a valid signed grant and returns pending verification", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  const request = makeNavigateRequest(observation.observation_id);
+  const result = await adapter.execute({
+    request, grant: makeGrant(request),
+  });
+  assert.equal(result.execution_state, "AWAITING_VERIFICATION");
+  assert.equal(result.verified, false);
+  assert.equal(page.calls.length, 1);
+  assert.equal(page.calls[0].url, "https://example.test/help");
+});
+
+test("adapter refuses unsupported actions rather than performing generic clicks", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  const request = makeNavigateRequest(observation.observation_id, {
+    action_type: "click",
+    parameters: { target_element_id: "button-1" },
+  });
+  await assert.rejects(() => adapter.execute({
+    request, grant: makeGrant(request),
+  }), /unsupported action/i);
+  assert.equal(page.calls.length, 0);
+});
+
+test("adapter stop switch prevents further execution", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  adapter.stop();
+  const request = makeNavigateRequest(observation.observation_id);
+  await assert.rejects(() => adapter.execute({
+    request, grant: makeGrant(request),
+  }), /stopped/i);
+  assert.equal(page.calls.length, 0);
+});
+
+test("browser adapter blocks external origins at the network request boundary", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let aborted = 0;
+  let continued = 0;
+  await page.state.routeHandler({
+    request: () => ({ url: () => "https://evil.test/tracker.js" }),
+    abort: async () => { aborted += 1; },
+    continue: async () => { continued += 1; },
+  });
+  assert.equal(aborted, 1);
+  assert.equal(continued, 0);
+});
+
+test("browser adapter serializes actions and rejects concurrent execution", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  let release;
+  page.state.gotoGate = new Promise((resolve) => { release = resolve; });
+  const request = makeNavigateRequest(observation.observation_id);
+  const grant = makeGrant(request);
+  const first = adapter.execute({ request, grant });
+  while (page.calls.length === 0) await new Promise((resolve) => setImmediate(resolve));
+  await assert.rejects(
+    () => adapter.execute({ request, grant }),
+    /already executing/i,
+  );
+  release();
+  const result = await first;
+  assert.equal(result.execution_state, "AWAITING_VERIFICATION");
+});
+
+test("execution is blocked when trusted action consent is denied", async () => {
+  const page = fakePage();
+  let consumed = 0;
+  const { adapter, observation } = await observedAdapter(page, {
+    requestConsent: async ({ purpose }) => purpose !== "EXECUTE_ACTION",
+    grantNonceLedger: { consume: async () => { consumed += 1; return true; } },
+  });
+  const request = makeNavigateRequest(observation.observation_id);
+  await assert.rejects(() => adapter.execute({ request, grant: makeGrant(request) }), /consent/i);
+  assert.equal(consumed, 0);
+  assert.equal(page.calls.length, 0);
+});
+
+test("navigation with hidden query or fragment parameters is denied in v1", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  const request = makeNavigateRequest(observation.observation_id, {
+    parameters: { url: "https://example.test/help?token=secret#section" },
+  });
+  await assert.rejects(() => adapter.execute({ request, grant: makeGrant(request) }), /query or fragment/i);
+  assert.equal(page.calls.length, 0);
+});
+
+test("browser adapter blocks WebSockets to origins outside the allowlist", async () => {
+  const page = fakePage();
+  const { adapter } = await observedAdapter(page);
+  let closed = 0;
+  let connected = 0;
+  await page.state.webSocketHandler({
+    url: () => "wss://evil.test/socket",
+    close: async () => { closed += 1; },
+    connectToServer: () => { connected += 1; },
+  });
+  assert.equal(closed, 1);
+  assert.equal(connected, 0);
+  assert.equal(adapter.getStatus().blocked_websocket_requests, 1);
+});
+
+test("browser adapter forwards WebSockets only to an allowlisted secure origin", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let connected = 0;
+  const serverSocket = { onClose: () => {} };
+  await page.state.webSocketHandler({
+    url: () => "wss://example.test/socket",
+    close: async () => { throw new Error("must not close"); },
+    connectToServer: () => { connected += 1; return serverSocket; },
+    onClose: () => {},
+  });
+  assert.equal(connected, 1);
+});
+
+test("observation fails closed if the page changes during capture", async () => {
+  const page = fakePage();
+  const originalEvaluate = page.evaluate;
+  page.evaluate = async (...args) => {
+    const snapshot = await originalEvaluate(...args);
+    await page.goto("https://example.test/changed");
+    return snapshot;
+  };
+  const adapter = createBrowserAdapter({
+    page, context: page.context, sessionId: "browser-session-1",
+    allowedOrigins: ["https://example.test"], publicKeyPem,
+    policyVersion: "policy-7", grantNonceLedger: { consume: async () => true },
+    requestConsent: async () => true, clock: () => now,
+  });
+  await assert.rejects(() => adapter.observe(), /stale or page context changed/i);
+});
+
+test("observation fails closed if the page changes while consent is pending", async () => {
+  const page = fakePage();
+  const adapter = createBrowserAdapter({
+    page, context: page.context, sessionId: "browser-session-1",
+    allowedOrigins: ["https://example.test"], publicKeyPem,
+    policyVersion: "policy-7", grantNonceLedger: { consume: async () => true },
+    requestConsent: async () => {
+      await page.goto("https://example.test/changed");
+      return true;
+    },
+    clock: () => now,
+  });
+  await assert.rejects(() => adapter.observe(), /changed while consent was pending/i);
+});
+
+test("stop closes both sides of an active allowlisted WebSocket", async () => {
+  const page = fakePage();
+  const { adapter } = await observedAdapter(page);
+  let clientCloseHandler;
+  let serverCloseHandler;
+  let clientClosed = 0;
+  let serverClosed = 0;
+  const serverSocket = {
+    onClose(handler) { serverCloseHandler = handler; },
+    async close() {
+      serverClosed += 1;
+      await serverCloseHandler?.(1008, "session stopped");
+    },
+  };
+  const clientSocket = {
+    url: () => "wss://example.test/socket",
+    connectToServer: () => serverSocket,
+    onClose(handler) { clientCloseHandler = handler; },
+    async close() {
+      clientClosed += 1;
+      await clientCloseHandler?.(1008, "session stopped");
+    },
+  };
+  await page.state.webSocketHandler(clientSocket);
+  adapter.stop();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(clientClosed, 1);
+  assert.equal(serverClosed, 1);
+});
+
+test("allowlisted HTTP requests are fulfilled without following redirects", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let fetched = 0;
+  let fulfilled = 0;
+  await page.state.routeHandler({
+    request: () => ({ url: () => "https://example.test/script.js" }),
+    fetch: async (options) => {
+      fetched += 1;
+      assert.equal(options.maxRedirects, 0);
+      return { status: () => 200, headers: () => ({}) };
+    },
+    fulfill: async ({ response }) => {
+      fulfilled += 1;
+      assert.equal(response.status(), 200);
+    },
+    abort: async () => { throw new Error("allowed request must not be aborted"); },
+  });
+  assert.equal(fetched, 1);
+  assert.equal(fulfilled, 1);
+});
+
+test("all HTTP redirect responses are blocked before the browser follows them", async () => {
+  const page = fakePage();
+  const { adapter } = await observedAdapter(page);
+  let aborted = 0;
+  let fulfilled = 0;
+  await page.state.routeHandler({
+    request: () => ({ url: () => "https://example.test/redirect" }),
+    fetch: async (options) => {
+      assert.equal(options.maxRedirects, 0);
+      return { status: () => 302, headers: () => ({ location: "https://evil.test/next" }) };
+    },
+    fulfill: async () => { fulfilled += 1; },
+    abort: async () => { aborted += 1; },
+  });
+  assert.equal(aborted, 1);
+  assert.equal(fulfilled, 0);
+  assert.equal(adapter.getStatus().blocked_http_requests, 1);
+});

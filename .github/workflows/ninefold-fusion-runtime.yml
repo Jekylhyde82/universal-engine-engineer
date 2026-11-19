@@ -1,0 +1,36 @@
+name: NINEFOLD AFI PRIME runtime proof of capability
+
+on:
+  pull_request:
+    paths:
+      - "packages/ninefold-fusion-runtime/**"
+      - "docs/architecture/ninefold-intrinsic/**"
+      - "tools/architecture/**"
+      - ".github/workflows/ninefold-fusion-runtime.yml"
+
+concurrency:
+  group: ninefold-runtime-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Validate NINEFOLD INTRINSIC capability lineage registry
+        run: node tools/architecture/validate-ninefold-registry.mjs
+      - name: Check runtime JavaScript syntax
+        working-directory: packages/ninefold-fusion-runtime
+        run: npm run check
+      - name: Run nine-instance isolation and fault-containment tests
+        working-directory: packages/ninefold-fusion-runtime
+        run: npm test

@@ -1,0 +1,50 @@
+name: VISION-DD policy core
+
+on:
+  pull_request:
+    paths:
+      - "packages/vision-dd-policy/**"
+      - "packages/ninefold-fusion-runtime/**"
+      - ".github/workflows/vision-dd-policy.yml"
+      - "docs/architecture/vision-dd/**"
+      - "docs/architecture/ninefold-intrinsic/**"
+      - "tools/architecture/**"
+
+concurrency:
+  group: vision-dd-v2-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  policy-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Validate NINEFOLD INTRINSIC capability lineage registry
+        run: node tools/architecture/validate-ninefold-registry.mjs
+      - name: Install pinned Playwright runtime
+        working-directory: packages/vision-dd-policy
+        run: npm install --no-save --package-lock=false playwright@1.65.1
+      - name: Install Chromium for real browser integration
+        working-directory: packages/vision-dd-policy
+        run: npx playwright install --with-deps chromium
+      - name: Check JavaScript syntax
+        working-directory: packages/vision-dd-policy
+        run: npm run check
+      - name: Run deterministic policy tests
+        working-directory: packages/vision-dd-policy
+        run: npm test
+      - name: Check nine-instance fusion runtime syntax
+        working-directory: packages/ninefold-fusion-runtime
+        run: npm run check
+      - name: Run nine-instance isolation and fault-containment tests
+        working-directory: packages/ninefold-fusion-runtime
+        run: npm test

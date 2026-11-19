@@ -1,0 +1,130 @@
+# V.I.S.I.O.N. / D.D. Policy and Supervised Browser Prototype
+
+Node.js reference package for deterministic policy evaluation, signed execution grants, local replay protection, a policy HTTP service, supervised browser observation/navigation and signed readback verification. The core policy modules use Node.js built-ins; the supervised browser host uses the pinned Playwright dependency.
+
+## Status
+
+**Prototype / integration slice. Not production approved.**
+
+## Implemented in this branch
+
+- Deterministic deny-by-default action policy evaluation.
+- R0–R4 classification from trusted server-side policy configuration.
+- Policy-version-bound, action-digest-bound human approval checks.
+- Ed25519 short-lived grant signing and verification.
+- Grant scope binding to actor, task, action, application and session.
+- Local append-only hash-chained nonce ledger and action audit ledger, with exclusive locking, fsync, partial-tail recovery, restrictive permission checks, bounded storage and atomic duplicate action-ID claims.
+- Authenticated policy-grant HTTP service that refuses to start without injected authentication, approval-verification and durable approval-nonce consumption providers, and validates its Ed25519 signing key at startup.
+- Provider-configured RS256 JWT bearer authentication adapter with exact issuer/audience validation, HTTPS JWKS retrieval, bounded key-set parsing, RSA-2048 minimum, key caching/rotation refresh, unknown-key refresh throttling, token freshness checks and fail-closed behaviour.
+- Consent-provider-gated Playwright page adapter for bounded semantic observation and optional screenshot capture.
+- Strict browser request-origin allowlisting, stale-observation rejection, one-action-at-a-time execution, stop control and navigation-only action support.
+- Signed readback verifier that refuses to trust the executor's own assertion.
+- Governed action orchestrator that requires a durable audit writer, atomically claims task/action IDs, records each state transition before proceeding and will not execute if the audit append fails. Executor exceptions and timeouts after execution begins are recorded as UNKNOWN because side effects may already have occurred; they are never assumed to be clean failures or safe retries.
+- Automated Node.js tests in GitHub Actions, including real Chromium integration tests against a local fixture and CodeQL static analysis.
+
+## Validation evidence
+
+The latest completed policy workflow for the current implementation and registry content is workflow `44472679774` at commit `e82e8b18f394ec7c7bb2e7d8d1349ca5ca08ee4a`: **132 tests passed, 0 failed, 0 cancelled, 0 skipped**. The run included registry validation, pinned Playwright installation, real Chromium installation, JavaScript syntax checks and browser integration tests against a temporary local fixture. CodeQL workflow `44472679805` completed successfully on the same commit. Later branch commits changed documentation/status records only; the package source and registry validator are unchanged. CodeQL workflow success does not establish that the alert inventory is empty or reviewed. The browser integration suite verifies a signed allowlisted navigation and blocks a redirect to an unapproved origin.
+
+## Important limitations
+
+This is not a complete runtime or production security boundary.
+
+- No production identity provider or real user/device authentication adapter is included. The HTTP service requires an injected authenticator.
+- Human approval signature verification is injected; tests use fakes. No trusted approval UI or production key-management/rotation service is included.
+- The local nonce ledger is single-host replay protection. Its hash chain is not independently tamper-proof; production audit evidence needs externally anchored checkpoints, backup and restore procedures.
+- The local action audit ledger is single-host and hash-chained, not independently tamper-proof. External signed checkpoints, protected backup/restore, retention controls and a production audit query/access service are not yet implemented.
+- No production deployment, staging environment, operational monitoring, incident response or independent penetration test is included.
+- The browser adapter accepts a Playwright-compatible page supplied by a trusted host. CI launches real Chromium for integration tests, but a production browser host/launcher, isolated persistent profile management and trusted user-facing consent UI are not yet implemented.
+- The adapter currently supports navigation only. It does not implement generic clicks, form submissions, typing, file access or arbitrary desktop control.
+- DOM labels are untrusted page data. A trusted consent-provider callback is mandatory for observation, screenshot capture and action execution. Screenshot capture requires separate visual consent and is not redacted; the adapter does not persist screenshots. The production host must create a dedicated browser context with `serviceWorkers: "block"` and a private isolated profile.
+- The signed readback verifier is a verification primitive. A separate authenticated read-only verifier process/provider is not yet implemented.
+- No Android app, MediaProjection/accessibility service, AFI PRIME runtime integration or EB9PRIME governed persistence runtime is included.
+
+
+## Configured JWT bearer authentication adapter
+
+The package exports `createJwtBearerAuthenticator` from `@ninefold/vision-dd-policy/auth`. It verifies RS256 bearer tokens against a fixed HTTPS JWKS endpoint and requires exact configured issuer and audience values. It rejects unsupported JWT header fields/algorithms, private JWK material, undersized RSA keys, stale/future tokens, wrong issuers/audiences and untrusted key IDs. JWKS responses are bounded, redirects are rejected, keys are cached and unknown-key refreshes are throttled.
+
+This is a provider-neutral verification adapter, not a selected or provisioned identity provider. Production still requires:
+- selecting and configuring the actual identity provider and tenant;
+- validating its access-token claim profile and actor lifecycle;
+- provider-side MFA and account recovery controls;
+- production TLS/network controls and monitoring;
+- key rotation/revocation drills and independent security review.
+
+Example configuration (replace all values with the selected provider's published metadata; never infer them):
+
+```js
+import { createJwtBearerAuthenticator } from "@ninefold/vision-dd-policy/auth";
+
+const authenticateActor = createJwtBearerAuthenticator({
+  issuer: process.env.IDENTITY_ISSUER,
+  audience: process.env.IDENTITY_AUDIENCE,
+  jwksUrl: process.env.IDENTITY_JWKS_URL,
+});
+```
+
+The policy service must also receive a trusted approval-signature verifier and durable approval nonce ledger. A valid JWT authenticates an actor; it does not grant permission to perform an action.
+
+## Local supervised browser host
+
+Requires Node.js 22 or later and the pinned Playwright dependency. The host launches a fresh Chromium profile, blocks service workers, disables downloads/extensions, applies the origin allowlist, and deletes the temporary profile on close by default.
+
+The consent provider must be a trusted UI surface separate from the page being controlled. A terminal prompt provider is included for local single-user development; it requires typing `YES` and warns that screenshots are not redacted.
+
+The host is a library API, not an unattended service. It requires an initial allowlisted URL and obtains separate consent before opening it. It does not expose the raw Playwright page or browser context to the caller; status is available through a read-only summary. It still requires a trusted policy public key and a durable grant replay ledger supplied by the caller.
+
+```js
+import { join } from "node:path";
+import { homedir } from "node:os";
+import {
+  FileNonceLedger,
+  createTerminalConsentProvider,
+  launchBrowserHost,
+} from "@ninefold/vision-dd-policy";
+
+const consent = createTerminalConsentProvider();
+const host = await launchBrowserHost({
+  profileRoot: join(homedir(), ".ninefold", "vision-dd-profiles"),
+  initialUrl: "https://example.test",
+  allowedOrigins: ["https://example.test"],
+  publicKeyPem: process.env.VISION_DD_POLICY_PUBLIC_KEY,
+  policyVersion: "policy-1",
+  grantNonceLedger: new FileNonceLedger(
+    join(homedir(), ".ninefold", "vision-dd-grants.jsonl")
+  ),
+  requestConsent: consent.requestConsent,
+  headless: false,
+});
+
+try {
+  const observation = await host.adapter.observe();
+  // Pass the observation to an authorised perception workflow.
+  // D.D. still requires a signed grant for each navigation.
+} finally {
+  await host.close();
+  consent.close();
+}
+```
+
+The example is a local integration pattern, not a production deployment recipe. Do not put private signing keys in the browser host; the policy service retains the private key and the browser host receives only the trusted public key.
+
+## Run tests
+
+Requires Node.js 22 or later.
+
+```sh
+npm install
+npx playwright install chromium
+npm run check
+npm test
+```
+
+## Decision semantics
+
+- `DENY`: malformed, out-of-scope, prohibited or unevaluable request.
+- `REQUIRE_APPROVAL`: human approval is required.
+- `ELIGIBLE_FOR_GRANT`: deterministic checks passed. This is not an execution credential.
+- A grant is a short-lived signed capability. D.D. must verify it against a trusted public key and consume its grant ID through a durable replay store immediately before execution.
+- A navigation executor returns `AWAITING_VERIFICATION` or `UNKNOWN`; it never declares its own action verified.
