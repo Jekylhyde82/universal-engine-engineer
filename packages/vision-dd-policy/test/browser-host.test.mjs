@@ -68,3 +68,27 @@ test("browser host requires an explicit consent provider", async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("browser host rejects initial URLs with hidden query or fragment data", async () => {
+  const root = await mkdtemp(join(tmpdir(), "vision-dd-profile-root-"));
+  const pair = generateKeyPairSync("ed25519");
+  const publicKeyPem = pair.publicKey.export({ type: "spki", format: "pem" });
+  let launched = false;
+  try {
+    await assert.rejects(() => launchBrowserHost({
+      profileRoot: root,
+      initialUrl: "https://example.test/start?token=secret#fragment",
+      allowedOrigins: ["https://example.test"],
+      publicKeyPem,
+      policyVersion: "host-policy",
+      grantNonceLedger: { consume: async () => true },
+      requestConsent: async () => true,
+      browserType: {
+        launchPersistentContext: async () => { launched = true; throw new Error("must not launch"); },
+      },
+    }), /allowlisted HTTPS origin/i);
+    assert.equal(launched, false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
