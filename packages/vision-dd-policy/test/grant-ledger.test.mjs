@@ -55,6 +55,7 @@ test("grant is signed and bound to exact action, actor, app, session and policy"
   const result = verifyGrant({
     grant, publicKeyPem, expectedRequest: request,
     expectedPolicyVersion: "policy-7", now: now + 1,
+    consumeGrantId: async () => true,
   });
   assert.equal(result.valid, true);
   assert.equal(result.payload.action_digest, computeActionDigest(request));
@@ -147,4 +148,46 @@ test("tampered complete ledger record fails closed", async () => {
     await writeFile(path, '{"nonce":"forged","timestamp":1,"previous_hash":"bad","hash":"bad"}\n');
     await assert.rejects(() => ledger.consume("nonce-2"), /integrity/i);
   });
+});
+
+test("grant replay protection fails closed when the replay store is missing", async () => {
+  const request = action();
+  const grant = createGrant({ request, decision: decision(request), privateKeyPem, now });
+  const result = await verifyGrant({
+    grant, publicKeyPem, expectedRequest: request,
+    expectedPolicyVersion: "policy-7", now,
+  });
+  assert.equal(result.valid, false);
+  assert.equal(result.reason, "REPLAY_STORE_UNAVAILABLE");
+});
+
+test("a valid grant can be consumed only once", async () => {
+  const request = action();
+  const grant = createGrant({ request, decision: decision(request), privateKeyPem, now });
+  const consumed = new Set();
+  const consumeGrantId = async (id) => {
+    if (consumed.has(id)) return false;
+    consumed.add(id);
+    return true;
+  };
+  const first = await verifyGrant({
+    grant, publicKeyPem, expectedRequest: request,
+    expectedPolicyVersion: "policy-7", now, consumeGrantId,
+  });
+  const second = await verifyGrant({
+    grant, publicKeyPem, expectedRequest: request,
+    expectedPolicyVersion: "policy-7", now, consumeGrantId,
+  });
+  assert.equal(first.valid, true);
+  assert.equal(second.valid, false);
+  assert.equal(second.reason, "GRANT_REPLAYED_OR_STORE_UNAVAILABLE");
+});
+
+test("consequential grant cannot be issued without verified human approval", () => {
+  const request = action();
+  assert.throws(() => createGrant({
+    request,
+    decision: { ...decision(request), risk_class: "R3", reason: "ALLOWLISTED_LOW_RISK_ACTION" },
+    privateKeyPem, now,
+  }), /human approval/i);
 });
