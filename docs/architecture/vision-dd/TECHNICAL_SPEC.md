@@ -300,20 +300,20 @@ The dependency-free Node.js package at `packages/vision-dd-policy/` now contains
 - `src/grant.mjs`: Ed25519 short-lived action grants bound to policy version, actor, task, action, application and session; verification consumes a grant ID through replay protection.
 - `src/nonce-ledger.mjs`: single-host append-only hash-chained nonce storage, exclusive locking, fsync, partial-tail recovery, restrictive directory/file permissions and bounded storage. It fails closed on stale locks, corruption or capacity exhaustion. The hash chain is not independent tamper protection.
 - `src/policy-server.mjs`: HTTP grant service with mandatory injected identity authentication and approval signature verification. No insecure default authenticator exists.
-- `src/browser-adapter.mjs`: consent-gated Playwright-compatible observation and navigation adapter, with allowlisted origins, request interception, short-lived observations, optional separately consented screenshot capture, stop control and one-action-at-a-time execution. It supports navigation only and returns AWAITING_VERIFICATION or UNKNOWN.
+- `src/browser-adapter.mjs`: trusted-consent-provider-gated Playwright-compatible observation and navigation adapter, with allowlisted origins, request interception, short-lived observations, separately consented screenshot capture, stop control and one-action-at-a-time execution. It supports navigation only and returns AWAITING_VERIFICATION or UNKNOWN.
 - `src/verifier.mjs`: Ed25519-signed readback verification primitive. It does not implement the independent read-only provider that must produce the evidence.
 - `test/`: automated unit and adapter-contract tests.
 
-The latest recorded GitHub Actions run reports **65 passing tests and zero failures** at commit `090d4f089d67a8c18c407f24f05e26d076909ec2`. This is test evidence for that exact code SHA only; subsequent code commits require a new run. The browser adapter tests use a fake Playwright-compatible page; no real Chromium binary, operating system, user identity provider, or live website has been integration-tested.
+The latest recorded GitHub Actions run reports **69 passing tests and zero failures** at commit `75ff874873ed1784009a5ea06c076ea51546a70a`. CI installs pinned Playwright 1.65.1 and launches real Chromium against a temporary local fixture. Tests verify consent-gated observation, screenshot capture, signed navigation and blocking of an external redirect. This does not test a production browser host, external identity provider, trusted consent UI, live website or physical user device.
 
 ## 13. Implementation decisions and unresolved production work
 
 Initial platform decision: a supervised, dedicated Chromium browser session, restricted to an explicit HTTPS origin allowlist. The adapter is designed to accept a Playwright-compatible page supplied by a trusted host. Android is deferred to a separate native companion application because MediaProjection and accessibility access require explicit OS consent, signing, device/OEM testing and a separate release process.
 
 Still required before production:
-- real Chromium host/launcher, isolated profile creation and session lifecycle;
+- production Chromium host/launcher, private isolated persistent profile creation and session lifecycle;
 - production user/device identity provider and secure session binding;
-- trusted approval UX and production approval signature/key management;
+- trusted user-facing consent/approval UX and production approval signature/key management;
 - grant key provisioning, rotation, revocation and recovery;
 - independent read-only verifier process/provider and authenticated evidence transport;
 - durable action evidence ledger with externally anchored integrity checkpoints, retention, backup and restore;
