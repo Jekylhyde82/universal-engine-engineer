@@ -179,4 +179,15 @@ def assimilate_catalog_candidate(
         afi.to_record(profile),
         source=f"afi-prime://lm-studio-model-catalog/{candidate.model_id}",
     )
-    return catalog_record, profile_record
+    register_entry = engine.register_acquisition(
+        catalog_record.record_id,
+        original_idea_value=candidate.original_idea_value,
+        potential_market_value=candidate.potential_market_value,
+        revenue_models=candidate.revenue_models,
+        development_timeline=candidate.development_timeline,
+        development_cost=candidate.development_cost,
+        integration_cost=candidate.integration_cost,
+        risk_assessment=candidate.risk_assessment,
+        evidence_verification_status=candidate.evidence_verification_status,
+    )
+    return catalog_record, profile_record, register_entry
