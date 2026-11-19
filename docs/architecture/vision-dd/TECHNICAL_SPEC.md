@@ -292,26 +292,35 @@ Required telemetry:
 
 No screenshots, raw page text, credentials or sensitive user content in ordinary logs. Provide kill switch, session revocation, adapter disablement, safe shutdown and incident export.
 
-## 12. Prototype implementation slice
+## 12. Current implementation slice
 
-A dependency-free reference package now exists at `packages/vision-dd-policy/`:
-- `src/policy.mjs` performs deterministic deny-by-default policy evaluation, canonical action digesting, risk classification from trusted policy configuration, policy-version-bound approval checks and bounded payload validation.
-- `src/action-state.mjs` guards permitted state transitions and requires references for grants, verification and recovery states.
-- `test/` contains automated unit tests executed by `.github/workflows/vision-dd-policy.yml`.
+The dependency-free Node.js package at `packages/vision-dd-policy/` now contains:
+- `src/policy.mjs`: deterministic deny-by-default policy evaluation and action digests, including optional binding to a V.I.S.I.O.N. observation ID.
+- `src/action-state.mjs`: guarded role/state transitions; only the verifier role can mark an action VERIFIED.
+- `src/grant.mjs`: Ed25519 short-lived action grants bound to policy version, actor, task, action, application and session; verification consumes a grant ID through replay protection.
+- `src/nonce-ledger.mjs`: single-host append-only hash-chained nonce storage, exclusive locking, fsync, partial-tail recovery, restrictive directory/file permissions and bounded storage. It fails closed on stale locks, corruption or capacity exhaustion. The hash chain is not independent tamper protection.
+- `src/policy-server.mjs`: HTTP grant service with mandatory injected identity authentication and approval signature verification. No insecure default authenticator exists.
+- `src/browser-adapter.mjs`: consent-gated Playwright-compatible observation and navigation adapter, with allowlisted origins, request interception, short-lived observations, optional separately consented screenshot capture, stop control and one-action-at-a-time execution. It supports navigation only and returns AWAITING_VERIFICATION or UNKNOWN.
+- `src/verifier.mjs`: Ed25519-signed readback verification primitive. It does not implement the independent read-only provider that must produce the evidence.
+- `test/`: automated unit and adapter-contract tests.
 
-The current GitHub Actions run reports 24 passing tests and zero failures on the recorded PR head. These are unit tests for the reference package only. The approval verifier and nonce consumer are injected interfaces; test implementations are fakes. No production signing keys, durable nonce store, authenticated grant issuer, actor authentication, device adapter, action ledger, independent outcome verifier or live integration exists. The package must not be wired directly to a real executor until those boundaries are implemented and independently reviewed.
+The latest recorded GitHub Actions run reports **65 passing tests and zero failures** at commit `090d4f089d67a8c18c407f24f05e26d076909ec2`. This is test evidence for that exact code SHA only; subsequent code commits require a new run. The browser adapter tests use a fake Playwright-compatible page; no real Chromium binary, operating system, user identity provider, or live website has been integration-tested.
 
-## 13. Architecture decisions still required
+## 13. Implementation decisions and unresolved production work
 
-Before implementation, record explicit decisions for:
-- supported first platform and app allowlist;
-- Android package/application and minimum OS support;
-- desktop/browser automation adapter;
-- model runtime and perception/OCR stack;
-- policy engine and approval UX;
-- independent verifier implementation;
-- evidence storage, external signing and retention;
-- identity provider and device/session binding;
-- deployment topology, secrets, monitoring and rollback.
+Initial platform decision: a supervised, dedicated Chromium browser session, restricted to an explicit HTTPS origin allowlist. The adapter is designed to accept a Playwright-compatible page supplied by a trusted host. Android is deferred to a separate native companion application because MediaProjection and accessibility access require explicit OS consent, signing, device/OEM testing and a separate release process.
 
-Do not select dependencies solely to satisfy an architectural naming or ninefold symmetry preference. Choose them by measured capability, reliability, security, device constraints and maintenance cost.
+Still required before production:
+- real Chromium host/launcher, isolated profile creation and session lifecycle;
+- production user/device identity provider and secure session binding;
+- trusted approval UX and production approval signature/key management;
+- grant key provisioning, rotation, revocation and recovery;
+- independent read-only verifier process/provider and authenticated evidence transport;
+- durable action evidence ledger with externally anchored integrity checkpoints, retention, backup and restore;
+- calibrated visual perception model/OCR and labelled evaluation dataset; current DOM semantic observation is not a validated visual-understanding model;
+- privacy redaction before any raw visual frame can be retained or transmitted; current screenshot output is not redacted and is never persisted by the adapter;
+- Android native adapter and target-device testing;
+- AFI PRIME planning/runtime integration and EB9PRIME governed persistence;
+- rate limits, monitoring, alerting, incident response, staging, rollback and independent security review.
+
+Do not select dependencies solely to satisfy an architectural naming or ninefold symmetry preference. Choose them by measured capability, reliability, security, device constraints and maintenance cost. The current implementation is not approved for live or unattended execution.
