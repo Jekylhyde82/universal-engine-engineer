@@ -44,7 +44,7 @@ Treat the model, webpage, document, OCR output, screenshot content and tool-retu
 | Denial of service | Endless retries or capture loop | Bounded retries, timeouts, rate limits, circuit breaker and stop control |
 | Supply-chain compromise | Malicious package or dependency | Pinned dependencies, provenance, SBOM, vulnerability scans, signed builds and review |
 | Unsafe recovery | Automatic rollback causes another harmful action | No assumed rollback; compensating action gets separate policy and approval |
-| External redirect or subresource | An allowed page redirects or loads code from an unapproved origin | Intercept browser requests; block unapproved origins; test redirects in real Chromium |
+| HTTP redirect response | An allowed page responds with a redirect to another destination | Fetch with maxRedirects=0 and block every redirect response; v1 requires canonical direct URLs; test in real Chromium |
 | WebSocket egress | Page opens an external WebSocket outside the HTTP request route | Route WebSockets separately; deny non-allowlisted origins; test real browser behavior |
 | Service-worker bypass | A service worker handles traffic outside page routing | Create browser context with serviceWorkers blocked before page creation |
 | Popup escape | Page opens an uncontrolled tab/window | Close every page except the supervised page; never expose raw page/context handles |
@@ -83,7 +83,7 @@ At minimum:
 
 ## 6. Current implementation evidence and limitations
 
-The current reference package implements a private per-run Chromium profile, service-worker blocking, popup closure, HTTP request and WebSocket origin routing, trusted-consent-provider callbacks, explicit terminal prompts, query/fragment rejection for navigation, short-lived visual observations, signed grants and a signed readback verification primitive. CI includes real Chromium integration tests against a local fixture.
+The current reference package implements a private per-run Chromium profile, service-worker blocking, popup closure, browser-context HTTP routing that blocks redirect responses without following them, WebSocket origin routing, trusted-consent-provider callbacks, explicit terminal prompts, query/fragment rejection for navigation, short-lived visual observations, signed grants and a signed readback verification primitive. CI includes real Chromium integration tests against a local fixture.
 
 These controls do not establish complete network isolation. Playwright browser-context request and WebSocket routing do not constitute an OS-level firewall; WebRTC/UDP and other non-HTTP transports remain a residual egress risk. Production must run the browser inside an OS-level network sandbox/firewall that enforces the approved destination set. The browser adapter also does not redact screenshots, and its terminal consent provider is a local development UI rather than an authenticated production approval service.
 
