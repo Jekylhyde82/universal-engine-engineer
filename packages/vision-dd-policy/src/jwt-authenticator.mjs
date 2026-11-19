@@ -90,6 +90,13 @@ function importJwksKeys(document) {
   }
   const keys = new Map();
   for (const jwk of document.keys) {
+    console.error("JWKS_KEY_DIAGNOSTIC", {
+      plain: plainObject(jwk), kty: jwk?.kty,
+      kidValid: validText(jwk?.kid, MAX_KID_LENGTH),
+      alg: jwk?.alg, use: jwk?.use,
+      keyOps: jwk?.key_ops, hasPrivate: PRIVATE_JWK_FIELDS.some((field) => jwk && Object.hasOwn(jwk, field)),
+      modulusType: typeof jwk?.n, exponentType: typeof jwk?.e,
+    });
     if (!plainObject(jwk) || jwk.kty !== "RSA" ||
         !validText(jwk.kid, MAX_KID_LENGTH) ||
         (jwk.alg !== undefined && jwk.alg !== "RS256") ||
