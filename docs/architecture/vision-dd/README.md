@@ -59,7 +59,7 @@ This specification and prototype do not claim live access to the user's camera, 
 | Staging, monitoring, rollback and incident response | Not implemented |
 | Production deployment | Not approved |
 
-The latest policy CI run on PR head `5441cf6b1c0f71417674a3a361606651af5dc7c0` completed successfully with **119 tests passed, 0 failed, 0 cancelled, 0 skipped**, including real Chromium integration tests against a temporary local fixture. CodeQL is running for this exact head (workflow run `44460534283`); the previous tested code commit `3e910c4468b9ed8458557933fe47ecc833626737` passed CodeQL run `44460279083`. This is integration and static-analysis evidence for the prototype boundary, not production assurance.
+The latest implementation commit `3e910c4468b9ed8458557933fe47ecc833626737` passed **119 tests, 0 failed, 0 cancelled, 0 skipped** (policy workflow `44460278822`), including real Chromium integration tests against a temporary local fixture. CodeQL also passed on that exact implementation commit (workflow `44460279083`). Later commits on this branch update documentation only; they do not change the tested implementation. This is integration and static-analysis evidence for the prototype boundary, not production assurance.
 
 ## Decision
 
