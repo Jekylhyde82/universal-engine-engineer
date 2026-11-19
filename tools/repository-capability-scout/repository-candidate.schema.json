@@ -13,14 +13,17 @@
   ],
   "properties": {
     "id": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^\\d+$"
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
     },
     "url": {
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/?$"
     },
     "description": {
       "type": "string"
@@ -101,9 +104,74 @@
         "G6_INTEGRATION_APPROVAL",
         "G7_OPERATIONAL_VERIFICATION"
       ],
-      "additionalProperties": {
-        "type": "string"
+      "additionalProperties": false,
+      "properties": {
+        "G0_SOURCE_IDENTITY": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G1_LICENCE_AND_PROVENANCE": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G2_MAINTENANCE_AND_COMPATIBILITY": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G3_SECURITY_AND_GOVERNANCE": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G4_RESOURCE_AND_DEPLOYMENT": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G5_PROOF_OF_CAPABILITY": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G6_INTEGRATION_APPROVAL": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G7_OPERATIONAL_VERIFICATION": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        }
       }
     }
-  }
+  },
+  "additionalProperties": false
 }
