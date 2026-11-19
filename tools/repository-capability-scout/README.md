@@ -38,3 +38,18 @@ G0 source identity; G1 licence and provenance; G2 maintenance and compatibility;
 2. Add provider-neutral GitLab and Codeberg discovery adapters.
 3. Add a server-side scheduled discovery queue with deduplication and change detection.
 4. Add isolated proof-of-capability runners only after policy and sandbox enforcement are independently established.
+
+
+## v0.2 hardening in progress
+
+- Imported records are validated as a complete batch; invalid imports are rejected without partial writes.
+- Repository links are restricted to canonical HTTPS `github.com/owner/repository` URLs.
+- Imports are limited to 2 MB and 500 records; browser register storage is limited to 500 records.
+- Existing browser-stored records are revalidated when loaded.
+- A restrictive Content Security Policy allows outbound connections only to the GitHub API.
+- The candidate JSON Schema rejects unknown properties and constrains disposition and evaluation-gate states.
+- Static smoke tests compile the embedded script and check key security invariants in CI. These are not browser end-to-end tests.
+
+## Remaining production blockers
+
+This remains a client-side discovery tool. It has no authenticated provider adapter, server-side durable database, repository-content inspection service, licence analysis, dependency/advisory scanner, sandboxed runner, identity/approval service, audit log, monitoring, backup/restore service or independent security review. Do not use it to execute or integrate third-party code. Production approval remains blocked until these controls are implemented and independently tested.
