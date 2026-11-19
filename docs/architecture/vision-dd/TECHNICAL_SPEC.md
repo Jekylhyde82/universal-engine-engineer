@@ -66,6 +66,10 @@ A deterministic service or module, separate from the model's planning prompt, mu
 
 The model must never be able to edit policy, mint grants, change role assignments or bypass this service.
 
+**Authentication implementation slice:** the repository now includes a provider-neutral RS256 JWT bearer authenticator. It validates exact issuer and audience claims against a fixed HTTPS JWKS endpoint, enforces token time bounds, rejects untrusted JWT header key references and private/undersized JWKs, bounds JWKS response size, caches signing keys and throttles unknown-key refreshes. The HTTP policy service refuses to start without an authenticator, approval-signature verifier, durable approval nonce consumer and an Ed25519 grant-signing key.
+
+This adapter is not a configured identity provider. Production identity still requires selection of the provider/tenant, provider-specific claim validation, MFA/account lifecycle controls, device/session binding, production network configuration, key-rotation/revocation drills and independent security review. A valid bearer token authenticates an actor; it does not authorise an action. Approval verification and durable nonce consumption remain separate mandatory controls.
+
 ### 2.4 D.D. — delegated execution specialist
 
 Responsible for:
