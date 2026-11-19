@@ -25,10 +25,29 @@ proof that a model is suitable, safe, licensed for a use, or performant.
 ## Important distinction: local inventory vs public catalog
 
 `GET /api/v1/models` lists models available on that LM Studio instance. It is
-not a complete search of every model in the public LM Studio/Hugging Face
-catalog. Public-catalog discovery and model acquisition require a separate,
-explicitly permissioned adapter and should remain distinct from local inventory.
-Model download/load actions are intentionally not implemented in this increment.
+not a complete search of the public catalog.
+
+The official LM Studio documentation currently describes:
+- The public catalog UI at `https://lmstudio.ai/models`.
+- The `lms get` CLI for searching and downloading models from online repositories.
+  Its documented flow is interactive; the documented flags do not establish a
+  stable machine-readable catalog-search contract.
+- `POST /api/v1/models/download`, which accepts a catalog identifier or an exact
+  Hugging Face model URL. This starts a download job; it is not a catalog search
+  endpoint.
+
+Accordingly, UAIE must not scrape undocumented web endpoints or pretend that
+the local inventory API searches the public catalog. A production catalog
+discovery adapter needs a supported, stable search interface and source/license
+metadata. Until that exists, an operator may supply a specific model identifier
+for evaluation, but that does not authorize a download.
+
+Official references:
+- REST API overview: https://lmstudio.ai/docs/developer/rest
+- Local model inventory: https://lmstudio.ai/docs/developer/rest/list
+- Download endpoint: https://lmstudio.ai/docs/developer/rest/download
+- CLI search/download: https://lmstudio.ai/docs/cli/local-models/get
+- Public catalog: https://lmstudio.ai/models
 
 ## Usage
 
