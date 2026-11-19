@@ -34,6 +34,7 @@ function request(action_type = "inspect_screen", overrides = {}) {
 function approvalFor(action, overrides = {}) {
   return {
     action_digest: computeActionDigest(action),
+    policy_version: policy.version,
     task_id: action.task_id,
     actor_id: action.actor_id,
     target_application: action.target_application,
@@ -176,4 +177,28 @@ test("invalid policy TTL configuration fails closed", async () => {
   const result = await evaluateAction({ request: request(), policy: invalidPolicy, now });
   assert.equal(result.decision, "DENY");
   assert.equal(result.reason, "POLICY_CONFIGURATION_INVALID");
+});
+
+test("approval for a different policy version is denied", async () => {
+  const action = request("submit_purchase");
+  const approval = approvalFor(action, { policy_version: "0.0.9" });
+  const result = await evaluateAction({
+    request: action, policy, approval, now,
+    verifyApproval: async () => true,
+    consumeApprovalNonce: async () => true,
+  });
+  assert.equal(result.decision, "DENY");
+  assert.equal(result.reason, "APPROVAL_SCOPE_MISMATCH");
+});
+
+test("oversized action parameters are rejected before digest issuance", () => {
+  const action = request("inspect_screen", { parameters: { payload: "x".repeat(33_000) } });
+  assert.throws(() => computeActionDigest(action), /32 KiB/);
+});
+
+test("excessively nested action parameters are rejected", () => {
+  let nested = "leaf";
+  for (let index = 0; index < 18; index += 1) nested = { child: nested };
+  const action = request("inspect_screen", { parameters: nested });
+  assert.throws(() => computeActionDigest(action), /nesting depth/);
 });
