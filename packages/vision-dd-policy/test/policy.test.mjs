@@ -6,6 +6,7 @@ const now = Date.parse("2026-11-19T03:00:00.000Z");
 const policy = {
   version: "0.1.0",
   maxRequestTtlMs: 60_000,
+  maxApprovalTtlMs: 30_000,
   allowedApplications: ["com.example.test"],
   actionRisk: {
     inspect_screen: "R0",
@@ -168,4 +169,11 @@ test("action digest is deterministic and changes when parameters change", () => 
   const second = request("save_draft", { parameters: { destination: "different" } });
   assert.equal(computeActionDigest(first), computeActionDigest({ ...first }));
   assert.notEqual(computeActionDigest(first), computeActionDigest(second));
+});
+
+test("invalid policy TTL configuration fails closed", async () => {
+  const invalidPolicy = { ...policy, maxApprovalTtlMs: 0 };
+  const result = await evaluateAction({ request: request(), policy: invalidPolicy, now });
+  assert.equal(result.decision, "DENY");
+  assert.equal(result.reason, "POLICY_CONFIGURATION_INVALID");
 });
