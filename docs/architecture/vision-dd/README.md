@@ -53,7 +53,7 @@ This specification and prototype do not claim live access to the user's camera, 
 | Production identity provider and key management | Not implemented |
 | Local append-only action audit ledger | Implemented; hash-chained, fsynced, permission-restricted, bounded and fail-closed |
 | External audit anchoring, retention and recovery operations | Not implemented; independent checkpoints, protected backups and audit access service remain outstanding |
-| Unified Fusion Synergy — AFI PRIME runtime integration | Not implemented |
+| Unified Fusion Synergy — AFI PRIME runtime integration | Not implemented; nine scoped instances require separate execution contexts, state namespaces, evidence streams and fault domains |
 | EB9PRIME governed persistence | Not implemented |
 | Android runtime and OS permission integration | Not implemented |
 | Staging, monitoring, rollback and incident response | Not implemented |
