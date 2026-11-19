@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "starwire-discovery"
+version = "0.1.0"
+description = "Ninefold intrinsic discovery and SYPHON extraction reference implementation"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.setuptools.packages.find]
+include = ["starwire*"]
