@@ -5,7 +5,7 @@
   "entity_model": "ONE_UNIFIED_ENTITY",
   "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
   "fusion_function_count": 1,
-  "fusion_function_role": "GLOBAL_INTRINSIC_FUSION",
+  "fusion_function_role": "SHARED_INTRINSIC_FUSION_FUNCTION",
   "lineage_counts": {
     "umic_domains": 9,
     "master_cores": 9,
@@ -885,5 +885,109 @@
     "runtime_fusion_implemented": false,
     "full_registry_reconciled": false,
     "independently_verified": false
-  }
+  },
+  "fusion_core_instance_count": 9,
+  "unified_umic_model": {
+    "description": "Nine UMICs are each internally unified through one scoped instance of the same canonical Unified Fusion Synergy — AFI PRIME function. Each UMIC incorporates one Master Core lineage slot and nine Engine lineage slots. The nine unified UMICs are then governed as one NINEFOLD INTRINSIC entity.",
+    "umic_count": 9,
+    "master_core_slots_per_umic": 1,
+    "engine_slots_per_umic": 9,
+    "fusion_core_instances_per_umic": 1,
+    "fusion_core_instances_total": 9,
+    "final_entity_count": 1,
+    "slot_membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+    "runtime_status": "NOT_IMPLEMENTED"
+  },
+  "fusion_core_instances": [
+    {
+      "id": "FUSION-CORE-UMIC-01",
+      "umic_domain_id": "UMIC-DOMAIN-01",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-02",
+      "umic_domain_id": "UMIC-DOMAIN-02",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-03",
+      "umic_domain_id": "UMIC-DOMAIN-03",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-04",
+      "umic_domain_id": "UMIC-DOMAIN-04",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-05",
+      "umic_domain_id": "UMIC-DOMAIN-05",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-06",
+      "umic_domain_id": "UMIC-DOMAIN-06",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-07",
+      "umic_domain_id": "UMIC-DOMAIN-07",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-08",
+      "umic_domain_id": "UMIC-DOMAIN-08",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    },
+    {
+      "id": "FUSION-CORE-UMIC-09",
+      "umic_domain_id": "UMIC-DOMAIN-09",
+      "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+      "master_core_slots": 1,
+      "engine_slots": 9,
+      "top_level_entity": false,
+      "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
+      "runtime_status": "NOT_IMPLEMENTED"
+    }
+  ]
 }
