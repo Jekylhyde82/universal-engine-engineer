@@ -154,6 +154,7 @@ export function createBrowserAdapter({
         const socketUrl = new URL(webSocketRoute.url());
         if (socketUrl.username || socketUrl.password ||
             !["wss:", "ws:"].includes(socketUrl.protocol)) {
+          blockedWebSocketRequests += 1;
           return webSocketRoute.close({ code: 1008, reason: "WebSocket origin not allowlisted" });
         }
         socketUrl.protocol = socketUrl.protocol === "wss:" ? "https:" : "http:";
