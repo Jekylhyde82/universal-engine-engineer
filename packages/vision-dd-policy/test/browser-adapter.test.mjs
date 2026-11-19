@@ -138,12 +138,13 @@ test("navigation refuses an origin outside the allowlist", async () => {
 
 test("navigation refuses stale observations before grant consumption", async () => {
   const page = fakePage();
-  const { adapter, observation } = await observedAdapter(page);
+  let consumed = 0;
+  const { adapter, observation } = await observedAdapter(page, {
+    grantNonceLedger: { consume: async () => { consumed += 1; return true; } },
+  });
   const request = makeNavigateRequest(observation.observation_id);
   const grant = makeGrant(request);
   page.url = () => "https://example.test/changed";
-  let consumed = 0;
-  adapter.setGrantNonceLedger({ consume: async () => { consumed += 1; return true; } });
   await assert.rejects(() => adapter.execute({ request, grant, userConsent: true }), /stale/i);
   assert.equal(consumed, 0);
 });
