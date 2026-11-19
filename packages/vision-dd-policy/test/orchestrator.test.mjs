@@ -273,3 +273,27 @@ test("AbortSignal is passed to the executor once execution begins", async () => 
   await runGovernedAction({ ...d.options, signal: controller.signal });
   assert.equal(receivedSignal, controller.signal);
 });
+
+test("executor exception after execution begins is UNKNOWN, never assumed FAILED", async () => {
+  let verifierCalled = false;
+  const d = dependencies({
+    executor: {
+      execute: async () => {
+        throw new Error("transport lost after possible side effect");
+      },
+    },
+    verifyOutcome: async () => {
+      verifierCalled = true;
+      return { state: "VERIFIED", evidence_id: "must-not-be-used" };
+    },
+  });
+  const result = await runGovernedAction(d.options);
+  assert.equal(result.state, "UNKNOWN");
+  assert.equal(result.execution, null);
+  assert.equal(verifierCalled, false);
+  assert.ok(d.events.some((event) =>
+    event.to_state === "UNKNOWN" &&
+    event.evidence?.reason === "EXECUTOR_EXCEPTION_OUTCOME_UNKNOWN"
+  ));
+  assert.equal(d.events.some((event) => event.to_state === "FAILED" && event.actor === "executor"), false);
+});
