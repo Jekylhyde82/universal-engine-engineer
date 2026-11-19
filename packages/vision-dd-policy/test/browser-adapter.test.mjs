@@ -127,7 +127,7 @@ test("browser observation refuses an origin outside the allowlist", async () => 
     publicKeyPem, policyVersion: "policy-7",
     grantNonceLedger: { consume: async () => true }, requestConsent: async () => true, clock: () => now,
   });
-  await assert.rejects(() => adapter.observe({ userConsent: true }), /origin/i);
+  await assert.rejects(() => adapter.observe(), /origin/i);
 });
 
 test("navigation refuses an origin outside the allowlist", async () => {
@@ -222,4 +222,17 @@ test("browser adapter serializes actions and rejects concurrent execution", asyn
   release();
   const result = await first;
   assert.equal(result.execution_state, "AWAITING_VERIFICATION");
+});
+
+test("execution is blocked when trusted action consent is denied", async () => {
+  const page = fakePage();
+  let consumed = 0;
+  const { adapter, observation } = await observedAdapter(page, {
+    requestConsent: async ({ purpose }) => purpose !== "EXECUTE_ACTION",
+    grantNonceLedger: { consume: async () => { consumed += 1; return true; } },
+  });
+  const request = makeNavigateRequest(observation.observation_id);
+  await assert.rejects(() => adapter.execute({ request, grant: makeGrant(request) }), /consent/i);
+  assert.equal(consumed, 0);
+  assert.equal(page.calls.length, 0);
 });
