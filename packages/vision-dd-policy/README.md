@@ -1,20 +1,42 @@
-# V.I.S.I.O.N. / D.D. Policy Core
+# V.I.S.I.O.N. / D.D. Policy and Supervised Browser Prototype
 
-A dependency-free Node.js reference package for deterministic policy evaluation and guarded action-state transitions.
+Dependency-free Node.js reference package for deterministic policy evaluation, signed execution grants, local replay protection, a policy HTTP service, supervised browser observation/navigation and signed readback verification.
 
 ## Status
 
-**Prototype / testable policy logic only. Not a production enforcement service.**
+**Prototype / integration slice. Not production approved.**
 
-This package does not:
-- capture screens or images;
-- control a browser, desktop or Android device;
-- authenticate users or devices;
-- issue signed execution grants;
-- provide durable nonce storage;
-- persist an action ledger;
-- independently verify application outcomes;
-- implement V.I.S.I.O.N., D.D., AFI PRIME or EB9PRIME runtimes.
+## Implemented in this branch
+
+- Deterministic deny-by-default action policy evaluation.
+- R0–R4 classification from trusted server-side policy configuration.
+- Policy-version-bound, action-digest-bound human approval checks.
+- Ed25519 short-lived grant signing and verification.
+- Grant scope binding to actor, task, action, application and session.
+- Local append-only hash-chained nonce ledger with exclusive locking, fsync, partial-tail recovery, restrictive permission checks and a configurable size limit.
+- Authenticated policy-grant HTTP service with mandatory injected authentication and approval-verification functions.
+- Consent-gated Playwright page adapter for bounded semantic observation and optional screenshot capture.
+- Strict browser request-origin allowlisting, stale-observation rejection, one-action-at-a-time execution, stop control and navigation-only action support.
+- Signed readback verifier that refuses to trust the executor's own assertion.
+- Automated Node.js tests in GitHub Actions.
+
+## Validation evidence
+
+The latest recorded policy workflow for this branch reported **65 tests passed, 0 failed** at commit `090d4f089d67a8c18c407f24f05e26d076909ec2`. Subsequent code changes require a new run tied to the exact updated commit.
+
+## Important limitations
+
+This is not a complete runtime or production security boundary.
+
+- No production identity provider or real user/device authentication adapter is included. The HTTP service requires an injected authenticator.
+- Human approval signature verification is injected; tests use fakes. No trusted approval UI or production key-management/rotation service is included.
+- The local nonce ledger is single-host replay protection. Its hash chain is not independently tamper-proof; production audit evidence needs externally anchored checkpoints, backup and restore procedures.
+- No production deployment, staging environment, operational monitoring, incident response or independent penetration test is included.
+- The browser adapter accepts a Playwright-compatible page supplied by a trusted host. This repository has not yet launched or tested a real Chromium binary in CI.
+- The adapter currently supports navigation only. It does not implement generic clicks, form submissions, typing, file access or arbitrary desktop control.
+- DOM labels are untrusted page data. Screenshot capture requires separate visual consent and is not redacted; the adapter does not persist screenshots.
+- The signed readback verifier is a verification primitive. A separate authenticated read-only verifier process/provider is not yet implemented.
+- No Android app, MediaProjection/accessibility service, AFI PRIME runtime integration or EB9PRIME governed persistence runtime is included.
 
 ## Run tests
 
@@ -26,12 +48,8 @@ npm test
 
 ## Decision semantics
 
-- `DENY`: request is malformed, out of scope, prohibited or cannot be safely evaluated.
-- `REQUIRE_APPROVAL`: action risk class requires human approval.
-- `ELIGIBLE_FOR_GRANT`: deterministic checks passed. This is **not** an execution token and must never be passed directly to an executor.
-
-For R2/R3, callers must provide a trusted cryptographic `verifyApproval` function and an atomic, durable `consumeApprovalNonce` function. Tests use fakes only. Production must use authenticated approver keys and persistent replay protection. Approval is bound to the current policy version and exact action/session.
-
-The action-state transition guard checks allowed role/state transitions and requires evidence references for grant, verification and recovery states. Its caller must authenticate actor identity and validate the referenced grant/evidence independently.
-
-A separate policy service must issue a short-lived, one-use, action/session-bound grant. D.D. must independently validate that grant before every action.
+- `DENY`: malformed, out-of-scope, prohibited or unevaluable request.
+- `REQUIRE_APPROVAL`: human approval is required.
+- `ELIGIBLE_FOR_GRANT`: deterministic checks passed. This is not an execution credential.
+- A grant is a short-lived signed capability. D.D. must verify it against a trusted public key and consume its grant ID through a durable replay store immediately before execution.
+- A navigation executor returns `AWAITING_VERIFICATION` or `UNKNOWN`; it never declares its own action verified.
