@@ -80,7 +80,7 @@ def _assess(text: str | None) -> tuple[int, tuple[str, ...]]:
     return score, found
 
 
-class UniversalAssimilationEngine:
+class UniversalAcquisitionIntegrationEngine:
     """Persistent intake and assessment store. Acquired material is never executed."""
 
     def __init__(self, database: str | os.PathLike[str] = "uaie.sqlite3",
@@ -248,12 +248,17 @@ class UniversalAssimilationEngine:
         return result
 
 
+
+# Backwards-compatible alias for the original prototype API.
+UniversalAssimilationEngine = UniversalAcquisitionIntegrationEngine
+
+
 def _print(record: AssimilationRecord) -> None:
     print(json.dumps(asdict(record), indent=2))
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="uaie", description="Universal Assimilation and Integration Engine prototype")
+    parser = argparse.ArgumentParser(prog="uaie", description="Universal Acquisition and Integration Engine prototype")
     parser.add_argument("--db", default="uaie.sqlite3", help="SQLite database path")
     sub = parser.add_subparsers(dest="command", required=True)
     ingest = sub.add_parser("ingest", help="assimilate a file or directory without executing it")
