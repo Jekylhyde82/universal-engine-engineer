@@ -79,6 +79,7 @@ Any of the following is an automatic NO-GO:
 - stale or ambiguous target can still execute;
 - executor can run arbitrary commands;
 - non-idempotent action is retried after unknown outcome;
+- executor exception or timeout after action start is incorrectly recorded as a confirmed failure;
 - verifier trusts only executor assertion;
 - raw secrets appear in logs, screenshots or memory;
 - no working stop/revoke control;
