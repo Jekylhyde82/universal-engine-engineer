@@ -73,7 +73,7 @@ export function createServer({
       typeof privateKeyPem !== "string" || !privateKeyPem.trim() ||
       typeof authenticateActor !== "function" ||
       typeof clock !== "function" ||
-      !Number.isSafeInteger(maxBodyBytes) || maxBodyBytes < 256 ||
+      !Number.isSafeInteger(maxBodyBytes) || maxBodyBytes < 1 ||
       !Number.isSafeInteger(grantTtlMs) || grantTtlMs < 1 || grantTtlMs > 30_000) {
     throw new TypeError("Policy service configuration is incomplete or invalid.");
   }
