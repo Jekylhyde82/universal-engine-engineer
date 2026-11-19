@@ -18,6 +18,7 @@ This specification and prototype do not claim live access to the user's camera, 
 - [Threat model](THREAT_MODEL.md)
 - [Production gates](PRODUCTION_GATES.md)
 - [Implementation plan](../../superpowers/plans/2026-11-19-vision-dd-production-readiness.md)
+- [NINEFOLD INTRINSIC toolchain integration contract](../ninefold-intrinsic/TOOLCHAIN_INTEGRATION_CONTRACT.md)
 
 ## Non-negotiable invariants
 
