@@ -46,7 +46,8 @@ export async function launchBrowserHost({
 
   const initial = new URL(initialUrl);
   const allowedOriginSet = new Set(allowedOrigins.map((value) => new URL(value).origin));
-  if (initial.username || initial.password || !allowedOriginSet.has(initial.origin) ||
+  if (initial.username || initial.password || initial.search || initial.hash ||
+      !allowedOriginSet.has(initial.origin) ||
       !["https:", "http:"].includes(initial.protocol) ||
       (initial.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(initial.hostname))) {
     throw new Error("Initial browser URL must use an allowlisted HTTPS origin (or loopback HTTP).");
