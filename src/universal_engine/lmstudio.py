@@ -42,7 +42,11 @@ class LMStudioModel:
 
 
 def _validate_base_url(base_url: str) -> str:
-    parsed = urlsplit(base_url)
+    try:
+        parsed = urlsplit(base_url)
+        port = parsed.port
+    except ValueError as exc:
+        raise LMStudioError("Endpoint URL is malformed.") from exc
     if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
         raise LMStudioError(
             "Only a loopback HTTP LM Studio endpoint is accepted by default; "
@@ -52,9 +56,9 @@ def _validate_base_url(base_url: str) -> str:
         raise LMStudioError("Endpoint URL must not contain credentials, query, or fragment.")
     if parsed.path not in {"", "/"}:
         raise LMStudioError("Endpoint URL must be an origin without a path.")
-    if parsed.port not in {None, 1234}:
-        # Custom loopback ports are valid; the default port is merely conventional.
-        pass
+    # Custom loopback ports are valid; the default port is merely conventional.
+    if port is not None and not 1 <= port <= 65535:
+        raise LMStudioError("Endpoint port is invalid.")
     return f"http://{parsed.netloc}"
 
 
@@ -75,7 +79,8 @@ class LMStudioClient:
             headers["Authorization"] = f"Bearer {self.api_token}"
         request = Request(f"{self.base_url}/api/v1/models", headers=headers, method="GET")
         try:
-            with urlopen(request, timeout=self.timeout) as response:
+            opener = build_opener(_NoRedirectHandler)
+            with opener.open(request, timeout=self.timeout) as response:
                 raw = response.read(MAX_RESPONSE_BYTES + 1)
         except HTTPError as exc:
             if exc.code == 401:
