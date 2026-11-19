@@ -1,14 +1,14 @@
 # V.I.S.I.O.N. + DESIGNATED DRIVER (D.D.)
 
 **Architecture authority:** NINEFOLD INTRINSIC  
-**Specialist identities:** V.I.S.I.O.N., D.D., AFI PRIME  
+**Intrinsic specialist capabilities:** V.I.S.I.O.N., D.D., Unified Fusion Synergy — AFI PRIME  
 **Governed memory relationship:** EB9PRIME  
 **Critical review discipline:** GENIUS ENGINEER CRITIC PRIME  
 **Release decision:** NO-GO — prototype implementation only.
 
 ## Purpose
 
-V.I.S.I.O.N. observes authorised visual inputs and produces provenance-bearing, uncertainty-aware observations. AFI PRIME proposes bounded typed plans. D.D. executes only actions authorised by an independent policy service. An independent verifier checks outcomes. EB9PRIME may retain only appropriately minimised, evidence-backed learning.
+V.I.S.I.O.N. observes authorised visual inputs and produces provenance-bearing, uncertainty-aware observations. Unified Fusion Synergy — AFI PRIME performs the integrated analysis, specialist coordination, synthesis and bounded planning for the one unified NINEFOLD INTRINSIC entity. D.D. executes only actions authorised by an independent policy service. An independent verifier checks outcomes. EB9PRIME may retain only appropriately minimised, evidence-backed learning.
 
 This specification and prototype do not claim live access to the user's camera, screen, applications or devices.
 
@@ -53,7 +53,7 @@ This specification and prototype do not claim live access to the user's camera, 
 | Production identity provider and key management | Not implemented |
 | Local append-only action audit ledger | Implemented; hash-chained, fsynced, permission-restricted, bounded and fail-closed |
 | External audit anchoring, retention and recovery operations | Not implemented; independent checkpoints, protected backups and audit access service remain outstanding |
-| AFI PRIME runtime integration | Not implemented |
+| Unified Fusion Synergy — AFI PRIME runtime integration | Not implemented |
 | EB9PRIME governed persistence | Not implemented |
 | Android runtime and OS permission integration | Not implemented |
 | Staging, monitoring, rollback and incident response | Not implemented |
