@@ -48,29 +48,55 @@ A merge, source CI pass, file copy or successful hash comparison does not prove 
 The current extracted packages are **PRESERVED / QUARANTINED**. They must remain outside the production execution path until target-specific compatibility, security, test and independent-verification gates are passed.
 
 
-## NINEFOLD INTRINSIC architecture reconciliation — 2026-11-19
+## NINEFOLD INTRINSIC architecture and runtime proof-of-capability — 2026-11-19
 
 **Working branch:** `architecture/vision-dd-production-spec`  
 **Pull request:** [#25](https://github.com/Jekylhyde82/universal-engine-engineer/pull/25) — open, draft, not merged  
-**Latest recorded branch checkpoint before this addendum:** `cc210d826d0dcfa68faf9e7fcd0645d1cfaba1fa`
+**Verified code commit:** `887e15bb85bd33f99e5c2f765aea17323e8b6e99`
 
-### Architecture baseline now recorded
+### Canonical architecture baseline
 
 - One NINEFOLD INTRINSIC entity and one canonical identity.
 - Nine unified UMIC domains, each with one Master Core lineage slot, nine Engine lineage slots and one scoped instance of the same canonical UNIFIED FUSION SYNERGY — AFI PRIME function.
 - One shared, versioned fusion-function identity and one governance model; nine scoped instances.
-- Each instance has a reserved unique execution-context ID, state namespace, evidence-stream ID and fault-domain ID.
-- No shared mutable runtime state or implicit permission inheritance; cross-instance access requires an explicit governed contract.
+- Each instance has its own execution context, state boundary, evidence trail and fault-containment domain.
+- No shared mutable runtime state or implicit permission inheritance; cross-instance access requires explicit governed authorisation.
 - 99 preserved constituent lineage slots (9 UMIC-domain, 9 Master Core, 81 Engine); canonical names, responsibilities and source-to-slot mappings remain unresolved pending approved source evidence.
-- Master Charter, architecture decision record, registry, registry validator, registry README, V.I.S.I.O.N. technical specification, threat model, production gates and V.I.S.I.O.N. README updated to align with this model.
+- Master Charter, architecture decision record, registry, validator, registry README, V.I.S.I.O.N. technical specification, threat model, production gates and READMEs are reconciled to the canonical model.
 
-### Evidence and limitations
+### Runtime proof-of-capability
 
-- The registry validator's new per-instance isolation assertions completed successfully in policy workflow `44472579827` at commit `458f9b102abc0f854da330f895de802156ffd919`; that workflow was later cancelled during Chromium installation when subsequent commits superseded it. This is evidence for the validator step only, not a full test pass.
-- The most recent complete policy run remains workflow `44471524792` at earlier commit `ce77229e9bfb9b7a3eec118878bac69ab6c504d3`: 132 tests passed, zero failed. Its matching CodeQL workflow `44471524806` completed successfully. These runs predate the new instance-isolation implementation assertions and subsequent architecture-document updates.
-- Rerun policy workflow `44472679774` completed successfully on commit `e82e8b18f394ec7c7bb2e7d8d1349ca5ca08ee4a`: **132 tests passed, 0 failed, 0 cancelled, 0 skipped**. Registry validation, pinned Playwright runtime, Chromium installation and JavaScript syntax checks all passed. CodeQL workflow `44472679805` also completed successfully on that same commit. Subsequent commits through current head `d86fdf89dad9512fb6cd7b75d4a2d638ac0f4463` changed documentation/status records only; the implementation package and registry validator are unchanged from the successful run. This is strong code/registry validation for the current source content, but it is not a full workflow run on the exact latest documentation commit.
-- Runtime implementation of the nine AFI PRIME instances, independent state stores, evidence streams and fault domains is **NOT IMPLEMENTED**.
-- Full 99-lineage source reconciliation and independent verification are **NOT COMPLETE**.
-- Production remains **NO-GO**.
+Package: `packages/ninefold-fusion-runtime/`
 
-This addendum supersedes no historical snapshot. It records the current architecture direction and separates successful earlier evidence from validation still required on the current head.
+The experimental harness now demonstrates:
+- nine distinct Node.js child processes, all loading one shared versioned AFI PRIME function implementation;
+- process-local state, with tests proving that state written in one instance is not visible in another;
+- unique per-instance append-only JSONL evidence streams with hash-chain validation and tamper detection on restart;
+- governed actor-to-instance scope checks and deny-by-default cross-instance access;
+- explicit, audited cross-instance access when the injected governance callback authorises it;
+- process-level fault containment: terminating one instance leaves the other eight operational in the test;
+- fault injection disabled unless test mode is explicitly enabled.
+
+This is a deterministic orchestration/state-boundary proof, **not** an intelligent AFI PRIME reasoning engine or production NINEFOLD INTRINSIC runtime.
+
+### Validation evidence
+
+- Policy workflow `44474605496` completed successfully on the exact code commit `887e15bb85bd33f99e5c2f765aea17323e8b6e99`.
+- Existing V.I.S.I.O.N./D.D. suite: **132 passed, 0 failed**.
+- Nine-instance runtime suite: **8 passed, 0 failed**.
+- Registry validation, pinned Playwright installation, Chromium installation, JavaScript syntax checks and nine-instance runtime syntax checks all passed.
+- CodeQL workflow `44474605505` completed successfully on the same commit.
+- CodeQL workflow success does not establish that the alert inventory is empty or reviewed.
+
+### Remaining limitations
+
+- Child processes share the host OS identity and kernel; this is not a hardened container, VM, seccomp or cgroup security boundary.
+- State is process-local and is lost on process exit; durable state recovery is not implemented.
+- Local hash-chained evidence is not externally anchored or independently tamper-proof against a privileged host.
+- The injected governance callbacks are proof interfaces, not production identity, authorisation or human-approval services.
+- No runtime mapping of the 99 source lineages to Master Core/Engine slots has been approved or implemented.
+- No full AFI PRIME reasoning/intelligence implementation, EB9PRIME integration, OS-level network isolation, Android companion, production identity/key management, independent verifier service, staging, monitoring, incident response, penetration test or production approval is included.
+- Full production runtime integration and independent verification remain **NOT IMPLEMENTED**.
+- **Production release: NO-GO.**
+
+This addendum supersedes no historical snapshot. It records the prototype's tested capabilities without promoting them to production claims.
