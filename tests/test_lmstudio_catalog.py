@@ -7,7 +7,7 @@ from pathlib import Path
 
 from universal_engine.lmstudio_catalog import (
     LMStudioCatalogError, assimilate_catalog_candidate,
-    build_download_command, candidate_from_mapping, main,
+    build_download_command, candidate_from_mapping, download_catalog_candidate, main,
 )
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
@@ -92,6 +92,25 @@ class CatalogCandidateTests(unittest.TestCase):
         for metadata in ({"payload": "x" * (256 * 1024)}, {"value": float("nan")}):
             with self.subTest(metadata_type=type(metadata["payload"] if "payload" in metadata else metadata["value"])), self.assertRaises(LMStudioCatalogError):
                 candidate_from_mapping({**CANDIDATE, "metadata": metadata})
+
+    def test_catalog_candidate_download_requires_approval_and_reviewed_artifact(self):
+        candidate = candidate_from_mapping({**CANDIDATE, "quantization": "Q4_K_M"})
+        with self.assertRaises(LMStudioCatalogError):
+            download_catalog_candidate(candidate, approved=True)
+        with self.assertRaises(LMStudioCatalogError):
+            download_catalog_candidate(
+                candidate, approved=True,
+                huggingface_model_url="https://huggingface.co/other/model")
+        seen = {}
+        def opener(request, timeout):
+            seen["body"] = json.loads(request.data.decode())
+            return FakeResponse(b'{"status":"already_downloaded"}')
+        job = download_catalog_candidate(
+            candidate, approved=True,
+            huggingface_model_url="https://huggingface.co/liquid-ai/lfm3-vl-2b",
+            opener=opener)
+        self.assertEqual(job.status, "already_downloaded")
+        self.assertEqual(seen["body"]["quantization"], "Q4_K_M")
 
     def test_cli_imports_reviewed_json_and_only_prints_download_proposal(self):
         with tempfile.TemporaryDirectory() as tmp:
