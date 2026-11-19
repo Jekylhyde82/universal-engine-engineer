@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { openEvidenceStream } from "./evidence.mjs";
 import {
   executeCanonicalFusionCommand,
@@ -52,19 +51,31 @@ async function handle(message) {
     return { status: "STOPPING" };
   }
 
-  const result = executeCanonicalFusionCommand({
+  const execution = executeCanonicalFusionCommand({
     command,
     state,
     instanceId,
     policyVersion,
   });
-  const detail = command.type === "state.write"
-    ? { key: command.key, valueDigest: createHash("sha256").update(JSON.stringify(command.value)).digest("hex") }
-    : command.type === "state.read"
-      ? { key: command.key, found: result.found }
-      : { status: result.status };
-  const event = await evidence.append("COMMAND_" + command.type.toUpperCase(), detail);
-  return { ...result, evidenceSequence: event.sequence, evidenceHash: event.hash, requestId };
+  let event;
+  if (execution.commit) {
+    await evidence.append("COMMAND_PREPARED", execution.evidenceDetails);
+    execution.commit();
+    try {
+      event = await evidence.append("COMMAND_COMMITTED", execution.evidenceDetails);
+    } catch (error) {
+      execution.rollback();
+      throw error;
+    }
+  } else {
+    event = await evidence.append("COMMAND_" + command.type.toUpperCase(), execution.evidenceDetails);
+  }
+  return {
+    ...execution.result,
+    evidenceSequence: event.sequence,
+    evidenceHash: event.hash,
+    requestId,
+  };
 }
 
 async function main() {
