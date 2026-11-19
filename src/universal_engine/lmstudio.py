@@ -176,10 +176,11 @@ def assimilate_catalog(
     base_url: str = DEFAULT_BASE_URL,
     api_token: str | None = None,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    opener: Callable[..., Any] | None = None,
 ) -> tuple[Any, ...]:
     """Persist validated inventory metadata through UAIE; never fetch model weights."""
     endpoint = _validated_endpoint(base_url)
-    models = list_models(endpoint, api_token=api_token, timeout=timeout)
+    models = list_models(endpoint, api_token=api_token, timeout=timeout, opener=opener)
     records = []
     for model in models:
         source = f"{endpoint}/api/v1/models#{urllib.parse.quote(model.key, safe='/')}"
