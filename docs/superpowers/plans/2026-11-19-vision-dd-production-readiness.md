@@ -21,7 +21,7 @@ Implemented in the feature branch:
 
 Latest verified implementation commit: `3e910c4468b9ed8458557933fe47ecc833626737`. Policy CI passed **119 tests, 0 failed, 0 cancelled, 0 skipped** (run `44460278822`), including real Chromium integration tests against a temporary local fixture. CodeQL passed on the same implementation commit (run `44460279083`). Subsequent branch commits are documentation-only.
 
-Still not production-ready: real identity provider, trusted approval-signature provider/key lifecycle, independent read-only verifier process, calibrated vision model, screenshot redaction, durable externally anchored action audit ledger, AFI PRIME/EB9PRIME runtime integration, Android implementation, deployment/operations and independent security approval.
+Still not production-ready: real identity provider, trusted approval-signature provider/key lifecycle, independent read-only verifier process, calibrated vision model, screenshot redaction, durable externally anchored action audit ledger, Unified Fusion Synergy — AFI PRIME/EB9PRIME runtime integration, Android implementation, deployment/operations and independent security approval.
 
 ## Delivery objective
 
@@ -29,7 +29,7 @@ Turn the current V.I.S.I.O.N. + DESIGNATED DRIVER specification and policy proto
 
 Preserve distinct responsibilities:
 - V.I.S.I.O.N. observes and grounds current UI state.
-- AFI PRIME proposes typed plans; it is not a policy authority.
+- Unified Fusion Synergy — AFI PRIME performs integrated reasoning, specialist coordination, synthesis and typed planning; it is not a policy authority.
 - The policy service authenticates, evaluates, approves and issues narrowly scoped grants.
 - D.D. executes one allowlisted action at a time.
 - An independent verifier determines whether the requested postcondition actually occurred.
@@ -85,7 +85,7 @@ Preserve distinct responsibilities:
 1. Reuse the existing `android/uaie-client-v0.1` native Kotlin intake/control-terminal branch (PR #20) as the future mobile companion foundation; it currently has no screen capture or accessibility automation.
 2. Add explicit MediaProjection/accessibility consent and persistent user-visible operation indicators only in a separate Android feature branch.
 3. Test on the supported OPPO/ColorOS/Android matrix; no accessibility permission is requested before its feature is ready.
-4. Integrate AFI PRIME and EB9PRIME through versioned, least-privilege interfaces and reconcile the Node action-policy contract with the existing Python runtime policy engine.
+4. Integrate Unified Fusion Synergy — AFI PRIME and EB9PRIME through versioned, least-privilege interfaces and reconcile the Node action-policy contract with the existing Python runtime policy engine.
 5. Keep Android production release separate from browser release until its own gates pass.
 
 ## Acceptance criteria
