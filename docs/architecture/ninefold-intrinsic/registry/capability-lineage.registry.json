@@ -912,10 +912,10 @@
       "state_namespace": "STATE-UMIC-01",
       "evidence_stream_id": "EVIDENCE-UMIC-01",
       "fault_domain_id": "FAULT-UMIC-01",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-02",
@@ -930,10 +930,10 @@
       "state_namespace": "STATE-UMIC-02",
       "evidence_stream_id": "EVIDENCE-UMIC-02",
       "fault_domain_id": "FAULT-UMIC-02",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-03",
@@ -948,10 +948,10 @@
       "state_namespace": "STATE-UMIC-03",
       "evidence_stream_id": "EVIDENCE-UMIC-03",
       "fault_domain_id": "FAULT-UMIC-03",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-04",
@@ -966,10 +966,10 @@
       "state_namespace": "STATE-UMIC-04",
       "evidence_stream_id": "EVIDENCE-UMIC-04",
       "fault_domain_id": "FAULT-UMIC-04",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-05",
@@ -984,10 +984,10 @@
       "state_namespace": "STATE-UMIC-05",
       "evidence_stream_id": "EVIDENCE-UMIC-05",
       "fault_domain_id": "FAULT-UMIC-05",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-06",
@@ -1002,10 +1002,10 @@
       "state_namespace": "STATE-UMIC-06",
       "evidence_stream_id": "EVIDENCE-UMIC-06",
       "fault_domain_id": "FAULT-UMIC-06",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-07",
@@ -1020,10 +1020,10 @@
       "state_namespace": "STATE-UMIC-07",
       "evidence_stream_id": "EVIDENCE-UMIC-07",
       "fault_domain_id": "FAULT-UMIC-07",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-08",
@@ -1038,10 +1038,10 @@
       "state_namespace": "STATE-UMIC-08",
       "evidence_stream_id": "EVIDENCE-UMIC-08",
       "fault_domain_id": "FAULT-UMIC-08",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-09",
@@ -1056,10 +1056,10 @@
       "state_namespace": "STATE-UMIC-09",
       "evidence_stream_id": "EVIDENCE-UMIC-09",
       "fault_domain_id": "FAULT-UMIC-09",
-      "execution_context_status": "NOT_IMPLEMENTED",
-      "state_boundary_status": "NOT_IMPLEMENTED",
-      "evidence_trail_status": "NOT_IMPLEMENTED",
-      "fault_containment_status": "NOT_IMPLEMENTED"
+      "execution_context_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "state_boundary_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "evidence_trail_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED",
+      "fault_containment_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
     }
   ],
   "instance_isolation_contract": {
@@ -1071,6 +1071,6 @@
     "shared_governance": "ONE_CANONICAL_GOVERNANCE_POLICY_WITH_INSTANCE_SCOPED_ENFORCEMENT",
     "shared_mutable_state": false,
     "implicit_permission_inheritance": false,
-    "implementation_status": "REQUIRED_NOT_IMPLEMENTED"
+    "implementation_status": "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED"
   }
 }
