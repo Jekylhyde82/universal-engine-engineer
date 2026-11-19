@@ -3,88 +3,82 @@
 **Canonical engine:** Universal Acquisition and Integration Engine (UAIE PRIME)  
 **Parent architecture:** NINEFOLD INTRINSIC  
 **Specialist intelligence and fusion:** AFI PRIME  
-**Primary acquisition target:** [LM Studio Model Catalog](https://lmstudio.ai/models)  
-**Status:** Implemented adapters and automated tests in this branch; exact-head CI, live smoke testing and independent verification pending.
+**First acquisition source:** [LM Studio Model Catalog](https://lmstudio.ai/models)  
+**Status:** Governed candidate-intake and local inventory adapters implemented; automated tests pass on the previous exact head; current changes require fresh CI and operational validation.
 
-## Correct source distinction
+## Source and interface distinction
 
-LM Studio exposes two different resources:
+LM Studio provides three relevant surfaces:
 
-1. **Public Model Catalog** at `https://lmstudio.ai/models`: discoverable model families, descriptions, model-page details, capability tags, local/cloud availability, downloads, update information, memory notes, artifact links and licence statements where published.
-2. **Local LM Studio inventory** at `GET /api/v1/models`: models already downloaded or otherwise available on a specific LM Studio installation, with runtime-oriented metadata such as type, publisher, key, quantization, size, context, capabilities and loaded instances.
+1. **Public Model Catalog:** the website at `https://lmstudio.ai/models`, with model-family pages, descriptions, declared capabilities, local/cloud availability, artifact references, resource notes and licence statements where published.
+2. **Official CLI:** `lms get` searches and downloads models. This is the supported user-facing acquisition route. The command requires an explicit model identifier and may present download choices.
+3. **Native local REST API v1:** `GET /api/v1/models` inventories models already available on a specific LM Studio installation. It is not a complete public-catalog search API.
 
-These are separate sources and are not interchangeable. The public website currently renders a searchable/filterable catalogue with individual model detail pages. LM Studio's native v1 REST API is documented for local model inventory and model management; it is not documented as a full public catalogue-search API.
+LM Studio's Hub terms restrict integrations to officially supported interfaces. UAIE therefore does **not** crawl or reverse-engineer the public website or Hub. It accepts a user-reviewed catalog candidate record (or a record exported through an officially supported interface), prepares the official CLI command for review, and then uses the documented local REST API to verify what is actually installed.
 
-## Implemented public-catalog adapter
+## Implemented candidate intake
 
 `universal_engine.lmstudio_catalog`:
 
-- Starts from the official public catalogue page.
-- Discovers same-origin model detail links.
-- Fetches detail pages only from HTTPS `lmstudio.ai`.
-- Rejects credentials, query strings, fragments, invalid ports and cross-origin redirects.
-- Enforces timeouts, response-size limits and a maximum model count.
-- Extracts page title, summary, declared capability tags, local/cloud availability, parameter-size strings, context and memory notes, download/star counts, update text, licence text and approved artifact links.
-- Fails closed when model links disappear or the page structure no longer yields catalogue entries.
-- Stores each acquired entry in UAIE with its original model-page URL as provenance.
+- Validates a user-supplied model identifier, catalog detail URL, optional quantization, capability declarations, licence text, memory/context notes and artifact references.
+- Rejects non-LM-Studio catalog URLs, credentials, query strings, fragments, invalid identifiers, unapproved capability keys and unapproved artifact hosts.
+- Bounds metadata to 256 KiB and requires finite JSON-compatible data.
+- Creates an official `lms get` command proposal without executing it.
+- Persists the candidate through UAIE with the original catalog URL as provenance.
+- Fuses the candidate through AFI PRIME into a separate capability profile.
+- Keeps performance verification and integration approval false.
 
-This is a bounded HTML adapter, not an official LM Studio public API. The website markup can change; parser fixtures and a live smoke test are required before operational promotion.
+Example:
+
+```python
+from universal_engine.lmstudio_catalog import (
+    candidate_from_mapping, build_download_command,
+    assimilate_catalog_candidate,
+)
+from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
+
+candidate = candidate_from_mapping({
+    "model_id": "publisher/model-name",
+    "display_name": "Model Name",
+    "catalog_url": "https://lmstudio.ai/models/model-name",
+    "quantization": "Q4_K_M",
+    "capabilities": {"vision": True, "reasoning": True, "tool_use": True},
+    "metadata": {"reviewed_by": "operator"},
+})
+
+uaie = UniversalAcquisitionIntegrationEngine("uaie.sqlite3")
+catalog_record, afi_profile_record = assimilate_catalog_candidate(uaie, candidate)
+print(build_download_command(candidate))  # proposal only; does not execute
+```
+
+After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
 
 ## AFI PRIME fusion
 
-For each validated catalog entry, `AFIPrimeFusionAdapter` extracts an AFI capability profile and persists it as a separate UAIE record under an `afi-prime://` provenance identifier.
+AFI extracts explicit model facts and preserves the candidate's source, declared capabilities, model identity, quantization, parameter-size notes, memory/context information, artifact references and licence statement.
 
-AFI preserves the model key and reported facts, and explicitly labels them as publisher/catalog metadata. Catalog capability tags are recorded as declarations, not as independently proven capabilities.
-
-Every generated profile remains:
-- `METADATA_ONLY_NOT_BENCHMARKED`
-- `performance_verified = false`
-- `integration_approved = false`
-
-AFI is therefore performing a real, testable metadata-to-capability-profile fusion. This does not falsely claim that a complete autonomous AFI reasoning runtime, benchmark suite or model-selection policy has already been deployed.
+The profile is labelled `USER_SUPPLIED_CATALOG_METADATA` and `METADATA_ONLY_NOT_BENCHMARKED`. Publisher claims are not converted into verified capability claims. `performance_verified` and `integration_approved` remain false.
 
 ## Local inventory adapter
 
-`universal_engine.lmstudio` separately reads the native v1 local endpoint `GET /api/v1/models`. It is read-only and loopback-only by default. It never downloads weights, loads/unloads models, executes inference or changes LM Studio configuration.
+`universal_engine.lmstudio` reads the documented native v1 endpoint `GET /api/v1/models` from an explicitly configured loopback server. It is read-only. It does not download weights, load/unload models, execute inference or change LM Studio configuration. Optional API tokens are read at runtime and never persisted.
 
-Optional bearer-token authentication is read from the process environment and is never written to the register.
+This local API adapter is the post-acquisition verification step: it can confirm that a selected model appears in the local LM Studio inventory, but it does not by itself prove that the model performs well or is suitable for a particular Engine task.
 
-## Run
+## Governance and production gates
 
-Public catalog discovery:
+- Catalog discovery is user-directed until LM Studio provides an officially supported public catalog API or grants explicit integration permission.
+- Model acquisition remains a human-approved action through LM Studio's official CLI.
+- Licence text is captured as evidence only; it is not a legal determination.
+- Hardware suitability, actual resource estimates, model performance and security must be independently evaluated.
+- No model is integrated into the Universal Engine solely because it appears in the catalog or is downloaded.
+- The user's mobile device is a control terminal; local model execution requires a supported LM Studio host.
 
-```bash
-python -m universal_engine.lmstudio_catalog
-```
+## Verification required
 
-Local inventory:
-
-```bash
-LM_API_TOKEN='your-token' python -m universal_engine.lmstudio
-```
-
-Persist public catalogue entries and AFI profiles from Python:
-
-```python
-from universal_engine.lmstudio_catalog import assimilate_public_catalog
-from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
-
-uaie = UniversalAcquisitionIntegrationEngine("uaie.sqlite3")
-catalog_records, afi_profile_records = assimilate_public_catalog(uaie)
-```
-
-## Governance and lifecycle
-
-Discovery and assimilation do not authorise acquisition of model weights, execution, deployment or integration into the Universal Engine. Each candidate must separately undergo provenance, licence, security, resource/hardware compatibility, independent benchmark and value assessment. Human approval and the existing UAIE lifecycle remain mandatory.
-
-Model cards, capability tags, download counts and vendor-reported benchmarks are untrusted third-party claims until independently verified. Do not infer licence permissions from the fact that a model is listed in the catalog.
-
-## Verification gates
-
-- Unit tests use deterministic HTML/JSON fixtures and do not require network access or model downloads.
-- Exact-head GitHub Actions must pass.
-- Live smoke test must compare parser output with the live public catalogue and detail pages.
-- Local API smoke test requires a reachable LM Studio instance and user-authorised token if authentication is enabled.
-- Production readiness additionally requires parser drift monitoring, retries/backoff, rate limiting, catalogue snapshot/versioning, licence evidence capture, security review, hardware suitability analysis, independent model benchmarks, audit/retention policy, and an operational deployment plan.
+- Deterministic unit tests cover candidate validation, command construction, provenance and AFI fusion without network access or downloads.
+- Exact-head GitHub Actions must pass after the latest changes.
+- A live local inventory smoke test requires a user-authorised LM Studio host and token if authentication is enabled.
+- Production readiness requires an approved catalogue access method, robust register linkage, licence review, hardware/resource evaluation, independent model benchmarks, security review, audit/retention policy, backup/restore, monitoring and deployment documentation.
 
 **Evidence rule:** specified, implemented, CI-tested, live-smoke-tested, independently verified and production-operational are distinct states.
