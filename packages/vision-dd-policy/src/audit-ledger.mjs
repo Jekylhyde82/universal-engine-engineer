@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { constants } from "node:fs";
 import { mkdir, lstat, readFile, open, truncate, unlink } from "node:fs/promises";
 import { dirname } from "node:path";
 
@@ -131,32 +132,31 @@ export class FileActionAuditLedger {
   }
 
   async #readAndRecover() {
+    let handle;
     let bytes;
     try {
-      const info = await lstat(this.path);
-      if (!info.isFile() || info.isSymbolicLink() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
-        throw new Error("Audit ledger must be a private 0600 regular file, not a symlink.");
+      const flags = constants.O_RDWR | (constants.O_NOFOLLOW ?? 0);
+      handle = await open(this.path, flags);
+      const info = await handle.stat();
+      if (!info.isFile() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
+        throw new Error("Audit ledger must be a private 0600 regular file opened without following symlinks.");
       }
       if (info.size > this.maxLedgerBytes) {
         throw new Error("Audit ledger size limit exceeded; refusing to bypass evidence retention.");
       }
-      bytes = await readFile(this.path);
+      bytes = await handle.readFile();
+      if (bytes.length > 0 && bytes[bytes.length - 1] !== 0x0a) {
+        const lastNewline = bytes.lastIndexOf(0x0a);
+        const recoveredLength = lastNewline + 1;
+        await handle.truncate(recoveredLength);
+        await handle.sync();
+        bytes = bytes.subarray(0, recoveredLength);
+      }
     } catch (error) {
       if (error?.code === "ENOENT") return { records: 0, previousHash: ZERO_HASH, size: 0 };
       throw error;
-    }
-
-    if (bytes.length > 0 && bytes[bytes.length - 1] !== 0x0a) {
-      const lastNewline = bytes.lastIndexOf(0x0a);
-      const recoveredLength = lastNewline + 1;
-      const handle = await open(this.path, "r+");
-      try {
-        await handle.truncate(recoveredLength);
-        await handle.sync();
-      } finally {
-        await handle.close();
-      }
-      bytes = bytes.subarray(0, recoveredLength);
+    } finally {
+      await handle?.close().catch(() => {});
     }
 
     const text = bytes.toString("utf8");
@@ -203,8 +203,13 @@ export class FileActionAuditLedger {
       if (size + lineBytes > this.maxLedgerBytes) {
         throw new Error("Audit ledger size limit reached; refusing to drop evidence.");
       }
-      const handle = await open(this.path, "a", 0o600);
+      const appendFlags = constants.O_WRONLY | constants.O_APPEND | constants.O_CREAT | (constants.O_NOFOLLOW ?? 0);
+      const handle = await open(this.path, appendFlags, 0o600);
       try {
+        const info = await handle.stat();
+        if (!info.isFile() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
+          throw new Error("Audit ledger append target is not a private regular file.");
+        }
         await handle.writeFile(line, "utf8");
         await handle.sync();
       } finally {
