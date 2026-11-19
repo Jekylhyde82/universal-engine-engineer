@@ -33,3 +33,13 @@ __all__ += [
     "LMStudioModel", "assimilate_catalog", "list_models",
     "AFIModelCapabilityProfile", "AFIPrimeFusionAdapter",
 ]
+
+from .lmstudio_catalog import (
+    LMStudioCatalogEntry, LMStudioCatalogError,
+    assimilate_public_catalog, discover_catalog,
+)
+
+__all__ += [
+    "LMStudioCatalogEntry", "LMStudioCatalogError",
+    "assimilate_public_catalog", "discover_catalog",
+]
