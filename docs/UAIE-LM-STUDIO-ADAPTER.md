@@ -85,7 +85,9 @@ Poll a returned job with:
 
 ```bash
 uaie-lmstudio-status <job-id>
-``` After a human reviews and approves the candidate, the operator may either run the displayed `lms get` command or call the official REST download method with `approved=True`. The API method starts a download job and returns its status; `get_download_status` can poll that job. Quantization through the REST API is accepted only with an explicitly selected Hugging Face artifact URL; for a catalog identifier with a quantization suffix, use the reviewed CLI proposal. No download occurs during discovery, candidate intake or AFI fusion.
+```
+
+Quantization through the REST API is accepted only with an explicitly selected Hugging Face artifact URL; for a catalog identifier with a quantization suffix, use the reviewed CLI proposal. No download occurs during discovery, candidate intake or AFI fusion.
 
 ## Universal Capability Acquisition Register
 
@@ -108,14 +110,19 @@ The download function refuses to make a network request unless the caller passes
 Example (this starts a real download only when deliberately executed against a running LM Studio host):
 
 ```python
+import json
+import os
 from universal_engine.lmstudio_catalog import (
     candidate_from_mapping, assimilate_catalog_candidate,
     download_catalog_candidate,
 )
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
+with open("candidate.json", encoding="utf-8") as source:
+    candidate_data = json.load(source)
 uaie = UniversalAcquisitionIntegrationEngine("uaie.sqlite3")
 candidate = candidate_from_mapping(candidate_data)  # reviewed JSON record
+api_token = os.environ.get("LM_API_TOKEN")
 catalog_record, afi_record, acquisition = assimilate_catalog_candidate(uaie, candidate)
 
 # Approval is a deliberate operator action, not part of discovery.
