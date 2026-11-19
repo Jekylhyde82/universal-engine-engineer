@@ -83,6 +83,7 @@ test("real Chromium observes with consent and performs one signed allowlisted na
     const { publicKeyPem, privateKeyPem } = keys();
     const adapter = createBrowserAdapter({
       page,
+      context,
       sessionId: "integration-session",
       allowedOrigins: [origin],
       publicKeyPem,
@@ -118,6 +119,7 @@ test("real Chromium blocks a redirect outside the configured origin allowlist", 
     const { publicKeyPem, privateKeyPem } = keys();
     const adapter = createBrowserAdapter({
       page,
+      context,
       sessionId: "integration-session",
       allowedOrigins: [origin],
       publicKeyPem,
