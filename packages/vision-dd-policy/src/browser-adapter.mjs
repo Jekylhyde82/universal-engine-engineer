@@ -113,6 +113,18 @@ export function createBrowserAdapter({
   const origins = new Set(allowedOrigins.map(normaliseOrigin));
   const observations = new Map();
   let stopped = false;
+  const routeReady = Promise.resolve(page.route("**/*", async (route) => {
+    const rawUrl = route.request().url();
+    if (rawUrl === "about:blank" || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:")) {
+      return route.continue();
+    }
+    try {
+      safePageUrl(rawUrl, origins);
+      return route.continue();
+    } catch {
+      return route.abort("blockedbyclient");
+    }
+  }));
 
   function purgeObservations(now) {
     for (const [id, item] of observations) {
@@ -129,6 +141,7 @@ export function createBrowserAdapter({
     if (includeScreenshot && visualConsent !== true) {
       throw new Error("Separate explicit visual consent is required for screenshot capture.");
     }
+    await routeReady;
     const now = clock();
     if (!Number.isSafeInteger(now)) throw new Error("Clock unavailable.");
     const currentUrl = safePageUrl(page.url(), origins);
@@ -165,6 +178,7 @@ export function createBrowserAdapter({
       viewport,
       elements,
       visual_frame_digest: frameDigest,
+      source_url: publicUrl(currentUrl),
     };
     const expiry = now + observationTtlMs;
     const observation = Object.freeze({
@@ -179,7 +193,7 @@ export function createBrowserAdapter({
       detected_elements: elements,
       confidence: null,
       uncertainty: "DOM_SEMANTIC_OBSERVATION; MODEL_CONFIDENCE_NOT_CALIBRATED",
-      redaction_applied: true,
+      redaction_applied: false,
       expiry_at: new Date(expiry).toISOString(),
       ...(visualFrame ? {
         visual_frame: Object.freeze({
@@ -201,6 +215,7 @@ export function createBrowserAdapter({
 
   async function execute({ request, grant, userConsent = false }) {
     if (stopped) throw new Error("Browser adapter is stopped.");
+    await routeReady;
     if (userConsent !== true) throw new Error("Explicit user consent is required for execution.");
     if (!request || request.action_type !== "navigate") {
       throw new Error("Unsupported action; this adapter currently permits navigation only.");
