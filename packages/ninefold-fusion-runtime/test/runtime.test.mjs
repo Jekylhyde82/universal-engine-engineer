@@ -183,6 +183,39 @@ test("one instance process fault does not prevent peer instances from operating"
   });
 });
 
+test("a runtime restart reopens and appends to the same instance evidence stream", async () => {
+  const root = await mkdtemp(join(tmpdir(), "ninefold-restart-"));
+  const first = await NinefoldFusionRuntime.create({
+    evidenceRoot: root,
+    runtimeId: "restart-test",
+    policyVersion: "POLICY-TEST-1",
+    authorizeInstanceAccess: async ({ actorId, instanceId }) => actorId === instanceId,
+  });
+  const firstScope = await scope(first, "UMIC-01");
+  await firstScope.health();
+  const firstPath = first.getStatuses().find((item) => item.instanceId === "UMIC-01").evidencePath;
+  await first.close();
+
+  const second = await NinefoldFusionRuntime.create({
+    evidenceRoot: root,
+    runtimeId: "restart-test",
+    policyVersion: "POLICY-TEST-1",
+    authorizeInstanceAccess: async ({ actorId, instanceId }) => actorId === instanceId,
+  });
+  try {
+    const secondScope = await scope(second, "UMIC-01");
+    await secondScope.health();
+    const events = (await secondScope.getEvidence()).events;
+    const secondPath = second.getStatuses().find((item) => item.instanceId === "UMIC-01").evidencePath;
+    assert.equal(firstPath, secondPath);
+    assert.ok(events.length >= 4);
+    assert.equal(verifyEvidenceEvents(events, "UMIC-01").valid, true);
+  } finally {
+    await second.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("evidence tampering is detected when an instance restarts", async () => {
   const root = await mkdtemp(join(tmpdir(), "ninefold-tamper-"));
   const runtime = await NinefoldFusionRuntime.create({
