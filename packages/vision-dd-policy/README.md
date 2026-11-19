@@ -1,6 +1,6 @@
 # V.I.S.I.O.N. / D.D. Policy Core
 
-A dependency-free Node.js reference module for deterministic, deny-by-default action policy evaluation.
+A dependency-free Node.js reference package for deterministic policy evaluation and guarded action-state transitions.
 
 ## Status
 
@@ -27,9 +27,11 @@ npm test
 ## Decision semantics
 
 - `DENY`: request is malformed, out of scope, prohibited or cannot be safely evaluated.
-- `REQUIRE_APPROVAL`: action risk class requires a human approval.
+- `REQUIRE_APPROVAL`: action risk class requires human approval.
 - `ELIGIBLE_FOR_GRANT`: deterministic checks passed. This is **not** an execution token and must never be passed directly to an executor.
 
-For R2/R3, callers must provide a trusted cryptographic `verifyApproval` function and an atomic, durable `consumeApprovalNonce` function. Tests use fakes only. Production must use authenticated approver keys and persistent replay protection.
+For R2/R3, callers must provide a trusted cryptographic `verifyApproval` function and an atomic, durable `consumeApprovalNonce` function. Tests use fakes only. Production must use authenticated approver keys and persistent replay protection. Approval is bound to the current policy version and exact action/session.
+
+The action-state transition guard checks allowed role/state transitions and requires evidence references for grant, verification and recovery states. Its caller must authenticate actor identity and validate the referenced grant/evidence independently.
 
 A separate policy service must issue a short-lived, one-use, action/session-bound grant. D.D. must independently validate that grant before every action.
