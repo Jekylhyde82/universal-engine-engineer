@@ -123,7 +123,7 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
         raise LMStudioCatalogError("metadata must be a JSON object")
     try:
         encoded = json.dumps(metadata, ensure_ascii=False, sort_keys=True, allow_nan=False).encode("utf-8")
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError, RecursionError) as exc:
         raise LMStudioCatalogError("metadata must contain finite JSON-compatible values") from exc
     if len(encoded) > 256 * 1024:
         raise LMStudioCatalogError("metadata exceeds the 256 KiB limit")
@@ -311,7 +311,7 @@ def assimilate_model_yaml_file(
         raise LMStudioCatalogError("model.yaml exceeds the 256 KiB limit")
     try:
         parsed = yaml.safe_load(raw.decode("utf-8"))
-    except (UnicodeDecodeError, yaml.YAMLError) as exc:
+    except (UnicodeDecodeError, yaml.YAMLError, RecursionError) as exc:
         raise LMStudioCatalogError("model.yaml is invalid UTF-8 or invalid safe YAML") from exc
     candidate = candidate_from_model_yaml(
         parsed, original_idea_value=original_idea_value, catalog_url=catalog_url)
@@ -515,7 +515,7 @@ def model_yaml_main(argv: Any = None) -> int:
                 "download_command_proposal": build_download_command(candidate),
                 "weights_downloaded": False,
             }
-    except (OSError, UnicodeDecodeError, yaml.YAMLError, LMStudioCatalogError, ValueError) as exc:
+    except (OSError, UnicodeDecodeError, yaml.YAMLError, LMStudioCatalogError, ValueError, RecursionError) as exc:
         print(f"UAIE model.yaml intake error: {exc}", file=sys.stderr)
         return 2
     print(json.dumps(output, indent=2, ensure_ascii=False))
