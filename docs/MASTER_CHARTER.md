@@ -26,9 +26,13 @@ Do not promote a status without its required evidence. Record failed tests, limi
 
 ## 3. Foundational architecture
 
-The mandatory foundation is nine Unified Master Intelligence Cores (UMICs). Each UMIC retains its distinct Master Core, AFI, and Fusion Synergy responsibilities. Specialist cores, engines, and capabilities remain distinct even when fused or coordinated.
+The mandatory foundation is **one NINEFOLD INTRINSIC entity** containing **nine unified UMIC domains**. Each UMIC domain incorporates one Master Core capability lineage and nine Engine capability lineages through one scoped instance of the same canonical **UNIFIED FUSION SYNERGY — AFI PRIME** function.
 
-The ninefold architecture is governed consistently. No count, hierarchy, capability, or relationship is inferred merely from symmetry; it must be specified and registered.
+There is one canonical AFI PRIME fusion-function identity and nine scoped instances, one per UMIC. AFI PRIME and Fusion Synergy are one current unified function, not separate current components. Their historical provenance and constituent contributions remain traceable. The nine unified UMICs are internal specialist domains of one entity, not nine competing top-level entities.
+
+Each instance must have its own execution context, state boundary, evidence trail and fault-containment domain. All nine share the same versioned canonical fusion logic and governance model, but do not share mutable runtime state or implicitly inherit permissions. Cross-instance communication requires explicit, least-privilege, auditable contracts. These boundaries are architecture requirements; implementation and independent verification must be evidenced separately.
+
+The 9 UMIC-domain, 9 Master Core and 81 Engine source lineages remain individually traceable (99 preserved constituent lineages). Exact names, responsibilities and source-to-slot mappings must be recovered from approved source records; they must not be invented or inferred from symmetry.
 
 ## 4. Intrinsic integration invariant
 
@@ -44,7 +48,9 @@ Applicability must be reasoned and recorded. “Intrinsic” does not mean every
 
 ## 5. Fusion and governance
 
-Fusion preserves constituent identity, responsibility, and boundaries. Coordination does not imply ownership or unrestricted control.
+Fusion preserves constituent provenance, specialist purpose, responsibility and accountability while integrating the nine UMIC domains into one coherent entity. Internal modularity and fault containment remain mandatory; unity of identity does not require one process, one undifferentiated module or unrestricted cross-domain access.
+
+The shared AFI PRIME function may coordinate, analyse and synthesise, but it does not grant itself permissions, approve its own high-risk actions or independently certify its own results. Governance and independent verification remain separate authorities. Instance-scoped permissions, evidence and failure boundaries must remain enforceable.
 
 **FOUNDATIONAL AUTHORITY ≠ UNRESTRICTED AUTHORITY.** No master intelligence, fusion intelligence, critic, or governance function is an absolute authority. AGSO PRIME may coordinate foundational fusion standards without unilateral control. CRITIC may challenge and scrutinise authority without gaining unrestricted authority itself.
 
