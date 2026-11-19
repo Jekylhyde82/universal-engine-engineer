@@ -18,9 +18,9 @@ The register definitions are Major Division (target 9), System (target 90), Arch
 
 ## Nine scoped instance boundaries
 
-The registry now reserves distinct execution-context IDs, state namespaces, evidence-stream IDs and fault-domain IDs for each of the nine scoped AFI PRIME instances. These identifiers express required boundaries; they do **not** prove that separate runtime processes, stores, streams or fault-isolation mechanisms exist.
+The registry reserves distinct execution-context IDs, state namespaces, evidence-stream IDs and fault-domain IDs for each of the nine scoped AFI PRIME instances. The experimental package `packages/ninefold-fusion-runtime/` now demonstrates nine separate child processes, private process memory, per-instance hash-chained evidence files and process-level fault containment. The registry identifiers remain architecture identities; they are not themselves proof of production isolation or operational service boundaries.
 
-All nine instances share one versioned canonical AFI PRIME function identity and one governance model. They must not share mutable runtime state or implicitly inherit permissions. Cross-instance communication requires an explicit governed contract. The registry marks each implementation status as not implemented until runtime evidence and independent tests exist.
+All nine instances share one versioned canonical AFI PRIME function identity and one governance model. They must not share mutable runtime state or implicitly inherit permissions. Cross-instance communication requires an explicit governed contract. The registry marks these boundaries as prototype-implemented but not production-implemented; full runtime integration and independent production verification remain outstanding.
 
 ## Important: placeholders are not invented identities
 
