@@ -114,7 +114,7 @@ test("real Chromium observes with consent and performs one signed allowlisted na
 });
 
 test("real Chromium blocks a redirect outside the configured origin allowlist", { skip: !chromium }, async () => {
-  await withBrowser(async ({ page, origin }) => {
+  await withBrowser(async ({ page, origin, context }) => {
     const { publicKeyPem, privateKeyPem } = keys();
     const adapter = createBrowserAdapter({
       page,
