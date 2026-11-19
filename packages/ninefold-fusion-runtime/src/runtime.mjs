@@ -99,7 +99,9 @@ export class NinefoldFusionRuntime {
 
     child.on("exit", (code, signal) => {
       entry.status = entry.intentionalStop ? "STOPPED" : "FAULTED";
-      this.rejectPending(entry, new Error("Instance " + instanceId + " exited (" + code + ", " + signal + ")."));
+      const exitError = new Error("Instance " + instanceId + " exited (" + code + ", " + signal + ").");
+      entry.readyReject?.(exitError);
+      this.rejectPending(entry, exitError);
       entry.exitResolve?.({ code, signal, status: entry.status });
     });
 
