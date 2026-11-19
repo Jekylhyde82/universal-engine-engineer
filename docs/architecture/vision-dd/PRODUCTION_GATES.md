@@ -116,6 +116,10 @@ For every release candidate record:
 
 ## 7. Current decision
 
-**NO-GO — design-only.**
+**NO-GO — tested prototype, not production ready.**
 
-This branch adds a proposed architecture, threat model and release criteria. It does not add executable V.I.S.I.O.N. or D.D. software, does not grant device access, does not activate any agent, and does not establish production readiness. Implementation and every release gate remain outstanding.
+This branch now includes executable policy evaluation, Ed25519 grant primitives, a single-host nonce ledger, an HTTP grant service, a consent-gated Playwright-compatible browser adapter and a signed readback verification primitive. The latest recorded test run reported 65 passing tests at commit `090d4f089d67a8c18c407f24f05e26d076909ec2`. These tests include fake page/provider contracts and do not establish real Chromium, device, identity-provider, approval UX, independent verifier, or production deployment readiness.
+
+The following release blockers remain: real isolated Chromium host and live integration tests; production identity and approval providers; secure key provisioning/rotation; independently operated read-only verifier; externally anchored audit evidence; calibrated visual model and privacy redaction; Android companion and device validation; AFI PRIME and EB9PRIME runtime integration; adversarial and fault-injection campaigns; monitoring, incident response, backup/restore, rollback and independent security approval.
+
+No live screen/camera/device access is enabled by this repository work. The adapter must not be wired to a live user session or used for consequential actions until the relevant gates are implemented and independently approved.
