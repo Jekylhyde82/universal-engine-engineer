@@ -75,7 +75,7 @@ test("audit ledger enforces its configured storage limit before append", async (
   await withTempDir(async (directory) => {
     const ledger = new FileActionAuditLedger(join(directory, "events.jsonl"), { maxLedgerBytes: 128, maxEventBytes: 128 });
     await assert.rejects(
-      () => ledger.append({ event_type: "ACTION_PROPOSED", detail: "x".repeat(50) }),
+      () => ledger.append({ event_type: "ACTION_PROPOSED", action_id: "capacity-action", detail: "x".repeat(50) }),
       /size limit/i,
     );
   });
@@ -117,6 +117,35 @@ test("audit ledger fails closed on a pre-existing stale lock", async () => {
     const path = join(directory, "events.jsonl");
     await writeFile(path + ".lock", "stale-lock", { mode: 0o600 });
     const ledger = new FileActionAuditLedger(path, { lockTimeoutMs: 30, retryMs: 5 });
-    await assert.rejects(() => ledger.append({ event_type: "ACTION_PROPOSED" }), /lock timeout/i);
+    await assert.rejects(() => ledger.append({ event_type: "ACTION_PROPOSED", action_id: "stale-lock-action" }), /lock timeout/i);
+  });
+});
+
+test("audit ledger atomically refuses a duplicate action claim", async () => {
+  await withTempDir(async (directory) => {
+    const ledger = new FileActionAuditLedger(join(directory, "events.jsonl"));
+    await ledger.append({
+      event_type: "ACTION_PROPOSED", task_id: "task-1", action_id: "action-1",
+    });
+    await assert.rejects(
+      () => ledger.append({
+        event_type: "ACTION_PROPOSED", task_id: "task-1", action_id: "action-1",
+      }),
+      (error) => error.code === "ACTION_ID_ALREADY_CLAIMED",
+    );
+    assert.equal((await ledger.verifyIntegrity()).records, 1);
+  });
+});
+
+test("audit ledger allows the same action ID under a different task ID", async () => {
+  await withTempDir(async (directory) => {
+    const ledger = new FileActionAuditLedger(join(directory, "events.jsonl"));
+    await ledger.append({
+      event_type: "ACTION_PROPOSED", task_id: "task-1", action_id: "action-1",
+    });
+    await ledger.append({
+      event_type: "ACTION_PROPOSED", task_id: "task-2", action_id: "action-1",
+    });
+    assert.equal((await ledger.verifyIntegrity()).records, 2);
   });
 });
