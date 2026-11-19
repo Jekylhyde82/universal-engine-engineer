@@ -25,6 +25,7 @@ class AFIModelCapabilityProfile:
     format: str | None
     catalog_availability: tuple[str, ...]
     catalog_parameter_sizes: tuple[str, ...]
+    catalog_compatibility_types: tuple[str, ...]
     catalog_minimum_memory: str | None
     catalog_license_text: str | None
     catalog_download_count: str | None
@@ -97,6 +98,7 @@ class AFIPrimeFusionAdapter:
             format=getattr(model, "format", None),
             catalog_availability=tuple(availability),
             catalog_parameter_sizes=tuple(getattr(model, "parameter_sizes", ()) or ()),
+            catalog_compatibility_types=tuple(getattr(model, "compatibility_types", ()) or ()),
             catalog_minimum_memory=getattr(model, "minimum_memory", None),
             catalog_license_text=getattr(model, "license_text", None),
             catalog_download_count=getattr(model, "download_count", None),
