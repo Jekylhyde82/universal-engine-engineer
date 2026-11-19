@@ -1,10 +1,13 @@
+import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 from universal_engine.lmstudio_catalog import (
     LMStudioCatalogError, assimilate_catalog_candidate,
-    build_download_command, candidate_from_mapping,
+    build_download_command, candidate_from_mapping, main,
 )
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
@@ -88,6 +91,19 @@ class CatalogCandidateTests(unittest.TestCase):
         for metadata in ({"payload": "x" * (256 * 1024)}, {"value": float("nan")}):
             with self.subTest(metadata_type=type(metadata["payload"] if "payload" in metadata else metadata["value"])), self.assertRaises(LMStudioCatalogError):
                 candidate_from_mapping({**CANDIDATE, "metadata": metadata})
+
+    def test_cli_imports_reviewed_json_and_only_prints_download_proposal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            candidate_path = Path(tmp) / "candidate.json"
+            candidate_path.write_text(json.dumps(CANDIDATE), encoding="utf-8")
+            output = StringIO()
+            with redirect_stdout(output):
+                result = main([str(candidate_path), "--db", str(Path(tmp) / "uaie.sqlite3")])
+            self.assertEqual(result, 0)
+            payload = json.loads(output.getvalue())
+            self.assertFalse(payload["command_executed"])
+            self.assertFalse(payload["model_downloaded"])
+            self.assertEqual(payload["lifecycle_status"], "discovered")
 
     def test_assimilates_candidate_and_fuses_afi_profile(self):
         with tempfile.TemporaryDirectory() as tmp:
