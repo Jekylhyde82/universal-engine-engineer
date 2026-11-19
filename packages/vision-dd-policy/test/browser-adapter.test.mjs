@@ -256,7 +256,7 @@ test("navigation with hidden query or fragment parameters is denied in v1", asyn
 
 test("browser adapter blocks WebSockets to origins outside the allowlist", async () => {
   const page = fakePage();
-  await observedAdapter(page);
+  const { adapter } = await observedAdapter(page);
   let closed = 0;
   let connected = 0;
   await page.state.webSocketHandler({
@@ -266,6 +266,7 @@ test("browser adapter blocks WebSockets to origins outside the allowlist", async
   });
   assert.equal(closed, 1);
   assert.equal(connected, 0);
+  assert.equal(adapter.getStatus().blocked_websocket_requests, 1);
 });
 
 test("browser adapter forwards WebSockets only to an allowlisted secure origin", async () => {
