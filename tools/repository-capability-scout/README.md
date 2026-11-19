@@ -57,4 +57,4 @@ This remains a client-side discovery tool. It has no authenticated provider adap
 
 ### CI evidence
 
-The GitHub Actions static smoke-test workflow passed **5 tests, 0 failures, 0 skips** on commit `b5bf033b1330e6a0ce0c24f12f8a7f2bc85e0e9e`. The tests compile the embedded script and check selected security invariants. They do not replace browser end-to-end testing, penetration testing or independent security review.
+GitHub Actions run `44458380828` completed successfully for the PR merge test commit `a679e8835425667d9958fc673da65ef40e2e2fec`, which includes PR head `7eb78f22bdd90f31398bb3af3b3556aa5e115f2e`: **5 tests passed, 0 failed, 0 skipped**. The tests compile the embedded script and check selected security invariants. They do not replace browser end-to-end testing, penetration testing or independent security review.
