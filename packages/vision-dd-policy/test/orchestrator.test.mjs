@@ -134,7 +134,7 @@ test("audit failure after execution returns an explicit unsafe-to-retry error", 
   const d = dependencies({
     appendAudit: async () => {
       writes += 1;
-      if (writes === 4) throw new Error("disk unavailable after action");
+      if (writes === 5) throw new Error("disk unavailable after action");
     },
   });
   await assert.rejects(() => runGovernedAction(d.options), (error) => {
