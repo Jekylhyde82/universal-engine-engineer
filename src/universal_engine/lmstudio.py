@@ -385,15 +385,29 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--base-url", default=os.environ.get("LM_STUDIO_BASE_URL", DEFAULT_BASE_URL))
     parser.add_argument("--token-env", default="LM_API_TOKEN", help="environment variable containing the optional API token")
     parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_SECONDS)
+    parser.add_argument("--ingest", action="store_true", help="persist inventory and AFI profiles in UAIE")
+    parser.add_argument("--db", default="uaie.sqlite3", help="UAIE SQLite database path used with --ingest")
     args = parser.parse_args(argv)
     try:
-        models = list_models(args.base_url, api_token=os.environ.get(args.token_env), timeout=args.timeout)
-    except LMStudioError as exc:
+        token = os.environ.get(args.token_env)
+        if args.ingest:
+            from .uaie import UniversalAcquisitionIntegrationEngine
+            engine = UniversalAcquisitionIntegrationEngine(args.db)
+            result = assimilate_catalog(engine, args.base_url, api_token=token, timeout=args.timeout)
+            output = {
+                "source": _validated_endpoint(args.base_url) + "/api/v1/models",
+                "read_only": True,
+                "ingested_model_records": [record.record_id for record in result.model_records],
+                "afi_profile_records": [record.record_id for record in result.afi_profile_records],
+            }
+        else:
+            models = list_models(args.base_url, api_token=token, timeout=args.timeout)
+            output = {"source": _validated_endpoint(args.base_url) + "/api/v1/models",
+                      "read_only": True, "models": [asdict(model) for model in models]}
+    except (LMStudioError, ValueError, OSError) as exc:
         print(f"UAIE LM Studio error: {exc}", file=sys.stderr)
         return 2
-    print(json.dumps({"source": _validated_endpoint(args.base_url) + "/api/v1/models",
-                      "read_only": True, "models": [asdict(model) for model in models]},
-                     indent=2, ensure_ascii=False))
+    print(json.dumps(output, indent=2, ensure_ascii=False))
     return 0
 
 
