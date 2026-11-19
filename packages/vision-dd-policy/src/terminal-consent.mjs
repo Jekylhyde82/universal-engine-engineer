@@ -18,7 +18,7 @@ export function createTerminalConsentProvider({
   const readline = createInterface({ input, output, terminal: Boolean(output.isTTY && input.isTTY) });
   let closed = false;
   let pendingResolve = null;
-  let promptQueue = Promise.resolve();
+  let promptQueue = null;
 
   async function promptOne(request) {
     if (closed || !request || typeof request !== "object") return false;
@@ -65,7 +65,7 @@ export function createTerminalConsentProvider({
   }
 
   function requestConsent(request) {
-    const next = promptQueue.then(() => promptOne(request));
+    const next = promptQueue ? promptQueue.then(() => promptOne(request)) : promptOne(request);
     promptQueue = next.catch(() => false);
     return next;
   }
