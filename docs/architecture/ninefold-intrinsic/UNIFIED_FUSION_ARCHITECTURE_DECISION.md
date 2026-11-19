@@ -68,8 +68,6 @@ The count of 99 refers to the preserved UMIC-domain, Master-Core and Engine line
 
 This is a logical architecture diagram, not a claim that a single process, executable, database or machine must contain every capability.
 
-This is a logical architecture diagram, not a claim that a single process, executable, database or machine must contain every capability.
-
 ## 3. Meaning of fusion
 
 Fusion means that the constituent capabilities are designed and governed as one coherent intelligence architecture rather than as independent top-level intelligence systems connected by interfaces.
@@ -177,11 +175,11 @@ The architecture is not implementation-complete until all applicable criteria ar
 3. **Nine scoped fusion cores:** each UMIC has one scoped instance of the shared fusion function, one Master Core slot and nine Engine slots.
 4. **Single fusion definition:** one canonical Unified Fusion Synergy — AFI PRIME identity and responsibility definition; nine governed instances, not duplicate AFI/Fusion components.
 5. **Cross-domain synthesis:** tested examples demonstrate coherent use of multiple unified UMICs and specialist Engines.
-5. **Specialist accountability:** each internal capability has an owner/responsibility, contract, evidence path and lifecycle status.
-6. **Fault containment:** failure injection demonstrates that an internal capability failure does not corrupt or disable the entire unified entity.
-7. **Security and authority:** tests show that internal fusion cannot bypass policy, permissions, approvals or data boundaries.
-8. **Independent verification:** verification is performed by a genuinely separate authority and is bound to exact artefacts and postconditions.
-9. **Evolution and rollback:** a new capability can be evaluated, integrated, rejected or retired with provenance and safe rollback.
+6. **Specialist accountability:** each internal capability has an owner/responsibility, contract, evidence path and lifecycle status.
+7. **Fault containment:** failure injection demonstrates that an internal capability failure does not corrupt or disable the entire unified entity.
+8. **Security and authority:** tests show that internal fusion cannot bypass policy, permissions, approvals or data boundaries.
+9. **Independent verification:** verification is performed by a genuinely separate authority and is bound to exact artefacts and postconditions.
+10. **Evolution and rollback:** a new capability can be evaluated, integrated, rejected or retired with provenance and safe rollback.
 
 Passing documentation checks alone is not sufficient. Each criterion requires implementation evidence appropriate to its risk.
 
