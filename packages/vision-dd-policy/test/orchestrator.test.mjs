@@ -188,3 +188,22 @@ test("executor timeout followed by audit failure is never marked safe to retry",
   });
   assert.equal(attempted, true);
 });
+
+test("governed orchestrator refuses to retry an already claimed action ID", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "vision-dd-action-claim-"));
+  try {
+    const ledger = new FileActionAuditLedger(join(directory, "actions.jsonl"));
+    const d = dependencies({ appendAudit: (event) => ledger.append(event) });
+    const first = await runGovernedAction(d.options);
+    assert.equal(first.state, "VERIFIED");
+    await assert.rejects(() => runGovernedAction(d.options), (error) => {
+      assert.equal(error.code, "ACTION_ID_ALREADY_CLAIMED");
+      assert.equal(error.safeToRetry, false);
+      return true;
+    });
+    assert.equal(d.executions, 1);
+    assert.equal((await ledger.verifyIntegrity()).records, 6);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
