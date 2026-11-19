@@ -313,3 +313,33 @@ test("observation fails closed if the page changes while consent is pending", as
   });
   await assert.rejects(() => adapter.observe(), /changed while consent was pending/i);
 });
+
+test("stop closes both sides of an active allowlisted WebSocket", async () => {
+  const page = fakePage();
+  const { adapter } = await observedAdapter(page);
+  let clientCloseHandler;
+  let serverCloseHandler;
+  let clientClosed = 0;
+  let serverClosed = 0;
+  const serverSocket = {
+    onClose(handler) { serverCloseHandler = handler; },
+    async close() {
+      serverClosed += 1;
+      await serverCloseHandler?.(1008, "session stopped");
+    },
+  };
+  const clientSocket = {
+    url: () => "wss://example.test/socket",
+    connectToServer: () => serverSocket,
+    onClose(handler) { clientCloseHandler = handler; },
+    async close() {
+      clientClosed += 1;
+      await clientCloseHandler?.(1008, "session stopped");
+    },
+  };
+  await page.state.webSocketHandler(clientSocket);
+  adapter.stop();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(clientClosed, 1);
+  assert.equal(serverClosed, 1);
+});
