@@ -57,4 +57,4 @@ This remains a client-side discovery tool. It has no authenticated provider adap
 
 ### CI evidence
 
-GitHub Actions run `44458380828` completed successfully for the PR merge test commit `a679e8835425667d9958fc673da65ef40e2e2fec`, which includes PR head `7eb78f22bdd90f31398bb3af3b3556aa5e115f2e`: **5 tests passed, 0 failed, 0 skipped**. The tests compile the embedded script and check selected security invariants. They do not replace browser end-to-end testing, penetration testing or independent security review.
+GitHub Actions run `44459781958` completed successfully for PR head `a86f72f28e3d918162dca9731676597c2532ca2a` (merge test commit `b900f8d`): **5 tests passed, 0 failed, 0 skipped**. The workflow uses commit-pinned checkout and setup-node actions. The tests compile the embedded script and check selected security invariants. They do not replace browser end-to-end testing, penetration testing or independent security review.
