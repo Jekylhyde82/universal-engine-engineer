@@ -6,7 +6,7 @@
   "description": "Process-isolated proof-of-capability for nine scoped instances of one shared AFI PRIME fusion function.",
   "scripts": {
     "test": "node --test",
-    "check": "for file in src/*.mjs test/*.mjs; do node --check \"$file\"; done"
+    "check": "for file in src/*.mjs test/*.mjs; do node --check \"$file\" || exit 1; done"
   },
   "engines": {
     "node": ">=22"
