@@ -1,8 +1,11 @@
+import json
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
-from universal_engine.uaie import UAIEError, UniversalAcquisitionIntegrationEngine
+from universal_engine.uaie import UAIEError, UniversalAcquisitionIntegrationEngine, main
 
 
 class AcquisitionRegisterTests(unittest.TestCase):
@@ -104,6 +107,31 @@ class AcquisitionRegisterTests(unittest.TestCase):
         self.engine.set_state(self.record.record_id, "integrated")
         entry = self.engine.set_acquisition_lifecycle(self.record.record_id, "integrated")
         self.assertEqual(entry.lifecycle_status, "integrated")
+
+    def test_cli_exposes_acquisition_register_assess_show_and_status(self):
+        self.engine.register_acquisition(
+            self.record.record_id, original_idea_value="CLI test original idea."
+        )
+        output = StringIO()
+        with redirect_stdout(output):
+            result = main(["--db", self.engine.database, "acquisition", "assess",
+                           self.record.record_id, "--potential-market-value", "Pending market research",
+                           "--revenue-model", "internal use"])
+        self.assertEqual(result, 0)
+        assessed = json.loads(output.getvalue())
+        self.assertEqual(assessed["potential_market_value"], "Pending market research")
+        self.assertEqual(assessed["revenue_models"], ["internal use"])
+        output = StringIO()
+        with redirect_stdout(output):
+            result = main(["--db", self.engine.database, "acquisition", "status",
+                           self.record.record_id, "proposed"])
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.getvalue())["lifecycle_status"], "proposed")
+        output = StringIO()
+        with redirect_stdout(output):
+            result = main(["--db", self.engine.database, "acquisition", "show", self.record.record_id])
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.getvalue())["original_idea_value"], "CLI test original idea.")
 
     def test_rejects_missing_original_idea_and_unknown_assimilation(self):
         with self.assertRaises(UAIEError):
