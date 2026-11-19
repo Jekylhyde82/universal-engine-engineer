@@ -349,10 +349,11 @@ class UniversalAcquisitionIntegrationEngine:
             current = row["lifecycle_status"]
             if new_status not in transitions.get(current, set()):
                 raise UAIEError(f"invalid acquisition lifecycle transition: {current} -> {new_status}")
-            if new_status == "integrated":
+            if new_status in {"approved", "integrated"}:
                 assimilation = db.execute("SELECT state FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
-                if assimilation is None or assimilation["state"] not in {"approved", "integrated"}:
-                    raise UAIEError("acquisition must be approved in the UAIE lifecycle before integration")
+                required_state = "approved" if new_status == "approved" else "integrated"
+                if assimilation is None or assimilation["state"] != required_state:
+                    raise UAIEError(f"assimilation record must be {required_state} before acquisition lifecycle can become {new_status}")
             db.execute("UPDATE acquisition_register SET lifecycle_status=?,updated_at=? WHERE record_id=?",
                        (new_status,_now(),record_id))
             updated = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
