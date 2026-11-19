@@ -54,7 +54,33 @@ function validateConfig({ issuer, audience, jwksUrl, clock, cacheTtlMs, maxToken
       jwks.username || jwks.password || jwks.hash) {
     throw new TypeError("Issuer and JWKS endpoints must be fixed HTTPS URLs without credentials or fragments.");
   }
-  return { issuer: issuerUrl.href, jwksUrl: jwks.href, fetchImpl: fetchImpl ?? globalThis.fetch };
+  return { issuer, jwksUrl: jwks.href, fetchImpl: fetchImpl ?? globalThis.fetch };
+}
+
+async function readBoundedResponse(response) {
+  if (response.body?.getReader) {
+    const reader = response.body.getReader();
+    const chunks = [];
+    let size = 0;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        if (size > MAX_JWKS_BYTES) {
+          await reader.cancel();
+          throw new Error("JWKS response exceeds its size limit.");
+        }
+        chunks.push(Buffer.from(value));
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    return Buffer.concat(chunks, size);
+  }
+  const body = Buffer.from(await response.arrayBuffer());
+  if (body.byteLength > MAX_JWKS_BYTES) throw new Error("JWKS response exceeds its size limit.");
+  return body;
 }
 
 function importJwksKeys(document) {
@@ -106,7 +132,7 @@ export function createJwtBearerAuthenticator({
 
   let cachedKeys = new Map();
   let cacheExpiresAt = 0;
-  let refreshPromise = null;
+  let refreshPromise = null;\n  let unknownKidRefreshAt = Number.NEGATIVE_INFINITY;
 
   async function refreshKeys() {
     if (refreshPromise) return refreshPromise;
@@ -126,9 +152,8 @@ export function createJwtBearerAuthenticator({
       if (Number.isFinite(declaredLength) && declaredLength > MAX_JWKS_BYTES) {
         throw new Error("JWKS response exceeds its size limit.");
       }
-      const body = await response.arrayBuffer();
-      if (body.byteLength > MAX_JWKS_BYTES) throw new Error("JWKS response exceeds its size limit.");
-      const document = JSON.parse(Buffer.from(body).toString("utf8"));
+      const body = await readBoundedResponse(response);
+      const document = JSON.parse(body.toString("utf8"));
       const nextKeys = importJwksKeys(document);
       if (nextKeys.size === 0) throw new Error("JWKS contains no usable keys.");
       cachedKeys = nextKeys;
@@ -141,11 +166,20 @@ export function createJwtBearerAuthenticator({
   }
 
   async function getSigningKey(kid) {
-    const now = clock();
+    let now = clock();
     if (!Number.isSafeInteger(now)) throw new Error("Clock unavailable.");
-    if (now >= cacheExpiresAt) await refreshKeys();
+    let refreshed = false;
+    if (now >= cacheExpiresAt) {
+      await refreshKeys();
+      refreshed = true;
+      now = clock();
+      if (!Number.isSafeInteger(now)) throw new Error("Clock unavailable.");
+    }
     let key = cachedKeys.get(kid);
-    if (!key) {
+    // Unknown key IDs are attacker-controlled input. Refresh at most once per
+    // cooldown window so random kid values cannot force a JWKS fetch per token.
+    if (!key && !refreshed && now - unknownKidRefreshAt >= 10_000) {
+      unknownKidRefreshAt = now;
       await refreshKeys();
       key = cachedKeys.get(kid);
     }
