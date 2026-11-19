@@ -109,7 +109,7 @@ export async function launchBrowserHost({
           page_count: context.pages().length,
           service_worker_count: context.serviceWorkers().length,
           blocked_popup_count: blockedPopupCount,
-          stopped: adapter.stopped,
+          ...adapter.getStatus(),
         });
       },
       stop() {
