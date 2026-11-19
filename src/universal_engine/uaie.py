@@ -338,6 +338,8 @@ class UniversalAcquisitionIntegrationEngine:
         return self._row_to_acquisition(row)
 
     def set_acquisition_lifecycle(self, record_id: str, new_status: str) -> AcquisitionRegisterEntry:
+        if not isinstance(new_status, str):
+            raise UAIEError("acquisition lifecycle status must be a string")
         transitions = {
             "discovered": {"proposed", "rejected"},
             "proposed": {"under_evaluation", "rejected"},
