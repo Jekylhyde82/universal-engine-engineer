@@ -207,3 +207,69 @@ test("governed orchestrator refuses to retry an already claimed action ID", asyn
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+
+test("pre-aborted action is durably cancelled before requesting a grant", async () => {
+  const controller = new AbortController();
+  controller.abort("user stopped");
+  const d = dependencies({
+    requestGrant: async () => { throw new Error("must not be called"); },
+  });
+  const result = await runGovernedAction({ ...d.options, signal: controller.signal });
+  assert.equal(result.state, "CANCELLED");
+  assert.equal(d.executions, 0);
+  assert.ok(d.events.some((event) => event.to_state === "CANCELLED"));
+});
+
+test("cancellation while policy is pending prevents execution", async () => {
+  const controller = new AbortController();
+  const d = dependencies({
+    requestGrant: async () => {
+      controller.abort("cancelled during policy");
+      return {
+        decision: "GRANT_ISSUED",
+        grant: { payload: { grant_id: "grant-1" }, signature: "signed" },
+      };
+    },
+  });
+  const result = await runGovernedAction({ ...d.options, signal: controller.signal });
+  assert.equal(result.state, "CANCELLED");
+  assert.equal(d.executions, 0);
+});
+
+test("cancellation after grant but before execution prevents side effects", async () => {
+  const controller = new AbortController();
+  const d = dependencies({
+    appendAudit: async (event) => {
+      d.events.push(event);
+      if (event.to_state === "GRANTED") controller.abort("user revoked before execution");
+    },
+  });
+  const result = await runGovernedAction({ ...d.options, signal: controller.signal });
+  assert.equal(result.state, "CANCELLED");
+  assert.equal(d.executions, 0);
+  assert.deepEqual(
+    d.events.map((event) => event.to_state).filter(Boolean),
+    ["POLICY_CHECK", "GRANTED", "CANCELLED"],
+  );
+});
+
+test("AbortSignal is passed to the executor once execution begins", async () => {
+  const controller = new AbortController();
+  let receivedSignal;
+  const d = dependencies({
+    executor: {
+      execute: async ({ signal }) => {
+        receivedSignal = signal;
+        return {
+          execution_id: "execution-1",
+          action_id: "action-1",
+          execution_state: "AWAITING_VERIFICATION",
+          verified: false,
+        };
+      },
+    },
+  });
+  await runGovernedAction({ ...d.options, signal: controller.signal });
+  assert.equal(receivedSignal, controller.signal);
+});
