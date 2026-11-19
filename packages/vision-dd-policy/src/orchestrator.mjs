@@ -5,6 +5,12 @@ function requiredFunction(value, label) {
   if (typeof value !== "function") throw new TypeError(label + " is required.");
 }
 
+function abortReason(signal) {
+  return typeof signal?.reason === "string" && signal.reason.trim()
+    ? signal.reason.slice(0, 160)
+    : "ACTION_CANCELLED_BEFORE_EXECUTION";
+}
+
 function auditError(error, state, execution, executionAttempted) {
   const wrapped = new Error("Durable audit append failed; action lifecycle cannot be trusted.");
   wrapped.code = "AUDIT_UNAVAILABLE";
@@ -20,6 +26,11 @@ function auditError(error, state, execution, executionAttempted) {
  * authority. Policy grant, executor and independent verifier are separate
  * injected authorities. appendAudit must durably commit each event before the
  * next state/action proceeds.
+ *
+ * AbortSignal cancellation is honoured only before execution begins. Once an
+ * executor may have caused a side effect, cancellation never converts the
+ * outcome to CANCELLED and never triggers an automatic retry; reconciliation
+ * and independent verification remain mandatory.
  */
 export async function runGovernedAction({
   request,
@@ -29,12 +40,18 @@ export async function runGovernedAction({
   appendAudit,
   approval = null,
   clock = Date.now,
+  signal = null,
 }) {
   requiredFunction(requestGrant, "requestGrant");
   requiredFunction(executor?.execute, "executor.execute");
   requiredFunction(verifyOutcome, "verifyOutcome");
   requiredFunction(appendAudit, "appendAudit");
   requiredFunction(clock, "clock");
+  if (signal !== null && (typeof signal !== "object" ||
+      typeof signal.aborted !== "boolean" ||
+      typeof signal.addEventListener !== "function")) {
+    throw new TypeError("signal must be an AbortSignal when supplied.");
+  }
 
   const actionDigest = computeActionDigest(request);
   const initialTime = clock();
@@ -107,15 +124,24 @@ export async function runGovernedAction({
     }));
   }
 
+  async function cancelBeforeExecution() {
+    await record("CANCELLED", "system", { reason: abortReason(signal) });
+    return Object.freeze({ state, execution, verification, history });
+  }
+
   await record("POLICY_CHECK", "orchestrator");
+  if (signal?.aborted) return cancelBeforeExecution();
 
   let policyResult;
   try {
-    policyResult = await requestGrant({ request, approval, actionDigest });
+    policyResult = await requestGrant({ request, approval, actionDigest, signal });
   } catch {
+    if (signal?.aborted) return cancelBeforeExecution();
     await record("DENIED", "policy", { reason: "POLICY_SERVICE_UNAVAILABLE" });
     return Object.freeze({ state, execution, verification, history });
   }
+
+  if (signal?.aborted) return cancelBeforeExecution();
 
   if (policyResult?.decision === "DENY") {
     await record("DENIED", "policy", {
@@ -140,11 +166,12 @@ export async function runGovernedAction({
   }
 
   await record("GRANTED", "policy", { grantReference: grantId });
+  if (signal?.aborted) return cancelBeforeExecution();
   await record("EXECUTING", "executor");
 
   executionAttempted = true;
   try {
-    execution = await executor.execute({ request, grant });
+    execution = await executor.execute({ request, grant, signal });
   } catch {
     await record("FAILED", "executor", { reason: "EXECUTOR_EXCEPTION" });
     return Object.freeze({ state, execution, verification, history });
@@ -169,7 +196,7 @@ export async function runGovernedAction({
   }
 
   try {
-    verification = await verifyOutcome({ request, execution, grant });
+    verification = await verifyOutcome({ request, execution, grant, signal });
   } catch {
     verification = { state: "UNKNOWN", reason: "VERIFIER_UNAVAILABLE" };
   }
