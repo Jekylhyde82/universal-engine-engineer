@@ -39,6 +39,14 @@ class LMStudioCatalogCandidate:
     description: str | None
     artifact_links: tuple[dict[str, str], ...]
     metadata: dict[str, Any]
+    original_idea_value: str
+    potential_market_value: str
+    revenue_models: tuple[str, ...]
+    development_timeline: str
+    development_cost: str
+    integration_cost: str
+    risk_assessment: str
+    evidence_verification_status: str
     model_type: str = "catalog_candidate"
 
 
@@ -80,6 +88,12 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
     quantization = value.get("quantization")
     if quantization is not None and (not isinstance(quantization, str) or not QUANTIZATION_RE.fullmatch(quantization)):
         raise LMStudioCatalogError("quantization must be a simple identifier")
+    original_idea_value = value.get("original_idea_value")
+    if not isinstance(original_idea_value, str) or not original_idea_value.strip() or len(original_idea_value) > 4000:
+        raise LMStudioCatalogError("original_idea_value is mandatory and must be a non-empty string of at most 4000 characters")
+    revenue_models = value.get("revenue_models", [])
+    if not isinstance(revenue_models, list) or len(revenue_models) > 20 or any(not isinstance(x, str) or len(x) > 256 for x in revenue_models):
+        raise LMStudioCatalogError("revenue_models must be an array of at most 20 short strings")
     metadata = value.get("metadata", {})
     if not isinstance(metadata, dict):
         raise LMStudioCatalogError("metadata must be a JSON object")
@@ -129,6 +143,14 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
         description=_optional_text(value.get("description"), "description"),
         artifact_links=tuple(checked_links),
         metadata=dict(metadata),
+        original_idea_value=original_idea_value.strip(),
+        potential_market_value=_optional_text(value.get("potential_market_value", "NOT_ASSESSED"), "potential_market_value") or "NOT_ASSESSED",
+        revenue_models=tuple(revenue_models),
+        development_timeline=_optional_text(value.get("development_timeline", "NOT_ASSESSED"), "development_timeline") or "NOT_ASSESSED",
+        development_cost=_optional_text(value.get("development_cost", "NOT_ASSESSED"), "development_cost") or "NOT_ASSESSED",
+        integration_cost=_optional_text(value.get("integration_cost", "NOT_ASSESSED"), "integration_cost") or "NOT_ASSESSED",
+        risk_assessment=_optional_text(value.get("risk_assessment", "PENDING"), "risk_assessment") or "PENDING",
+        evidence_verification_status=_optional_text(value.get("evidence_verification_status", "USER_SUPPLIED_UNVERIFIED"), "evidence_verification_status") or "USER_SUPPLIED_UNVERIFIED",
     )
 
 
