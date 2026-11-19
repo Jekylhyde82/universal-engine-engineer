@@ -1,0 +1,889 @@
+{
+  "schema_version": "1.0.0",
+  "registry_id": "NINEFOLD-INTRINSIC-CAPABILITY-LINEAGE",
+  "architecture_identity": "NINEFOLD INTRINSIC",
+  "entity_model": "ONE_UNIFIED_ENTITY",
+  "fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+  "fusion_function_count": 1,
+  "fusion_function_role": "GLOBAL_INTRINSIC_FUSION",
+  "lineage_counts": {
+    "umic_domains": 9,
+    "master_cores": 9,
+    "engines": 81,
+    "total_preserved_lineages": 99
+  },
+  "inventory_targets": {
+    "major_divisions": 9,
+    "systems": 90,
+    "architecture_entries": 184,
+    "responsibility_layers": 18,
+    "independent_registers": 9
+  },
+  "registers": [
+    {
+      "id": "REG-01",
+      "name": "Major Division Register",
+      "target_count": 9,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-02",
+      "name": "System Register",
+      "target_count": 90,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-03",
+      "name": "Architecture Register",
+      "target_count": 184,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-04",
+      "name": "Responsibility Layer Register",
+      "target_count": 18,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-05",
+      "name": "Intelligence Register",
+      "target_count": null,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-06",
+      "name": "Capability Register",
+      "target_count": null,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-07",
+      "name": "Lifecycle Register",
+      "target_count": null,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-08",
+      "name": "Evidence & Verification Register",
+      "target_count": null,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    },
+    {
+      "id": "REG-09",
+      "name": "Cross-reference & Traceability Register",
+      "target_count": null,
+      "status": "DEFINED_SCOPE_PENDING_FULL_RECONCILIATION"
+    }
+  ],
+  "umic_domain_lineages": [
+    {
+      "id": "UMIC-DOMAIN-01",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-02",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-03",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-04",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-05",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-06",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-07",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-08",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "UMIC-DOMAIN-09",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "top_level_entity": false,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    }
+  ],
+  "master_core_lineages": [
+    {
+      "id": "MASTER-CORE-01",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-02",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-03",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-04",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-05",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-06",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-07",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-08",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "MASTER-CORE-09",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    }
+  ],
+  "engine_lineages": [
+    {
+      "id": "ENGINE-001",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-002",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-003",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-004",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-005",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-006",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-007",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-008",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-009",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-010",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-011",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-012",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-013",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-014",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-015",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-016",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-017",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-018",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-019",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-020",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-021",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-022",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-023",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-024",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-025",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-026",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-027",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-028",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-029",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-030",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-031",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-032",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-033",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-034",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-035",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-036",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-037",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-038",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-039",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-040",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-041",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-042",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-043",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-044",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-045",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-046",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-047",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-048",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-049",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-050",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-051",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-052",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-053",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-054",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-055",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-056",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-057",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-058",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-059",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-060",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-061",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-062",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-063",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-064",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-065",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-066",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-067",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-068",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-069",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-070",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-071",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-072",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-073",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-074",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-075",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-076",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-077",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-078",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-079",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-080",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    },
+    {
+      "id": "ENGINE-081",
+      "canonical_name": null,
+      "name_status": "UNMAPPED",
+      "responsibility_status": "UNMAPPED",
+      "domain_assignment": null,
+      "lineage_status": "PRESERVED_PENDING_CANONICAL_MAPPING"
+    }
+  ],
+  "mapping_policy": {
+    "do_not_invent_canonical_names": true,
+    "do_not_infer_domain_assignments": true,
+    "unmapped_records_are_not_implementation_evidence": true,
+    "preserve_historical_provenance": true,
+    "lifecycle": [
+      "DISCOVERED",
+      "PROPOSED",
+      "UNDER_EVALUATION",
+      "APPROVED",
+      "INTEGRATED",
+      "REJECTED",
+      "RETIRED"
+    ],
+    "note": "Stable placeholder IDs reserve the approved lineage counts. Canonical names, responsibilities and cross-domain mappings must be recovered from approved source records before operational integration. The placeholder IDs are not invented subsystem names."
+  },
+  "verification": {
+    "status": "STRUCTURAL_COUNTS_ONLY",
+    "runtime_fusion_implemented": false,
+    "full_registry_reconciled": false,
+    "independently_verified": false
+  }
+}
