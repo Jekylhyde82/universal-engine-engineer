@@ -95,9 +95,12 @@ export function verifyNavigationReadback({
     }
     const expectedUrl = new URL(request.parameters?.url);
     const observedUrl = new URL(payload.observed_url);
+    const localHttp = expectedUrl.protocol === "http:" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(expectedUrl.hostname);
     if (expectedUrl.username || expectedUrl.password ||
         observedUrl.username || observedUrl.password ||
-        !["https:", "http:"].includes(expectedUrl.protocol) ||
+        (expectedUrl.protocol !== "https:" && !localHttp) ||
+        expectedUrl.origin !== request.target_application ||
         observedUrl.origin !== expectedUrl.origin) {
       return unknown("EVIDENCE_URL_INVALID");
     }
