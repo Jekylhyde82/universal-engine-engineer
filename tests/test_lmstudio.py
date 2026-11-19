@@ -5,7 +5,7 @@ from pathlib import Path
 
 from universal_engine.afi import AFIPrimeFusionAdapter
 from universal_engine.lmstudio import (
-    LMStudioError, assimilate_catalog, list_models,
+    LMStudioError, assimilate_catalog, download_model, get_download_status, list_models,
 )
 from universal_engine.uaie import UniversalAssimilationEngine
 
@@ -84,6 +84,64 @@ class LMStudioAdapterTests(unittest.TestCase):
     def test_enforces_response_size_limit(self):
         with self.assertRaises(LMStudioError):
             list_models(max_response_bytes=2, opener=self.opener_for({"models": []}))
+
+    def test_download_requires_explicit_approval_before_network_call(self):
+        called = {"value": False}
+        def opener(request, timeout):
+            called["value"] = True
+            return FakeResponse(b'{"job_id":"job_123","status":"downloading"}')
+        with self.assertRaises(LMStudioError):
+            download_model("publisher/model", approved=False, opener=opener)
+        self.assertFalse(called["value"])
+
+    def test_download_uses_official_api_and_returns_job(self):
+        seen = {}
+        def opener(request, timeout):
+            seen["method"] = request.get_method()
+            seen["url"] = request.full_url
+            seen["body"] = json.loads(request.data.decode())
+            seen["authorization"] = request.get_header("Authorization")
+            return FakeResponse(json.dumps({
+                "job_id": "job_493c7c9ded", "status": "downloading",
+                "total_size_bytes": 123456, "started_at": "2026-11-20T00:00:00Z"
+            }).encode())
+        job = download_model("publisher/model", approved=True, api_token="test-token", opener=opener)
+        self.assertEqual(job.status, "downloading")
+        self.assertEqual(job.total_size_bytes, 123456)
+        self.assertEqual(seen["method"], "POST")
+        self.assertEqual(seen["url"], "http://127.0.0.1:1234/api/v1/models/download")
+        self.assertEqual(seen["body"], {"model": "publisher/model"})
+        self.assertEqual(seen["authorization"], "Bearer test-token")
+
+    def test_quantization_requires_exact_huggingface_url(self):
+        with self.assertRaises(LMStudioError):
+            download_model("publisher/model", approved=True, quantization="Q4_K_M",
+                           opener=self.opener_for({"job_id": "job_1", "status": "downloading"}))
+        seen = {}
+        def opener(request, timeout):
+            seen["body"] = json.loads(request.data.decode())
+            return FakeResponse(b'{"status":"already_downloaded"}')
+        job = download_model(
+            "https://huggingface.co/publisher/model-GGUF", approved=True,
+            quantization="Q4_K_M", opener=opener)
+        self.assertEqual(job.status, "already_downloaded")
+        self.assertIsNone(job.job_id)
+        self.assertEqual(seen["body"]["quantization"], "Q4_K_M")
+
+    def test_download_status_reads_existing_job(self):
+        seen = {}
+        def opener(request, timeout):
+            seen["method"] = request.get_method()
+            seen["url"] = request.full_url
+            return FakeResponse(b'{"job_id":"job_123","status":"completed","completed_at":"2026-11-20T00:01:00Z"}')
+        job = get_download_status("job_123", opener=opener)
+        self.assertEqual(job.status, "completed")
+        self.assertEqual(seen["method"], "GET")
+        self.assertTrue(seen["url"].endswith("/api/v1/models/download/status/job_123"))
+
+    def test_rejects_invalid_download_job_id(self):
+        with self.assertRaises(LMStudioError):
+            get_download_status("../admin", opener=self.opener_for({"status": "completed"}))
 
     def test_assimilates_metadata_into_uaie_without_model_execution(self):
         with tempfile.TemporaryDirectory() as tmp:
