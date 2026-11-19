@@ -14,7 +14,7 @@ on:
       - ".github/workflows/vision-dd-policy.yml"
 
 concurrency:
-  group: vision-dd-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  group: vision-dd-v2-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
