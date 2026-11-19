@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "packages/vision-dd-policy/**"
+      - "packages/ninefold-fusion-runtime/**"
       - ".github/workflows/vision-dd-policy.yml"
       - "docs/architecture/vision-dd/**"
       - "docs/architecture/ninefold-intrinsic/**"
@@ -40,4 +41,10 @@ jobs:
         run: npm run check
       - name: Run deterministic policy tests
         working-directory: packages/vision-dd-policy
+        run: npm test
+      - name: Check nine-instance fusion runtime syntax
+        working-directory: packages/ninefold-fusion-runtime
+        run: npm run check
+      - name: Run nine-instance isolation and fault-containment tests
+        working-directory: packages/ninefold-fusion-runtime
         run: npm test
