@@ -202,7 +202,7 @@ test("governed orchestrator refuses to retry an already claimed action ID", asyn
       return true;
     });
     assert.equal(d.executions, 1);
-    assert.equal((await ledger.verifyIntegrity()).records, 6);
+    assert.equal((await ledger.verifyIntegrity()).records, 7);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
