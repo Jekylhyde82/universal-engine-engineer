@@ -2,10 +2,14 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from contextlib import redirect_stdout
+from io import StringIO
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from universal_engine.afi import AFIPrimeFusionAdapter
 from universal_engine.lmstudio import (
-    LMStudioError, assimilate_catalog, download_model, get_download_status, list_models,
+    LMStudioError, assimilate_catalog, download_model, get_download_status, list_models, main,
 )
 from universal_engine.uaie import UniversalAssimilationEngine
 
@@ -170,6 +174,21 @@ class LMStudioAdapterTests(unittest.TestCase):
             self.assertEqual(profile["source"], "afi-prime://lm-studio-model-catalog/publisher/example-7b")
             self.assertIn("tool_use_training", profile["extracted_text"])
             self.assertIn("METADATA_ONLY_NOT_BENCHMARKED", profile["extracted_text"])
+
+    def test_inventory_cli_can_persist_model_and_afi_records(self):
+        fake_result = SimpleNamespace(
+            model_records=(SimpleNamespace(record_id="uaie_model_1"),),
+            afi_profile_records=(SimpleNamespace(record_id="uaie_afi_1"),),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            output = StringIO()
+            with patch("universal_engine.lmstudio.assimilate_catalog", return_value=fake_result):
+                with redirect_stdout(output):
+                    result = main(["--ingest", "--db", str(Path(tmp) / "uaie.sqlite3")])
+        self.assertEqual(result, 0)
+        payload = json.loads(output.getvalue())
+        self.assertEqual(payload["ingested_model_records"], ["uaie_model_1"])
+        self.assertEqual(payload["afi_profile_records"], ["uaie_afi_1"])
 
     def test_afi_extracts_only_explicit_publisher_capability_facts(self):
         from universal_engine.lmstudio import _parse_model
