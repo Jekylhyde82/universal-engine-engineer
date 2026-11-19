@@ -30,10 +30,32 @@ assert(registry.architecture_identity === "NINEFOLD INTRINSIC", "canonical ident
 assert(registry.entity_model === "ONE_UNIFIED_ENTITY", "entity model must be unified.");
 assert(registry.fusion_function === "UNIFIED FUSION SYNERGY — AFI PRIME", "fusion identity mismatch.");
 assert(registry.fusion_function_count === 1, "there must be exactly one global fusion function.");
-assert(registry.fusion_function_role === "GLOBAL_INTRINSIC_FUSION", "fusion role mismatch.");
+assert(registry.fusion_function_role === "SHARED_INTRINSIC_FUSION_FUNCTION", "fusion role mismatch.");
+assert(registry.fusion_core_instance_count === 9, "exactly nine scoped fusion core instances are required.");
+assert(registry.unified_umic_model.umic_count === 9, "unified UMIC count must equal nine.");
+assert(registry.unified_umic_model.master_core_slots_per_umic === 1, "each UMIC must contain one Master Core slot.");
+assert(registry.unified_umic_model.engine_slots_per_umic === 9, "each UMIC must contain nine Engine slots.");
+assert(registry.unified_umic_model.fusion_core_instances_per_umic === 1, "each UMIC must contain one scoped fusion core.");
+assert(registry.unified_umic_model.fusion_core_instances_total === 9, "nine scoped fusion cores are required.");
+assert(registry.unified_umic_model.final_entity_count === 1, "the nine unified UMICs must form one final entity.");
+assert(registry.unified_umic_model.slot_membership_status === "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING", "source lineage mapping must remain explicitly pending.");
+assert(registry.unified_umic_model.runtime_status === "NOT_IMPLEMENTED", "registry must not claim runtime fusion.");
 reservedLineages(registry.umic_domain_lineages, 9, "UMIC domain lineage");
 reservedLineages(registry.master_core_lineages, 9, "Master Core lineage");
 reservedLineages(registry.engine_lineages, 81, "Engine lineage");
+assert(Array.isArray(registry.fusion_core_instances) && registry.fusion_core_instances.length === 9, "exactly nine scoped fusion core instances are required.");
+uniqueIds(registry.fusion_core_instances, "Fusion core instance");
+for (let index = 0; index < registry.fusion_core_instances.length; index += 1) {
+  const core = registry.fusion_core_instances[index];
+  const ordinal = String(index + 1).padStart(2, "0");
+  assert(core.id === "FUSION-CORE-UMIC-" + ordinal, "fusion core instance ordering is invalid.");
+  assert(core.umic_domain_id === "UMIC-DOMAIN-" + ordinal, "fusion core must be scoped to its matching UMIC.");
+  assert(core.fusion_function === registry.fusion_function, "all UMICs must use the same canonical fusion function.");
+  assert(core.master_core_slots === 1 && core.engine_slots === 9, "each fusion core must unify one Master Core slot and nine Engine slots.");
+  assert(core.top_level_entity === false, "scoped fusion cores must not become separate top-level entities.");
+  assert(core.membership_status === "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING", "source lineage membership must remain pending.");
+  assert(core.runtime_status === "NOT_IMPLEMENTED", "registry must not claim an implemented fusion runtime.");
+}
 assert(registry.lineage_counts.umic_domains === 9, "UMIC declared count mismatch.");
 assert(registry.lineage_counts.master_cores === 9, "Master Core declared count mismatch.");
 assert(registry.lineage_counts.engines === 81, "Engine declared count mismatch.");
@@ -52,6 +74,8 @@ console.log(JSON.stringify({
   valid: true,
   identity: registry.architecture_identity,
   fusion_function: registry.fusion_function,
+  fusion_core_instances: registry.fusion_core_instance_count,
+  unified_umic_model: registry.unified_umic_model,
   preserved_lineages: registry.lineage_counts,
   registers: registry.registers.length,
   status: registry.verification.status,
