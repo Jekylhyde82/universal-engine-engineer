@@ -14,6 +14,10 @@ This package demonstrates one shared canonical UNIFIED FUSION SYNERGY — AFI PR
 - Process-level fault containment: terminating one instance does not prevent healthy peer processes from operating.
 - Fault injection is disabled unless the runtime is created with test mode enabled.
 
+## CI validation
+
+The nine-instance runtime suite passed **8 tests, 0 failures** in policy workflow `44474605496` at code commit `887e15bb85bd33f99e5c2f765aea17323e8b6e99`. The same workflow also passed the 132-test V.I.S.I.O.N./D.D. suite, registry validation, JavaScript syntax checks and real Chromium integration setup. CodeQL workflow `44474605505` completed successfully on that code commit. Later commits changed documentation only; this package source is unchanged. CodeQL success does not establish that the alert inventory is empty or reviewed.
+
 ## What it does not demonstrate
 
 - This is a deterministic orchestration/state-boundary harness, **not** an intelligent AFI PRIME reasoning engine or the full NINEFOLD INTRINSIC runtime.
