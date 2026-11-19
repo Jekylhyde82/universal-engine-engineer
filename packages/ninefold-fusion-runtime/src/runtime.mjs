@@ -1,6 +1,6 @@
 import { fork } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { chmod, mkdir } from "node:fs/promises";
+import { chmod, mkdir, open, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,9 +42,21 @@ export class NinefoldFusionRuntime {
     await mkdir(runEvidenceRoot, { recursive: true, mode: 0o700 });
     await chmod(runtimeBase, 0o700);
     await chmod(runEvidenceRoot, 0o700);
+    const lockPath = join(runtimeBase, runtimeId + ".lock");
+    let lockHandle;
+    try {
+      lockHandle = await open(lockPath, "wx", 0o600);
+      await lockHandle.writeFile(JSON.stringify({ pid: process.pid, runtimeId, startedAt: new Date().toISOString() }) + "\\n");
+      await lockHandle.sync();
+    } catch (error) {
+      if (error?.code === "EEXIST") throw new Error("Runtime evidence namespace is already in use or has a stale lock.");
+      throw error;
+    }
     const runtime = new NinefoldFusionRuntime({
       evidenceRoot: runEvidenceRoot,
       runtimeId,
+      lockPath,
+      lockHandle,
       policyVersion,
       authorizeInstanceAccess,
       authorizeCrossInstance,
@@ -252,11 +264,18 @@ export class NinefoldFusionRuntime {
     });
   }
 
+  waitForExit(entry) {
+    if (entry.child.exitCode !== null || entry.child.signalCode !== null) {
+      return Promise.resolve({ code: entry.child.exitCode, signal: entry.child.signalCode, status: entry.status });
+    }
+    return new Promise((resolve) => { entry.exitResolve = resolve; });
+  }
+
   async injectFaultForTest(instanceId) {
     if (!this.options.testMode) throw new Error("Fault injection is disabled outside test mode.");
     const entry = this.instances.get(instanceId);
     if (!entry || entry.status !== "READY") throw new Error("Instance is not READY.");
-    const exited = new Promise((resolve) => { entry.exitResolve = resolve; });
+    const exited = this.waitForExit(entry);
     entry.child.kill("SIGKILL");
     return exited;
   }
@@ -265,18 +284,31 @@ export class NinefoldFusionRuntime {
     if (this.closed) return;
     this.closed = true;
     const entries = [...this.instances.values()];
-    await Promise.all(entries.map(async (entry) => {
-      if (entry.status !== "READY") {
-        if (entry.child.exitCode === null && entry.child.signalCode === null) entry.child.kill("SIGKILL");
-        return;
+    try {
+      await Promise.all(entries.map(async (entry) => {
+        const exited = this.waitForExit(entry);
+        if (entry.status !== "READY") {
+          if (entry.child.exitCode === null && entry.child.signalCode === null) entry.child.kill("SIGKILL");
+          await exited;
+          return;
+        }
+        entry.intentionalStop = true;
+        try {
+          await this.requestDuringClose(entry, { type: "shutdown" });
+        } catch {
+          entry.child.kill("SIGKILL");
+        }
+        await exited;
+      }));
+    } finally {
+      if (this.options.lockHandle) {
+        await this.options.lockHandle.close();
+        this.options.lockHandle = null;
+        await unlink(this.options.lockPath).catch((error) => {
+          if (error?.code !== "ENOENT") throw error;
+        });
       }
-      entry.intentionalStop = true;
-      try {
-        await this.requestDuringClose(entry, { type: "shutdown" });
-      } catch {
-        entry.child.kill("SIGKILL");
-      }
-    }));
+    }
   }
 
   async requestDuringClose(entry, command) {
