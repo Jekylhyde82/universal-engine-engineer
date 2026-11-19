@@ -106,3 +106,25 @@ test("closing the consent provider denies any pending prompt", async () => {
   input.destroy();
   output.destroy();
 });
+
+test("terminal consent provider displays the exact initial website destination", async () => {
+  const input = new PassThrough();
+  const output = new PassThrough();
+  const provider = createTerminalConsentProvider({ input, output });
+  try {
+    const pending = provider.requestConsent({
+      purpose: "OPEN_INITIAL_URL",
+      session_id: "session-1",
+      application_origin: "https://example.test",
+      destination_url: "https://example.test/help",
+    });
+    input.write("YES\n");
+    assert.equal(await pending, true);
+    const text = output.read()?.toString() || "";
+    assert.match(text, /https:\/\/example\.test\/help/);
+  } finally {
+    provider.close();
+    input.destroy();
+    output.destroy();
+  }
+});
