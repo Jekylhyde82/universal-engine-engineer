@@ -139,7 +139,17 @@ export function createBrowserAdapter({
       }
       try {
         safePageUrl(rawUrl, origins);
-        return route.continue();
+        const response = await route.fetch({
+          maxRedirects: 0,
+          timeout: navigationTimeoutMs,
+        });
+        const status = response.status();
+        const headers = response.headers();
+        if (status >= 300 && status < 400 && headers.location) {
+          blockedHttpRequests += 1;
+          return route.abort("blockedbyclient");
+        }
+        return route.fulfill({ response });
       } catch {
         blockedHttpRequests += 1;
         return route.abort("blockedbyclient");
