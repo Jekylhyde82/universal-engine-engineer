@@ -22,24 +22,27 @@ from .uaie import (
     UniversalAssimilationEngine,
 )
 from .lmstudio import (
-    CatalogAssimilationResult, LMStudioError, LMStudioModel,
-    assimilate_catalog, list_models,
+    CatalogAssimilationResult, LMStudioDownloadJob, LMStudioError, LMStudioModel,
+    assimilate_catalog, download_model, get_download_status, list_models,
 )
 from .afi import AFIModelCapabilityProfile, AFIPrimeFusionAdapter
 
 __all__ += [
     "AcquisitionRegisterEntry", "AssimilationRecord", "UAIEError", "UniversalAcquisitionIntegrationEngine",
     "UniversalAssimilationEngine", "CatalogAssimilationResult", "LMStudioError",
-    "LMStudioModel", "assimilate_catalog", "list_models",
+    "LMStudioModel", "LMStudioDownloadJob", "assimilate_catalog",
+    "download_model", "get_download_status", "list_models",
     "AFIModelCapabilityProfile", "AFIPrimeFusionAdapter",
 ]
 
 from .lmstudio_catalog import (
     LMStudioCatalogCandidate, LMStudioCatalogError,
     assimilate_catalog_candidate, build_download_command, candidate_from_mapping,
+    download_catalog_candidate,
 )
 
 __all__ += [
     "LMStudioCatalogCandidate", "LMStudioCatalogError",
     "assimilate_catalog_candidate", "build_download_command", "candidate_from_mapping",
+    "download_catalog_candidate",
 ]
