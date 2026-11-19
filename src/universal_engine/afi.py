@@ -23,6 +23,15 @@ class AFIModelCapabilityProfile:
     params_string: str | None
     max_context_length: int | None
     format: str | None
+    catalog_availability: tuple[str, ...]
+    catalog_parameter_sizes: tuple[str, ...]
+    catalog_minimum_memory: str | None
+    catalog_license_text: str | None
+    catalog_download_count: str | None
+    catalog_star_count: str | None
+    catalog_updated: str | None
+    catalog_artifact_links: tuple[dict[str, str], ...]
+    source_url: str | None
     capability_facts: tuple[str, ...]
     evidence_source: str
     evidence_class: str
@@ -64,6 +73,11 @@ class AFIPrimeFusionAdapter:
             facts.add("vision_adapter_available")
         if getattr(model, "loaded_instances", ()):
             facts.add("currently_loaded_instance")
+        availability = getattr(model, "availability", ()) or ()
+        if "local" in availability:
+            facts.add("local_catalog_availability")
+        if "cloud" in availability:
+            facts.add("cloud_catalog_availability")
         key = str(model.key)
         is_public_catalog = model.model_type == "catalog_model"
         return AFIModelCapabilityProfile(
@@ -78,6 +92,15 @@ class AFIPrimeFusionAdapter:
             params_string=getattr(model, "params_string", None),
             max_context_length=getattr(model, "max_context_length", None),
             format=getattr(model, "format", None),
+            catalog_availability=tuple(availability),
+            catalog_parameter_sizes=tuple(getattr(model, "parameter_sizes", ()) or ()),
+            catalog_minimum_memory=getattr(model, "minimum_memory", None),
+            catalog_license_text=getattr(model, "license_text", None),
+            catalog_download_count=getattr(model, "download_count", None),
+            catalog_star_count=getattr(model, "star_count", None),
+            catalog_updated=getattr(model, "updated", None),
+            catalog_artifact_links=tuple(getattr(model, "artifact_links", ()) or ()),
+            source_url=getattr(model, "details_url", None),
             capability_facts=tuple(sorted(facts)),
             evidence_source=(
                 "LM Studio public Model Catalog page" if is_public_catalog
