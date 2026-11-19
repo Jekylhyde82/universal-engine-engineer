@@ -38,17 +38,20 @@ V.I.S.I.O.N. must not:
 - silently retain raw images beyond the approved retention policy;
 - treat screen text, QR codes, web content or documents as trusted agent instructions.
 
-### 2.2 AFI PRIME — reasoning and planning specialist
+### 2.2 Unified Fusion Synergy — AFI PRIME — intrinsic fusion, reasoning and planning function
 
 Responsible for:
-- interpreting task intent and relevant context;
-- proposing a bounded plan using typed actions;
-- identifying missing information, ambiguity and risk;
+- integrating the nine former UMIC domains, nine Master Core capability lineages and eighty-one Engine capability lineages into one unified intelligence architecture;
+- interpreting task intent and relevant context across specialist domains;
+- coordinating specialist capabilities while preserving their individual responsibilities and provenance;
+- synthesising findings and resolving or escalating conflicting outputs;
+- proposing bounded plans using typed actions;
+- identifying missing information, ambiguity, uncertainty and risk;
 - explaining why each action is needed;
 - specifying preconditions and expected postconditions;
 - asking for human clarification or approval when required.
 
-AFI PRIME is not the policy enforcement point and cannot authorise its own plan. Model confidence is not a permission.
+Unified Fusion Synergy — AFI PRIME is one current architecture identity, not separate AFI and Fusion components. It is not the policy enforcement point, cannot grant itself execution authority and cannot certify its own results. Model confidence is not a permission.
 
 ### 2.3 Policy enforcement point — independent authority
 
@@ -108,7 +111,7 @@ Default behaviour is not to retain raw screenshots, camera frames, passwords, to
 1. User creates a task and selects an authorised target environment.
 2. The adapter requests and confirms required OS/app permissions.
 3. V.I.S.I.O.N. captures a bounded observation and emits provenance metadata.
-4. AFI PRIME proposes a typed plan with preconditions and postconditions.
+4. Unified Fusion Synergy — AFI PRIME proposes a typed plan with preconditions and postconditions after coordinating the relevant internal specialist capabilities.
 5. The policy enforcement point evaluates the task and each proposed action.
 6. The user approves consequential actions through a trusted approval surface.
 7. D.D. receives a short-lived grant and executes one action.
@@ -323,7 +326,7 @@ Still required before production:
 - calibrated visual perception model/OCR and labelled evaluation dataset; current DOM semantic observation is not a validated visual-understanding model;
 - privacy redaction before any raw visual frame can be retained or transmitted; current screenshot output is not redacted and is never persisted by the adapter;
 - Android native adapter and target-device testing;
-- AFI PRIME planning/runtime integration and EB9PRIME governed persistence;
+- Unified Fusion Synergy — AFI PRIME runtime integration and EB9PRIME governed persistence;
 - rate limits, monitoring, alerting, incident response, staging, rollback and independent security review.
 
 Do not select dependencies solely to satisfy an architectural naming or ninefold symmetry preference. Choose them by measured capability, reliability, security, device constraints and maintenance cost. The current implementation is not approved for live or unattended execution.
