@@ -60,12 +60,17 @@ export class FileNonceLedger {
   async #acquireLock() {
     const deadline = Date.now() + this.lockTimeoutMs;
     while (true) {
+      let handle;
       try {
-        const handle = await open(this.lockPath, "wx", 0o600);
+        handle = await open(this.lockPath, "wx", 0o600);
         await handle.writeFile(String(process.pid) + "\n");
         await handle.sync();
         return handle;
       } catch (error) {
+        if (handle) {
+          await handle.close().catch(() => {});
+          await unlink(this.lockPath).catch(() => {});
+        }
         if (error?.code !== "EEXIST") throw error;
         if (Date.now() >= deadline) {
           throw new Error("Nonce ledger lock unavailable; refusing to bypass replay protection.");
