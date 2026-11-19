@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111827"><title>Repository Capability Scout</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#141c2e;--line:#2d3a55;--text:#edf2ff;--muted:#aab6cc;--accent:#82b4ff;--warn:#ffd38a;--bad:#ff9f9f}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#101a31,var(--bg) 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}main{max-width:1120px;margin:auto;padding:24px 16px 64px}
+h1{font-size:clamp(1.7rem,4vw,2.5rem);line-height:1.1;margin:0 0 8px}h2{font-size:1.15rem;margin:0 0 12px}p{margin:6px 0;color:var(--muted)}.eyebrow{color:var(--accent);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.76rem}
+.panel,.card{background:rgba(20,28,46,.96);border:1px solid var(--line);border-radius:15px;padding:17px;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}.field{grid-column:span 4}.field.wide{grid-column:span 8}.field.full{grid-column:1/-1}
+label{display:block;font-size:.83rem;color:var(--muted);margin:0 0 6px}input,select,textarea{width:100%;background:#0d1526;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit}
+button,.button{border:1px solid #4a638c;background:#233b60;color:#fff;border-radius:9px;padding:10px 13px;font:600 .9rem system-ui;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button.secondary,.button.secondary{background:#182338;border-color:var(--line)}button:disabled{opacity:.5;cursor:not-allowed}
+.actions,.row,.top{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.row,.top{justify-content:space-between}.muted,.small{color:var(--muted)}.small{font-size:.82rem}.status,.meta span{font-size:.76rem;padding:3px 8px;border-radius:6px;background:#0d1526;border:1px solid var(--line);color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px;margin-top:14px}.card{margin:0;min-width:0}.card h3{font-size:1rem;margin:0;overflow-wrap:anywhere}.card p{font-size:.9rem}.meta{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.empty{border:1px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);margin-top:12px}
+.notice{border-left:3px solid var(--warn);padding:10px 12px;background:#332a1c66;border-radius:0 8px 8px 0;color:#ffe4b7;font-size:.9rem}#message{min-height:24px;color:#9be2bd;font-size:.9rem}#message.error{color:var(--bad)}
+details{margin-top:10px}summary{cursor:pointer;color:var(--accent)}.gate-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.gate{background:#0d1526;border:1px solid var(--line);padding:9px;border-radius:8px;font-size:.8rem}.gate b{display:block;color:var(--muted)}
+footer{margin-top:24px;color:var(--muted);font-size:.8rem}@media(max-width:720px){main{padding:18px 12px 44px}.field,.field.wide{grid-column:1/-1}.panel{padding:14px}}
+</style></head><body><main>
+<header class="top"><div><div class="eyebrow">NINEFOLD INTRINSIC · Capability Acquisition</div><h1>Repository Capability Scout</h1><p>Discover repositories that may add new skills, AI abilities, tools and engineering capabilities.</p></div>
+<div class="actions"><button id="exportBtn" class="secondary">Export register JSON</button><label class="button secondary" for="importFile">Import register</label><input id="importFile" type="file" accept="application/json,.json" hidden></div></header>
+<section class="panel"><div class="row"><h2>1 · Discover repositories</h2><span class="status">GitHub public repository search</span></div>
+<div class="grid"><div class="field"><label for="category">Capability area</label><select id="category">
+<option value="ai-agents">AI agents & agent frameworks</option><option value="coding">AI coding & software engineering</option><option value="models">LLMs & local inference</option><option value="skills">Skills, tools, plugins & MCP</option><option value="memory">Memory, knowledge & RAG</option><option value="orchestration">Orchestration & workflows</option><option value="vision">Vision, multimodal & computer use</option><option value="evaluation">Evaluation, testing & red-teaming</option><option value="security">Security, policy & sandboxing</option><option value="robotics">Robotics & physical-world systems</option><option value="offline">Offline, edge & Android AI</option><option value="all">Broad capability search</option></select></div>
+<div class="field wide"><label for="query">Additional search terms (optional)</label><input id="query" placeholder="e.g. browser automation, long-term memory, speech-to-text"></div>
+<div class="field full actions"><button id="searchBtn">Search GitHub repositories</button><span class="small muted">Search results are leads, not endorsements or integration approvals.</span></div></div>
+<div id="message" role="status" aria-live="polite"></div><div id="results" class="cards"><div class="empty">Choose a capability area and search. Nothing is cloned or executed.</div></div></section>
+<section class="panel"><div class="row"><div><h2>2 · Candidate register</h2><p class="small">Saved locally in this browser. Export JSON to preserve or move the register.</p></div><span id="savedCount" class="status">0 candidates</span></div>
+<div class="grid"><div class="field"><label for="statusFilter">Filter by disposition</label><select id="statusFilter"><option value="">All dispositions</option><option>DISCOVERED</option><option>TRIAGE_REQUIRED</option><option>EVALUATION_IN_PROGRESS</option><option>PROOF_OF_CAPABILITY_REQUIRED</option><option>APPROVED_FOR_ADAPTER_DESIGN</option><option>DEFERRED</option><option>BLOCKED</option><option>REJECTED</option></select></div>
+<div class="field wide"><label for="registerFilter">Filter saved candidates</label><input id="registerFilter" placeholder="Filter by name, category or capability"></div></div>
+<div id="saved" class="cards"><div class="empty">No saved candidates yet.</div></div></section>
+<section class="panel"><h2>3 · Evaluation rules</h2><div class="notice">Discovery does not execute code. Do not install, import, run or grant credentials to a candidate from this tool. Licence, provenance, security, compatibility, resource fit and proof-of-capability checks must happen before any integration decision.</div>
+<div class="gate-list"><div class="gate"><b>G0 · Source identity</b>Canonical repository, owner and pinned commit/release.</div><div class="gate"><b>G1 · Licence & provenance</b>Root/nested licences, dependencies, assets and distribution terms.</div><div class="gate"><b>G2 · Maintenance & compatibility</b>Release health, runtime support, API stability and advisories.</div><div class="gate"><b>G3 · Security & governance</b>Threat model, least privilege, sandbox, network and secrets.</div><div class="gate"><b>G4 · Resource & deployment</b>CPU, RAM, storage, latency, hosting and offline behavior.</div><div class="gate"><b>G5 · Proof of capability</b>Isolated reproducible tests, acceptance criteria and negative tests.</div><div class="gate"><b>G6 · Integration approval</b>Human approval, narrow adapter, replaceability and rollback.</div><div class="gate"><b>G7 · Operational verification</b>Deployed identity, independent review and operational evidence.</div></div>
+<p class="small">Popularity and stars are context only, not a quality score. Missing evidence is NOT_ASSESSED, never a silent pass.</p></section>
+<footer>Prototype v0.1 · Uses GitHub's unauthenticated public search API. Search limits are controlled by GitHub. Candidate records remain in browser storage until exported. No external code is downloaded or executed.</footer>
+</main>
+<script>
+(function(){
+"use strict";
+var KEY="ninefold.repository-capability-scout.v0.1";
+var categories={
+"ai-agents":"agent OR agents OR agentic OR autonomous",
+"coding":"coding agent OR software engineering agent OR code assistant",
+"models":"LLM OR inference OR local model OR quantization",
+"skills":"MCP OR plugin OR tools OR skills OR extensions",
+"memory":"agent memory OR knowledge graph OR RAG OR retrieval",
+"orchestration":"orchestration OR workflow OR multi-agent OR durable",
+"vision":"multimodal OR computer use OR vision-language OR browser-use",
+"evaluation":"LLM evaluation OR red-team OR evals OR prompt testing",
+"security":"sandbox OR policy OR authorization OR prompt injection",
+"robotics":"robotics OR ROS OR manipulation OR autonomy",
+"offline":"on-device AI OR edge AI OR Android OR offline",
+"all":"AI OR agent OR automation OR developer tool"
+};
+var $=function(id){return document.getElementById(id);};
+var results=[],saved=load();
+function load(){try{var v=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(v)?v:[];}catch(e){return [];}}
+function message(t,bad){$("message").textContent=t;$("message").classList.toggle("error",!!bad);}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function date(v){if(!v)return "Unknown";var d=new Date(v);return isNaN(d.getTime())?"Unknown":d.toLocaleDateString();}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(saved));}catch(e){message("Browser storage unavailable or full. Export your register.",true);}renderSaved();}
+function makeRecord(r){var gates={G0_SOURCE_IDENTITY:"NOT_ASSESSED",G1_LICENCE_AND_PROVENANCE:"NOT_ASSESSED",G2_MAINTENANCE_AND_COMPATIBILITY:"NOT_ASSESSED",G3_SECURITY_AND_GOVERNANCE:"NOT_ASSESSED",G4_RESOURCE_AND_DEPLOYMENT:"NOT_ASSESSED",G5_PROOF_OF_CAPABILITY:"NOT_ASSESSED",G6_INTEGRATION_APPROVAL:"NOT_ASSESSED",G7_OPERATIONAL_VERIFICATION:"NOT_ASSESSED"};
+return {id:String(r.id),name:r.full_name,url:r.html_url,description:r.description||"",category:$("category").value,topics:r.topics||[],language:r.language||"Unknown",stars:r.stargazers_count||0,forks:r.forks_count||0,license:r.license&&r.license.spdx_id||"NOT_CONFIRMED",archived:!!r.archived,default_branch:r.default_branch||"Unknown",created_at:r.created_at||null,pushed_at:r.pushed_at||null,source:"GitHub public repository search API",retrieved_at:new Date().toISOString(),disposition:"DISCOVERED",intended_capability:"",evidence_notes:"",risks:"",gates:gates};}
+function renderResults(){
+var root=$("results");
+if(!results.length){root.innerHTML='<div class="empty">No repositories returned. Try broader terms or another capability area.</div>';return;}
+root.innerHTML=results.map(function(r,i){var done=saved.some(function(s){return s.id===String(r.id);});
+return '<article class="card"><div class="row"><h3>'+esc(r.full_name)+'</h3><span class="status">'+(r.archived?"ARCHIVED":"DISCOVERED")+'</span></div><p>'+esc(r.description||"No repository description supplied.")+'</p><div class="meta"><span>'+esc(r.language||"Language unknown")+'</span><span>★ '+Number(r.stargazers_count||0).toLocaleString()+'</span><span>Forks '+Number(r.forks_count||0).toLocaleString()+'</span><span>Licence '+esc(r.license&&r.license.spdx_id||"unconfirmed")+'</span><span>Updated '+date(r.pushed_at)+'</span></div><p class="small">Stars indicate attention, not quality. Licence metadata is not legal clearance.</p><div class="actions"><a class="button secondary" href="'+esc(r.html_url)+'" target="_blank" rel="noopener noreferrer">Open repository ↗</a><button data-save="'+i+'" '+(done?"disabled":"")+'>'+(done?"Saved":"Add to register")+'</button></div></article>';
+}).join("");
+root.querySelectorAll("[data-save]").forEach(function(btn){btn.addEventListener("click",function(){var rec=makeRecord(results[Number(btn.dataset.save)]);if(!saved.some(function(s){return s.id===rec.id;})){saved.unshift(rec);persist();message("Candidate saved. All evaluation gates remain NOT_ASSESSED.");renderResults();}});});
+}
+function renderSaved(){
+var term=$("registerFilter").value.trim().toLowerCase(),status=$("statusFilter").value;
+var list=saved.filter(function(r){var hay=[r.name,r.description,r.category,r.intended_capability,(r.topics||[]).join(" ")].join(" ").toLowerCase();return (!term||hay.indexOf(term)>=0)&&(!status||r.disposition===status);});
+$("savedCount").textContent=saved.length+" candidate"+(saved.length===1?"":"s");
+var root=$("saved");if(!list.length){root.innerHTML='<div class="empty">No candidates match this filter.</div>';return;}
+root.innerHTML=list.map(function(r){var opts=["DISCOVERED","TRIAGE_REQUIRED","EVALUATION_IN_PROGRESS","PROOF_OF_CAPABILITY_REQUIRED","APPROVED_FOR_ADAPTER_DESIGN","DEFERRED","BLOCKED","REJECTED"];
+var gateHtml=Object.keys(r.gates||{}).map(function(k){return '<div class="gate"><b>'+esc(k)+'</b>'+esc(r.gates[k])+'</div>';}).join("");
+return '<article class="card" data-id="'+esc(r.id)+'"><div class="row"><h3>'+esc(r.name)+'</h3><span class="status">'+esc(r.disposition)+'</span></div><p>'+esc(r.description)+'</p><div class="meta"><span>'+esc(r.category)+'</span><span>'+esc(r.language)+'</span><span>Licence: '+esc(r.license)+'</span><span>Updated: '+date(r.pushed_at)+'</span></div><label>Intended capability / skill</label><input data-field="intended_capability" value="'+esc(r.intended_capability)+'" placeholder="What ability could this provide?"><label>Evidence notes / findings</label><textarea data-field="evidence_notes" rows="2" placeholder="What was inspected, by whom and when?">'+esc(r.evidence_notes)+'</textarea><label>Risks / unresolved questions</label><textarea data-field="risks" rows="2" placeholder="Licence, security, maintenance, resource or compatibility risks">'+esc(r.risks)+'</textarea><label>Disposition</label><select data-field="disposition">'+opts.map(function(s){return '<option '+(r.disposition===s?"selected":"")+'>'+s+'</option>';}).join("")+'</select><details><summary>Evaluation gates (initially NOT_ASSESSED)</summary><div class="gate-list">'+gateHtml+'</div></details><div class="actions"><a class="button secondary" href="'+esc(r.url)+'" target="_blank" rel="noopener noreferrer">Open source ↗</a><button class="secondary" data-remove="'+esc(r.id)+'">Remove</button></div></article>';
+}).join("");
+root.querySelectorAll("[data-field]").forEach(function(el){el.addEventListener("change",function(){var card=el.closest("[data-id]"),item=saved.find(function(x){return x.id===card.dataset.id;});if(item){item[el.dataset.field]=el.value;persist();}});});
+root.querySelectorAll("[data-remove]").forEach(function(btn){btn.addEventListener("click",function(){saved=saved.filter(function(x){return x.id!==btn.dataset.remove;});persist();renderResults();});});
+}
+async function search(){
+var btn=$("searchBtn");btn.disabled=true;$("results").innerHTML='<div class="empty">Searching GitHub…</div>';message("Searching public repository metadata. No source code is executed.");
+try{var base=categories[$("category").value]||categories.all,extra=$("query").value.trim(),q=(extra?"("+base+") "+extra:base)+" in:name,description,readme";
+var url="https://api.github.com/search/repositories?q="+encodeURIComponent(q)+"&sort=updated&order=desc&per_page=30";
+var response=await fetch(url,{headers:{"Accept":"application/vnd.github+json"}});
+if(!response.ok){var detail=await response.text();throw new Error(response.status+" "+response.statusText+(response.status===403?" — GitHub search rate limit may have been reached.":"")+" "+detail.slice(0,150));}
+var data=await response.json();results=(data.items||[]).filter(function(r){return !r.archived;});renderResults();message("Found "+results.length+" non-archived repositories. Review each source; no suitability decision has been made.");
+}catch(e){results=[];renderResults();message("Search failed: "+e.message,true);}finally{btn.disabled=false;}
+}
+function exportJson(){
+var payload={register_id:"UCA-SCOUT-LOCAL-001",schema_version:"0.1.0",exported_at:new Date().toISOString(),record_status:"CANDIDATE_REGISTER_NOT_APPROVED",source:"Repository Capability Scout prototype",records:saved};
+var blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="repository-capability-candidates.json";a.click();URL.revokeObjectURL(a.href);message("Register exported as JSON.");
+}
+async function importJson(file){try{var data=JSON.parse(await file.text()),records=Array.isArray(data)?data:data.records;if(!Array.isArray(records))throw new Error("Expected an array or an object containing records[].");var map=new Map(saved.map(function(r){return [r.id,r];}));records.forEach(function(r){if(r&&r.id&&r.name&&r.url)map.set(String(r.id),Object.assign({},r,{id:String(r.id)}));});saved=Array.from(map.values());persist();message("Imported "+records.length+" records. Review provenance and evidence before relying on them.");}catch(e){message("Import failed: "+e.message,true);} $("importFile").value="";}
+$("searchBtn").addEventListener("click",search);$("query").addEventListener("keydown",function(e){if(e.key==="Enter")search();});$("exportBtn").addEventListener("click",exportJson);$("importFile").addEventListener("change",function(e){if(e.target.files[0])importJson(e.target.files[0]);});$("statusFilter").addEventListener("change",renderSaved);$("registerFilter").addEventListener("input",renderSaved);renderSaved();
+})();
+</script></body></html>
