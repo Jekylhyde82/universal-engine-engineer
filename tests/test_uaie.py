@@ -87,6 +87,16 @@ class UAIETests(unittest.TestCase):
         self.assertIn('"tool"', self.engine.export_record(record.record_id)["content"])
 
 
+    def test_duplicate_content_retains_all_source_provenance(self):
+        first = self.engine.ingest_text("shared artifact", "source/first.md")
+        second = self.engine.ingest_text("shared artifact", "source/second.md")
+        self.assertEqual(first.record_id, second.record_id)
+        self.assertTrue(second.duplicate)
+        sources = self.engine.get_sources(first.record_id)
+        self.assertEqual({item["source"] for item in sources},
+                         {"source/first.md", "source/second.md"})
+
+
     def test_canonical_engine_name_and_legacy_alias(self):
         self.assertIs(UniversalAssimilationEngine, UniversalAcquisitionEngine)
         canonical = UniversalAcquisitionEngine(self.db)
