@@ -7,5 +7,6 @@ export { createBrowserAdapter } from "./browser-adapter.mjs";
 export { launchBrowserHost } from "./browser-host.mjs";
 export { createTerminalConsentProvider } from "./terminal-consent.mjs";
 export { signReadback, verifyNavigationReadback } from "./verifier.mjs";
+export { createJwtBearerAuthenticator } from "./jwt-authenticator.mjs";
 export { runGovernedAction } from "./orchestrator.mjs";
 export { FileActionAuditLedger } from "./audit-ledger.mjs";
