@@ -46,9 +46,13 @@ export class NinefoldFusionRuntime {
     let lockHandle;
     try {
       lockHandle = await open(lockPath, "wx", 0o600);
-      await lockHandle.writeFile(JSON.stringify({ pid: process.pid, runtimeId, startedAt: new Date().toISOString() }) + "\\n");
+      await lockHandle.writeFile(JSON.stringify({ pid: process.pid, runtimeId, startedAt: new Date().toISOString() }) + "\n");
       await lockHandle.sync();
     } catch (error) {
+      if (lockHandle) {
+        await lockHandle.close().catch(() => {});
+        await unlink(lockPath).catch(() => {});
+      }
       if (error?.code === "EEXIST") throw new Error("Runtime evidence namespace is already in use or has a stale lock.");
       throw error;
     }
