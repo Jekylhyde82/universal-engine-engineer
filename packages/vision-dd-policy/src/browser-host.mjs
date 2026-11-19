@@ -12,6 +12,7 @@ import { createBrowserAdapter } from "./browser-adapter.mjs";
  */
 export async function launchBrowserHost({
   profileRoot,
+  initialUrl,
   allowedOrigins,
   publicKeyPem,
   policyVersion,
@@ -23,7 +24,7 @@ export async function launchBrowserHost({
   clock = Date.now,
 }) {
   if (typeof profileRoot !== "string" || !isAbsolute(profileRoot) ||
-      !Array.isArray(allowedOrigins) || allowedOrigins.length === 0 ||
+      typeof initialUrl !== "string" || !Array.isArray(allowedOrigins) || allowedOrigins.length === 0 ||
       typeof publicKeyPem !== "string" || typeof policyVersion !== "string" ||
       !grantNonceLedger || typeof grantNonceLedger.consume !== "function" ||
       typeof requestConsent !== "function" || typeof headless !== "boolean" ||
@@ -41,6 +42,14 @@ export async function launchBrowserHost({
   }
   if (process.platform !== "win32" && (rootInfo.mode & 0o077) !== 0) {
     throw new Error("Browser profile root must be private to the current OS user.");
+  }
+
+  const initial = new URL(initialUrl);
+  const allowedOriginSet = new Set(allowedOrigins.map((value) => new URL(value).origin));
+  if (initial.username || initial.password || !allowedOriginSet.has(initial.origin) ||
+      !["https:", "http:"].includes(initial.protocol) ||
+      (initial.protocol === "http:" && !["localhost", "127.0.0.1", "[::1]"].includes(initial.hostname))) {
+    throw new Error("Initial browser URL must use an allowlisted HTTPS origin (or loopback HTTP).");
   }
 
   const profilePath = join(root, "profile-" + randomUUID());
@@ -67,9 +76,10 @@ export async function launchBrowserHost({
     context.on("page", (newPage) => {
       if (newPage !== page) void newPage.close().catch(() => {});
     });
+    const sessionId = randomUUID();
     const adapter = createBrowserAdapter({
       page,
-      sessionId: randomUUID(),
+      sessionId,
       allowedOrigins,
       publicKeyPem,
       policyVersion,
@@ -77,12 +87,24 @@ export async function launchBrowserHost({
       requestConsent,
       clock,
     });
+    const initialConsent = await requestConsent({
+      purpose: "OPEN_INITIAL_URL",
+      session_id: sessionId,
+      application_origin: initial.origin,
+      destination_url: initial.origin + initial.pathname,
+    });
+    if (initialConsent !== true) throw new Error("Trusted consent was not granted for the initial browser navigation.");
+    await page.goto(initial.href, { waitUntil: "domcontentloaded", timeout: 15_000 });
     let closed = false;
     return Object.freeze({
-      profilePath,
-      context,
-      page,
       adapter,
+      getStatus() {
+        return Object.freeze({
+          page_count: context.pages().length,
+          service_worker_count: context.serviceWorkers().length,
+          stopped: adapter.stopped,
+        });
+      },
       stop() {
         adapter.stop();
       },
