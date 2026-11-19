@@ -84,7 +84,8 @@ export function createServer({
     }
     if (request.url !== "/v1/grants") return send(response, 404, { error: "NOT_FOUND" });
     if (request.method !== "POST") return send(response, 405, { error: "METHOD_NOT_ALLOWED" });
-    if (!String(request.headers["content-type"] || "").toLowerCase().startsWith("application/json")) {
+    const mediaType = String(request.headers["content-type"] || "").split(";")[0].trim().toLowerCase();
+    if (mediaType !== "application/json") {
       return send(response, 415, { error: "UNSUPPORTED_MEDIA_TYPE" });
     }
 
