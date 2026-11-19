@@ -191,7 +191,9 @@ def build_download_command(candidate: LMStudioCatalogCandidate) -> tuple[str, ..
 
 
 def download_catalog_candidate(
+    engine: Any,
     candidate: LMStudioCatalogCandidate,
+    acquisition_record_id: str,
     *,
     approved: bool = False,
     base_url: str = "http://127.0.0.1:1234",
@@ -204,6 +206,18 @@ def download_catalog_candidate(
 
     if not isinstance(candidate, LMStudioCatalogCandidate):
         raise LMStudioCatalogError("candidate must be validated before download")
+    if approved is not True:
+        raise LMStudioCatalogError("explicit approved=True is required")
+    try:
+        register_entry = engine.get_acquisition(acquisition_record_id)
+        assimilation = engine.get(acquisition_record_id)
+        stored = json.loads(engine.export_record(acquisition_record_id)["extracted_text"])
+    except (AttributeError, KeyError, TypeError, ValueError) as exc:
+        raise LMStudioCatalogError("a valid UAIE acquisition register record is required") from exc
+    if (register_entry.lifecycle_status != "approved" or assimilation.state != "approved"
+            or stored.get("model_id") != candidate.model_id
+            or stored.get("catalog_url") != candidate.catalog_url):
+        raise LMStudioCatalogError("candidate must match a UAIE record approved in both governed lifecycles")
     if huggingface_model_url is not None:
         approved_urls = {item["url"] for item in candidate.artifact_links}
         if huggingface_model_url not in approved_urls:
