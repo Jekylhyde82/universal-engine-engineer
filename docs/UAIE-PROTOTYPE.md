@@ -10,13 +10,13 @@ UAIE v0.1 is a working, local-first acquisition and integration engine. It can:
 
 - Ingest individual files or recursively ingest a directory.
 - Accept text and JSON-compatible structured objects through its Python API.
-- Preserve original bytes, SHA-256 content identity, source provenance, media type and timestamps in SQLite.
+- Preserve original bytes, SHA-256 content identity, every observed source, media type and timestamps in SQLite.
 - Deduplicate identical content.
 - Classify common source, documentation, structured-data and tabular formats.
 - Retain binary/unparsed files as acquired artifacts without pretending to understand their contents.
 - Run transparent keyword-based value triage and searchable discovery.
 - Enforce a lifecycle: discovered/assimilated → approved → integrated, or rejected.
-- Persist its catalogue across restarts.
+- Persist its catalogue across restarts.\n- Maintain a local SHA-256 hash-chained audit trail for acquisitions, duplicate-source observations, assessment updates and lifecycle transitions.
 - Operate using Python's standard library only.
 - Optionally inventory models from a local LM Studio instance through a separate, read-only adapter (see `docs/LM-STUDIO-INTEGRATION.md`).
 
@@ -53,7 +53,7 @@ This is a real executable prototype, not yet the full universal system. The firs
 
 Not yet implemented: broad web crawling, authenticated connector integrations, archive/document format extraction, OCR, audio/video understanding, source-code dependency analysis, semantic embeddings, autonomous tool acquisition, sandboxed capability execution, distributed storage, identity/authentication, multi-user authorization, external audit anchoring or production operations.
 
-The value score is an explainable keyword heuristic, not an authoritative measure of usefulness or intelligence. Binary content is preserved but not semantically decoded. Acquired content is **never executed**. The core intake engine performs no network access or external system mutation. The optional LM Studio adapter makes one bounded, read-only request to a loopback LM Studio API; it does not download models or mutate LM Studio.
+The local audit chain detects edits, missing events and broken sequence continuity, but it is not tamper-proof against an administrator who can rewrite the database and recompute hashes; production requires external audit anchoring and authenticated actor identities.\n\nThe value score is an explainable keyword heuristic, not an authoritative measure of usefulness or intelligence. Binary content is preserved but not semantically decoded. Acquired content is **never executed**. The core intake engine performs no network access or external system mutation. The optional LM Studio adapter makes one bounded, read-only request to a loopback LM Studio API; it does not download models or mutate LM Studio.
 
 ## Safety model
 
