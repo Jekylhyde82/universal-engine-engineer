@@ -20,6 +20,7 @@ export function buildWorkerEnvironment(source = process.env) {
 export class NinefoldFusionRuntime {
   static async create({
     evidenceRoot,
+    runtimeId = "default",
     policyVersion = "NINEFOLD-POLICY-POC-1",
     authorizeInstanceAccess,
     authorizeCrossInstance,
@@ -32,12 +33,18 @@ export class NinefoldFusionRuntime {
     if (typeof policyVersion !== "string" || policyVersion.length === 0) {
       throw new TypeError("A shared policyVersion is required.");
     }
+    if (typeof runtimeId !== "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(runtimeId)) {
+      throw new TypeError("runtimeId must be 1–64 safe alphanumeric, underscore or hyphen characters.");
+    }
     await mkdir(evidenceRoot, { recursive: true, mode: 0o700 });
-    const runEvidenceRoot = join(evidenceRoot, "run-" + randomUUID());
-    await mkdir(runEvidenceRoot, { recursive: false, mode: 0o700 });
+    const runtimeBase = join(evidenceRoot, ".ninefold-fusion-runtime");
+    const runEvidenceRoot = join(runtimeBase, runtimeId);
+    await mkdir(runEvidenceRoot, { recursive: true, mode: 0o700 });
+    await chmod(runtimeBase, 0o700);
     await chmod(runEvidenceRoot, 0o700);
     const runtime = new NinefoldFusionRuntime({
       evidenceRoot: runEvidenceRoot,
+      runtimeId,
       policyVersion,
       authorizeInstanceAccess,
       authorizeCrossInstance,
