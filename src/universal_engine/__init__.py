@@ -37,12 +37,14 @@ __all__ += [
 
 from .lmstudio_catalog import (
     LMStudioCatalogCandidate, LMStudioCatalogError,
-    assimilate_catalog_candidate, build_download_command, candidate_from_mapping,
-    download_catalog_candidate,
+    assimilate_catalog_candidate, assimilate_model_yaml_file,
+    build_clone_command, build_download_command, candidate_from_mapping,
+    candidate_from_model_yaml, download_catalog_candidate,
 )
 
 __all__ += [
     "LMStudioCatalogCandidate", "LMStudioCatalogError",
-    "assimilate_catalog_candidate", "build_download_command", "candidate_from_mapping",
-    "download_catalog_candidate",
+    "assimilate_catalog_candidate", "assimilate_model_yaml_file",
+    "build_clone_command", "build_download_command", "candidate_from_mapping",
+    "candidate_from_model_yaml", "download_catalog_candidate",
 ]
