@@ -13,7 +13,7 @@ function validateKey(key) {
 
 function validateJsonValue(value) {
   const encoded = JSON.stringify(value);
-  if (encoded === undefined || encoded.length > 16_384) {
+  if (encoded === undefined || Buffer.byteLength(encoded) > 16_384) {
     throw new TypeError("State value must be JSON-serialisable and no larger than 16 KiB.");
   }
   return encoded;
