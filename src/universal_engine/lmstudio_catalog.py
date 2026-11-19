@@ -189,6 +189,42 @@ def build_download_command(candidate: LMStudioCatalogCandidate) -> tuple[str, ..
 
 
 
+
+def download_catalog_candidate(
+    candidate: LMStudioCatalogCandidate,
+    *,
+    approved: bool = False,
+    base_url: str = "http://127.0.0.1:1234",
+    api_token: str | None = None,
+    huggingface_model_url: str | None = None,
+    opener: Any | None = None,
+) -> Any:
+    """Start a candidate download through LM Studio's official API after approval."""
+    from .lmstudio import download_model
+
+    if not isinstance(candidate, LMStudioCatalogCandidate):
+        raise LMStudioCatalogError("candidate must be validated before download")
+    if huggingface_model_url is not None:
+        approved_urls = {item["url"] for item in candidate.artifact_links}
+        if huggingface_model_url not in approved_urls:
+            raise LMStudioCatalogError("Hugging Face download URL must be present in the reviewed candidate")
+    if candidate.quantization:
+        if huggingface_model_url is None:
+            raise LMStudioCatalogError(
+                "LM Studio REST API quantization is supported only for an explicitly selected Hugging Face artifact; "
+                "use the reviewed lms get proposal for catalog-ID quantization"
+            )
+        model_reference = huggingface_model_url
+        quantization = candidate.quantization
+    else:
+        model_reference = huggingface_model_url or candidate.model_id
+        quantization = None
+    return download_model(
+        model_reference, approved=approved, base_url=base_url,
+        api_token=api_token, quantization=quantization, opener=opener,
+    )
+
+
 def main(argv: Any = None) -> int:
     """Import a reviewed JSON candidate and print the official CLI proposal."""
     parser = argparse.ArgumentParser(
