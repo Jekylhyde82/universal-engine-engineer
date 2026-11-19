@@ -217,3 +217,14 @@ test("nonce ledger rejects blank complete records instead of silently skipping t
     await assert.rejects(() => ledger.consume("nonce-2"), /blank record/i);
   });
 });
+
+test("nonce ledger rejects non-canonical JSON record encodings", async () => {
+  await withTempDir(async (directory) => {
+    const path = join(directory, "nonces.jsonl");
+    const ledger = new FileNonceLedger(path);
+    await ledger.consume("nonce-1");
+    const bytes = await readFile(path, "utf8");
+    await writeFile(path, " " + bytes);
+    await assert.rejects(() => ledger.consume("nonce-2"), /non-canonical/i);
+  });
+});
