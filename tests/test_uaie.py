@@ -87,6 +87,30 @@ class UAIETests(unittest.TestCase):
         self.assertIn('"tool"', self.engine.export_record(record.record_id)["content"])
 
 
+    def test_audit_chain_records_acquisition_and_detects_tampering(self):
+        record = self.engine.ingest_text("audited payload", "audit/source.md")
+        self.engine.ingest_text("audited payload", "audit/duplicate.md")
+        self.assertTrue(self.engine.verify_audit_chain()["valid"])
+        self.assertEqual(self.engine.verify_audit_chain()["event_count"], 2)
+        import sqlite3
+        with sqlite3.connect(self.db) as db:
+            db.execute("UPDATE audit_events SET payload_json=? WHERE sequence=1",
+                       ('{"tampered":true}',))
+        result = self.engine.verify_audit_chain()
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["failure_sequence"], 1)
+
+    def test_audit_chain_records_lifecycle_and_assessment_events(self):
+        record = self.engine.ingest_text("audited lifecycle", "audit/lifecycle.md")
+        self.engine.record_capability_assessment(
+            record.record_id, original_idea_value="Original idea",
+            market_value="Unknown", revenue_models=[],
+            development_timeline="Unknown", risk_assessment="Unassessed", evidence=[])
+        self.engine.set_state(record.record_id, "approved")
+        self.assertTrue(self.engine.verify_audit_chain()["valid"])
+        self.assertEqual(self.engine.verify_audit_chain()["event_count"], 3)
+
+
     def test_duplicate_content_retains_all_source_provenance(self):
         first = self.engine.ingest_text("shared artifact", "source/first.md")
         second = self.engine.ingest_text("shared artifact", "source/second.md")
