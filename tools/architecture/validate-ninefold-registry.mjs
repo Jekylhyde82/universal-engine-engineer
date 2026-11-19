@@ -53,7 +53,7 @@ assert(registry.instance_isolation_contract.shared_logic === "ONE_VERSIONED_CANO
 assert(registry.instance_isolation_contract.shared_governance === "ONE_CANONICAL_GOVERNANCE_POLICY_WITH_INSTANCE_SCOPED_ENFORCEMENT", "instances must share canonical governance with scoped enforcement.");
 assert(registry.instance_isolation_contract.shared_mutable_state === false, "instances must not share mutable execution state.");
 assert(registry.instance_isolation_contract.implicit_permission_inheritance === false, "permissions must not be implicitly inherited across instances.");
-assert(registry.instance_isolation_contract.implementation_status === "REQUIRED_NOT_IMPLEMENTED", "registry must not claim instance isolation is implemented.");
+assert(registry.instance_isolation_contract.implementation_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "registry must not claim instance isolation is implemented.");
 const instanceFieldIds = ["execution_context_id", "state_namespace", "evidence_stream_id", "fault_domain_id"];
 for (const field of instanceFieldIds) {
   const values = registry.fusion_core_instances.map((core) => core[field]);
@@ -61,10 +61,10 @@ for (const field of instanceFieldIds) {
   assert(new Set(values).size === 9, field + " values must be unique across all nine instances.");
 }
 for (const core of registry.fusion_core_instances) {
-  assert(core.execution_context_status === "NOT_IMPLEMENTED", "execution context status must remain honest.");
-  assert(core.state_boundary_status === "NOT_IMPLEMENTED", "state boundary status must remain honest.");
-  assert(core.evidence_trail_status === "NOT_IMPLEMENTED", "evidence trail status must remain honest.");
-  assert(core.fault_containment_status === "NOT_IMPLEMENTED", "fault containment status must remain honest.");
+  assert(core.execution_context_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "execution context status must distinguish prototype from production.");
+  assert(core.state_boundary_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "state boundary status must distinguish prototype from production.");
+  assert(core.evidence_trail_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "evidence trail status must distinguish prototype from production.");
+  assert(core.fault_containment_status === "PROTOTYPE_IMPLEMENTED_PRODUCTION_NOT_IMPLEMENTED", "fault containment status must distinguish prototype from production.");
 }
 for (let index = 0; index < registry.fusion_core_instances.length; index += 1) {
   const core = registry.fusion_core_instances[index];
