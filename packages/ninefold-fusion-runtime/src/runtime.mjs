@@ -76,6 +76,10 @@ export class NinefoldFusionRuntime {
     this.instances.set(instanceId, entry);
 
     child.on("message", (message) => {
+      if (message?.type === "startup-error") {
+        entry.readyReject?.(new Error("Instance " + instanceId + " startup failed: " + message.error));
+        return;
+      }
       if (message?.type === "ready") {
         entry.pid = message.pid;
         entry.status = "READY";
