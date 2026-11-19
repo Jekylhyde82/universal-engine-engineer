@@ -34,6 +34,11 @@ function publicUrl(url) {
   return url.origin + url.pathname;
 }
 
+function finiteNumber(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
 function observationScript() {
   const candidates = Array.from(document.querySelectorAll(
     'button,a[href],input,textarea,select,[role="button"],[role="link"],[role="checkbox"],[role="radio"]'
@@ -80,6 +85,7 @@ function observationScript() {
     });
   }
   return {
+    url: window.location.href,
     title: String(document.title || "").slice(0, 200),
     viewport: { width: window.innerWidth, height: window.innerHeight },
     elements: visible,
@@ -179,6 +185,7 @@ export function createBrowserAdapter({
       application_origin: currentUrl.origin,
     });
     if (observationConsent !== true) throw new Error("Trusted user consent was not granted for observation.");
+    if (page.url() !== currentUrl.href) throw new Error("Browser page changed while consent was pending.");
     if (includeScreenshot) {
       const visualConsent = await requestConsent({
         purpose: "VISUAL_FRAME_CAPTURE",
@@ -186,20 +193,22 @@ export function createBrowserAdapter({
         application_origin: currentUrl.origin,
       });
       if (visualConsent !== true) throw new Error("Separate trusted visual consent was not granted.");
+      if (page.url() !== currentUrl.href) throw new Error("Browser page changed while visual consent was pending.");
     }
     const snapshot = await page.evaluate(observationScript);
-    if (!snapshot || !Array.isArray(snapshot.elements)) {
-      throw new Error("Browser observation could not be acquired.");
+    if (!snapshot || !Array.isArray(snapshot.elements) ||
+        snapshot.url !== currentUrl.href || page.url() !== currentUrl.href) {
+      throw new Error("Browser observation is stale or page context changed during capture.");
     }
     const elements = snapshot.elements.slice(0, MAX_ELEMENTS).map((element, index) => ({
       element_id: "element-" + index,
       role: String(element.role || "unknown").slice(0, 32),
       label: String(element.label || "").slice(0, 160),
       geometry: {
-        x: Number(element.x) || 0,
-        y: Number(element.y) || 0,
-        width: Number(element.width) || 0,
-        height: Number(element.height) || 0,
+        x: finiteNumber(element.x),
+        y: finiteNumber(element.y),
+        width: Math.max(0, finiteNumber(element.width)),
+        height: Math.max(0, finiteNumber(element.height)),
       },
       disabled: element.disabled === true,
       tag: String(element.tag || "unknown").slice(0, 16),
@@ -209,6 +218,9 @@ export function createBrowserAdapter({
     const visualFrame = includeScreenshot
       ? await page.screenshot({ type: "png", timeout: navigationTimeoutMs })
       : null;
+    if (page.url() !== currentUrl.href) {
+      throw new Error("Browser page changed during visual capture.");
+    }
     if (visualFrame && visualFrame.length > MAX_SCREENSHOT_BYTES) {
       throw new Error("Visual frame exceeds the 5 MiB limit.");
     }
@@ -251,7 +263,7 @@ export function createBrowserAdapter({
     purgeObservations(now);
     observations.set(observationId, {
       publicObservation: observation,
-      pageUrl: page.url(),
+      pageUrl: currentUrl.href,
       expiresAt: expiry,
     });
     return observation;
