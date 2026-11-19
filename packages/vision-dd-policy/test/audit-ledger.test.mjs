@@ -100,3 +100,14 @@ test("audit ledger rejects blank complete records instead of silently skipping t
     await assert.rejects(() => ledger.verifyIntegrity(), /blank record/i);
   });
 });
+
+test("audit ledger rejects non-canonical JSON record encodings", async () => {
+  await withTempDir(async (directory) => {
+    const path = join(directory, "events.jsonl");
+    const ledger = new FileActionAuditLedger(path);
+    await ledger.append({ event_type: "ACTION_PROPOSED", action_id: "a-1" });
+    const bytes = await readFile(path, "utf8");
+    await writeFile(path, " " + bytes);
+    await assert.rejects(() => ledger.verifyIntegrity(), /non-canonical/i);
+  });
+});
