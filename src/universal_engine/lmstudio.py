@@ -62,6 +62,13 @@ def _validate_base_url(base_url: str) -> str:
     return f"http://{parsed.netloc}"
 
 
+class _NoRedirectHandler(HTTPRedirectHandler):
+    """Reject redirects so bearer credentials cannot be forwarded elsewhere."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 class LMStudioClient:
     """Read-only client for GET /api/v1/models."""
 
