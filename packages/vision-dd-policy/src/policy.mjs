@@ -104,12 +104,13 @@ export async function evaluateAction({
     if (!Number.isFinite(now)) return deny("INVALID_CLOCK");
     if (requestedAt > now + 30_000) return deny("REQUEST_FROM_FUTURE");
     if (expiresAt <= now || expiresAt <= requestedAt) return deny("REQUEST_EXPIRED");
-    if (expiresAt - requestedAt > policy.maxRequestTtlMs) return deny("REQUEST_TTL_EXCEEDED");
-
     if (!isPlainObject(policy) || typeof policy.version !== "string" ||
-        !Array.isArray(policy.allowedApplications) || !isPlainObject(policy.actionRisk)) {
+        !Array.isArray(policy.allowedApplications) || !isPlainObject(policy.actionRisk) ||
+        !Number.isSafeInteger(policy.maxRequestTtlMs) || policy.maxRequestTtlMs < 1 ||
+        !Number.isSafeInteger(policy.maxApprovalTtlMs) || policy.maxApprovalTtlMs < 1) {
       return deny("POLICY_CONFIGURATION_INVALID");
     }
+    if (expiresAt - requestedAt > policy.maxRequestTtlMs) return deny("REQUEST_TTL_EXCEEDED");
     if (!policy.allowedApplications.includes(request.target_application)) {
       return deny("APPLICATION_NOT_ALLOWLISTED");
     }
@@ -152,7 +153,10 @@ export async function evaluateAction({
     const approvalIssuedAt = parseTime(approval.issued_at, "approval.issued_at");
     const approvalExpiresAt = parseTime(approval.expires_at, "approval.expires_at");
     if (approvalIssuedAt > now + 30_000 || approvalExpiresAt <= now ||
-        approvalExpiresAt <= approvalIssuedAt) return deny("APPROVAL_EXPIRED_OR_INVALID_TIME");
+        approvalExpiresAt <= approvalIssuedAt ||
+        approvalExpiresAt - approvalIssuedAt > policy.maxApprovalTtlMs) {
+      return deny("APPROVAL_EXPIRED_OR_INVALID_TIME");
+    }
     if (approval.action_digest !== actionDigest ||
         approval.task_id !== request.task_id ||
         approval.actor_id !== request.actor_id ||
