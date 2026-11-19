@@ -40,7 +40,7 @@ G0 source identity; G1 licence and provenance; G2 maintenance and compatibility;
 4. Add isolated proof-of-capability runners only after policy and sandbox enforcement are independently established.
 
 
-## v0.2 hardening in progress
+## v0.2 hardening in review
 
 - Imported records are validated as a complete batch; invalid imports are rejected without partial writes.
 - Repository links are restricted to canonical HTTPS `github.com/owner/repository` URLs.
@@ -53,3 +53,8 @@ G0 source identity; G1 licence and provenance; G2 maintenance and compatibility;
 ## Remaining production blockers
 
 This remains a client-side discovery tool. It has no authenticated provider adapter, server-side durable database, repository-content inspection service, licence analysis, dependency/advisory scanner, sandboxed runner, identity/approval service, audit log, monitoring, backup/restore service or independent security review. Do not use it to execute or integrate third-party code. Production approval remains blocked until these controls are implemented and independently tested.
+
+
+### CI evidence
+
+The GitHub Actions static smoke-test workflow passed **5 tests, 0 failures, 0 skips** on commit `b5bf033b1330e6a0ce0c24f12f8a7f2bc85e0e9e`. The tests compile the embedded script and check selected security invariants. They do not replace browser end-to-end testing, penetration testing or independent security review.
