@@ -907,7 +907,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-01",
+      "state_namespace": "STATE-UMIC-01",
+      "evidence_stream_id": "EVIDENCE-UMIC-01",
+      "fault_domain_id": "FAULT-UMIC-01",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-02",
@@ -917,7 +925,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-02",
+      "state_namespace": "STATE-UMIC-02",
+      "evidence_stream_id": "EVIDENCE-UMIC-02",
+      "fault_domain_id": "FAULT-UMIC-02",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-03",
@@ -927,7 +943,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-03",
+      "state_namespace": "STATE-UMIC-03",
+      "evidence_stream_id": "EVIDENCE-UMIC-03",
+      "fault_domain_id": "FAULT-UMIC-03",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-04",
@@ -937,7 +961,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-04",
+      "state_namespace": "STATE-UMIC-04",
+      "evidence_stream_id": "EVIDENCE-UMIC-04",
+      "fault_domain_id": "FAULT-UMIC-04",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-05",
@@ -947,7 +979,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-05",
+      "state_namespace": "STATE-UMIC-05",
+      "evidence_stream_id": "EVIDENCE-UMIC-05",
+      "fault_domain_id": "FAULT-UMIC-05",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-06",
@@ -957,7 +997,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-06",
+      "state_namespace": "STATE-UMIC-06",
+      "evidence_stream_id": "EVIDENCE-UMIC-06",
+      "fault_domain_id": "FAULT-UMIC-06",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-07",
@@ -967,7 +1015,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-07",
+      "state_namespace": "STATE-UMIC-07",
+      "evidence_stream_id": "EVIDENCE-UMIC-07",
+      "fault_domain_id": "FAULT-UMIC-07",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-08",
@@ -977,7 +1033,15 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-08",
+      "state_namespace": "STATE-UMIC-08",
+      "evidence_stream_id": "EVIDENCE-UMIC-08",
+      "fault_domain_id": "FAULT-UMIC-08",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     },
     {
       "id": "FUSION-CORE-UMIC-09",
@@ -987,7 +1051,26 @@
       "engine_slots": 9,
       "top_level_entity": false,
       "membership_status": "STRUCTURE_DEFINED_SOURCE_LINEAGE_MAPPING_PENDING",
-      "runtime_status": "NOT_IMPLEMENTED"
+      "runtime_status": "NOT_IMPLEMENTED",
+      "execution_context_id": "EXEC-UMIC-09",
+      "state_namespace": "STATE-UMIC-09",
+      "evidence_stream_id": "EVIDENCE-UMIC-09",
+      "fault_domain_id": "FAULT-UMIC-09",
+      "execution_context_status": "NOT_IMPLEMENTED",
+      "state_boundary_status": "NOT_IMPLEMENTED",
+      "evidence_trail_status": "NOT_IMPLEMENTED",
+      "fault_containment_status": "NOT_IMPLEMENTED"
     }
-  ]
+  ],
+  "instance_isolation_contract": {
+    "execution_context": "DEDICATED_SCOPED_CONTEXT_PER_INSTANCE",
+    "state_boundary": "INSTANCE_LOCAL_STATE_WITH_GOVERNED_CROSS_INSTANCE_CONTRACTS_ONLY",
+    "evidence_trail": "INSTANCE_SCOPED_APPEND_ONLY_EVIDENCE_STREAM",
+    "fault_containment": "INSTANCE_SCOPED_FAULT_DOMAIN_WITH_BOUNDED_DEGRADATION",
+    "shared_logic": "ONE_VERSIONED_CANONICAL_AFIPRIME_FUNCTION_IDENTITY",
+    "shared_governance": "ONE_CANONICAL_GOVERNANCE_POLICY_WITH_INSTANCE_SCOPED_ENFORCEMENT",
+    "shared_mutable_state": false,
+    "implicit_permission_inheritance": false,
+    "implementation_status": "REQUIRED_NOT_IMPLEMENTED"
+  }
 }
