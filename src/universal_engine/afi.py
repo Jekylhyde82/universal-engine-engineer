@@ -45,9 +45,12 @@ class AFIPrimeFusionAdapter:
 
     @staticmethod
     def fuse_model(model: Any) -> AFIModelCapabilityProfile:
-        required = ("key", "display_name", "model_type")
+        required = ("display_name", "model_type")
         if any(not hasattr(model, field) for field in required):
             raise ValueError("AFI PRIME requires a validated LM Studio model record")
+        key_value = getattr(model, "key", getattr(model, "model_id", None))
+        if not isinstance(key_value, str) or not key_value:
+            raise ValueError("AFI PRIME requires a stable model key")
         facts: set[str] = set()
         if model.model_type == "llm":
             facts.add("language_model")
@@ -78,7 +81,7 @@ class AFIPrimeFusionAdapter:
             facts.add("local_catalog_availability")
         if "cloud" in availability:
             facts.add("cloud_catalog_availability")
-        key = str(model.key)
+        key = key_value
         is_public_catalog = model.model_type in {"catalog_model", "catalog_candidate"}
         return AFIModelCapabilityProfile(
             profile_id="afi_model_" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:20],
