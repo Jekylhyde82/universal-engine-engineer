@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { generateKeyPairSync } from "node:crypto";
@@ -190,4 +190,19 @@ test("consequential grant cannot be issued without verified human approval", () 
     decision: { ...decision(request), risk_class: "R3", reason: "ALLOWLISTED_LOW_RISK_ACTION" },
     privateKeyPem, now,
   }), /human approval/i);
+});
+
+test("nonce ledger refuses directories with group or world permissions", async () => {
+  await withTempDir(async (directory) => {
+    await chmod(directory, 0o755);
+    const ledger = new FileNonceLedger(join(directory, "nonces.jsonl"));
+    await assert.rejects(() => ledger.consume("nonce-1"), /private 0700/i);
+  });
+});
+
+test("nonce ledger fails closed before exceeding its configured size limit", async () => {
+  await withTempDir(async (directory) => {
+    const ledger = new FileNonceLedger(join(directory, "nonces.jsonl"), { maxLedgerBytes: 128 });
+    await assert.rejects(() => ledger.consume("nonce-1"), /size limit/i);
+  });
 });
