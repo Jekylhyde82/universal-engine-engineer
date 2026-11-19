@@ -113,6 +113,9 @@ export class FileNonceLedger {
       try { record = JSON.parse(line); } catch {
         throw new Error("Nonce ledger contains an invalid complete record.");
       }
+      if (JSON.stringify(record) !== line) {
+        throw new Error("Nonce ledger record encoding is non-canonical.");
+      }
       validateRecord(record, previousHash);
       if (seen.has(record.nonce)) throw new Error("Nonce ledger contains a duplicate nonce.");
       seen.add(record.nonce);
