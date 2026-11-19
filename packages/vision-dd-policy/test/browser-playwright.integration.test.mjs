@@ -88,12 +88,9 @@ test("real Chromium observes with consent and performs one signed allowlisted na
       publicKeyPem,
       policyVersion: "integration-policy",
       grantNonceLedger: { consume: async () => true },
+      requestConsent: async () => true,
     });
-    const observation = await adapter.observe({
-      userConsent: true,
-      includeScreenshot: true,
-      visualConsent: true,
-    });
+    const observation = await adapter.observe({ includeScreenshot: true });
     assert.equal(observation.application_identity, origin);
     assert.equal(observation.visual_frame.mime_type, "image/png");
     assert.equal(JSON.stringify(observation).includes("never-export-this-value"), false);
@@ -102,7 +99,7 @@ test("real Chromium observes with consent and performs one signed allowlisted na
     const now = Date.now();
     const request = makeRequest({ origin, observationId: observation.observation_id, now });
     const grant = makeGrant(request, privateKeyPem, now);
-    const result = await adapter.execute({ request, grant, userConsent: true });
+    const result = await adapter.execute({ request, grant });
     assert.equal(result.execution_state, "AWAITING_VERIFICATION");
     assert.equal(result.verified, false);
     assert.equal(page.url(), origin + "/done");
@@ -119,8 +116,9 @@ test("real Chromium blocks a redirect outside the configured origin allowlist", 
       publicKeyPem,
       policyVersion: "integration-policy",
       grantNonceLedger: { consume: async () => true },
+      requestConsent: async () => true,
     });
-    const observation = await adapter.observe({ userConsent: true });
+    const observation = await adapter.observe();
     const now = Date.now();
     const request = makeRequest({
       origin, observationId: observation.observation_id, now, path: "/redirect",
