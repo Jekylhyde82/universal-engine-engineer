@@ -153,10 +153,19 @@ export function createBrowserAdapter({
         socketUrl.hash = "";
         safePageUrl(socketUrl.href, origins);
         const upstream = webSocketRoute.connectToServer();
-        const connection = { client: webSocketRoute, upstream };
+        const connection = { client: webSocketRoute, upstream, closing: false };
         activeWebSockets.add(connection);
-        webSocketRoute.onClose(() => activeWebSockets.delete(connection));
-        upstream.onClose(() => activeWebSockets.delete(connection));
+        const closePeer = async (peer, code, reason) => {
+          if (connection.closing) return;
+          connection.closing = true;
+          activeWebSockets.delete(connection);
+          const options = {};
+          if (Number.isInteger(code)) options.code = code;
+          if (typeof reason === "string") options.reason = reason;
+          await peer.close(Object.keys(options).length ? options : undefined).catch(() => {});
+        };
+        webSocketRoute.onClose((code, reason) => closePeer(upstream, code, reason));
+        upstream.onClose((code, reason) => closePeer(webSocketRoute, code, reason));
       } catch {
         return webSocketRoute.close({ code: 1008, reason: "WebSocket origin not allowlisted" });
       }
