@@ -6,6 +6,7 @@ model safety, compatibility, or approval to integrate.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
 from typing import Any
 
 
@@ -45,11 +46,17 @@ class AFIPrimeFusionAdapter:
             facts.add("text_embedding")
         elif model.model_type == "decision":
             facts.add("decision_model")
+        elif model.model_type == "catalog_model":
+            facts.add("catalog_model")
         capabilities = getattr(model, "capabilities", None) or {}
         if capabilities.get("vision") is True:
             facts.add("vision_input")
         if capabilities.get("trained_for_tool_use") is True:
             facts.add("tool_use_training")
+        if capabilities.get("tool_use") is True:
+            facts.add("tool_use_listed_in_catalog")
+        if capabilities.get("reasoning") is True:
+            facts.add("reasoning_listed_in_catalog")
         reasoning = getattr(model, "reasoning", None)
         if isinstance(reasoning, dict) and reasoning:
             facts.add("reasoning_configuration_exposed")
@@ -58,8 +65,9 @@ class AFIPrimeFusionAdapter:
         if getattr(model, "loaded_instances", ()):
             facts.add("currently_loaded_instance")
         key = str(model.key)
+        is_public_catalog = model.model_type == "catalog_model"
         return AFIModelCapabilityProfile(
-            profile_id="afi_model_" + key.replace("/", "_"),
+            profile_id="afi_model_" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:20],
             model_key=key,
             display_name=str(model.display_name),
             publisher=getattr(model, "publisher", None),
@@ -71,8 +79,14 @@ class AFIPrimeFusionAdapter:
             max_context_length=getattr(model, "max_context_length", None),
             format=getattr(model, "format", None),
             capability_facts=tuple(sorted(facts)),
-            evidence_source="LM Studio native REST API v1 model inventory",
-            evidence_class="PUBLISHER_REPORTED_METADATA",
+            evidence_source=(
+                "LM Studio public Model Catalog page" if is_public_catalog
+                else "LM Studio native REST API v1 model inventory"
+            ),
+            evidence_class=(
+                "PUBLISHER_REPORTED_CATALOG_METADATA" if is_public_catalog
+                else "PUBLISHER_REPORTED_METADATA"
+            ),
             evaluation_state="METADATA_ONLY_NOT_BENCHMARKED",
             performance_verified=False,
             integration_approved=False,
