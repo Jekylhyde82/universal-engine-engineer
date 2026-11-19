@@ -12,6 +12,7 @@ uaie = "universal_engine.uaie:main"
 uaie-lmstudio-catalog = "universal_engine.lmstudio_catalog:main"
 uaie-lmstudio-status = "universal_engine.lmstudio_catalog:status_main"
 uaie-lmstudio-inventory = "universal_engine.lmstudio:main"
+uaie-lmstudio-model-yaml = "universal_engine.lmstudio_catalog:model_yaml_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
