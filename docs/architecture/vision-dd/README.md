@@ -46,10 +46,11 @@ This specification and prototype do not claim live access to the user's camera, 
 | Browser execution | Navigation only; grant, trusted consent-provider and fresh-observation gated; real Chromium integration tested against local fixture |
 | Browser network-origin restriction | Implemented in adapter via request interception; external redirect blocked in real Chromium integration test |
 | Independent readback verification primitive | Implemented; signed evidence contract only |
+| Governed action orchestrator | Implemented; requires injected durable audit writer |
 | Real independent verifier provider | Not implemented |
 | Production Chromium host/launcher | Not implemented; local-fixture Chromium integration tests pass |
 | Production identity provider and key management | Not implemented |
-| Durable externally anchored audit evidence | Not implemented |
+| Durable externally anchored action audit evidence | Not implemented; orchestrator refuses to proceed when injected audit append fails |
 | AFI PRIME runtime integration | Not implemented |
 | EB9PRIME governed persistence | Not implemented |
 | Android runtime and OS permission integration | Not implemented |
