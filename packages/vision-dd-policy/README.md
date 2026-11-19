@@ -15,6 +15,7 @@ Node.js reference package for deterministic policy evaluation, signed execution 
 - Grant scope binding to actor, task, action, application and session.
 - Local append-only hash-chained nonce ledger and action audit ledger, with exclusive locking, fsync, partial-tail recovery, restrictive permission checks, bounded storage and atomic duplicate action-ID claims.
 - Authenticated policy-grant HTTP service that refuses to start without injected authentication, approval-verification and durable approval-nonce consumption providers, and validates its Ed25519 signing key at startup.
+- Provider-configured RS256 JWT bearer authentication adapter with exact issuer/audience validation, HTTPS JWKS retrieval, bounded key-set parsing, RSA-2048 minimum, key caching/rotation refresh, unknown-key refresh throttling, token freshness checks and fail-closed behaviour.
 - Consent-provider-gated Playwright page adapter for bounded semantic observation and optional screenshot capture.
 - Strict browser request-origin allowlisting, stale-observation rejection, one-action-at-a-time execution, stop control and navigation-only action support.
 - Signed readback verifier that refuses to trust the executor's own assertion.
@@ -39,6 +40,32 @@ This is not a complete runtime or production security boundary.
 - DOM labels are untrusted page data. A trusted consent-provider callback is mandatory for observation, screenshot capture and action execution. Screenshot capture requires separate visual consent and is not redacted; the adapter does not persist screenshots. The production host must create a dedicated browser context with `serviceWorkers: "block"` and a private isolated profile.
 - The signed readback verifier is a verification primitive. A separate authenticated read-only verifier process/provider is not yet implemented.
 - No Android app, MediaProjection/accessibility service, AFI PRIME runtime integration or EB9PRIME governed persistence runtime is included.
+
+
+## Configured JWT bearer authentication adapter
+
+The package exports `createJwtBearerAuthenticator` from `@ninefold/vision-dd-policy/auth`. It verifies RS256 bearer tokens against a fixed HTTPS JWKS endpoint and requires exact configured issuer and audience values. It rejects unsupported JWT header fields/algorithms, private JWK material, undersized RSA keys, stale/future tokens, wrong issuers/audiences and untrusted key IDs. JWKS responses are bounded, redirects are rejected, keys are cached and unknown-key refreshes are throttled.
+
+This is a provider-neutral verification adapter, not a selected or provisioned identity provider. Production still requires:
+- selecting and configuring the actual identity provider and tenant;
+- validating its access-token claim profile and actor lifecycle;
+- provider-side MFA and account recovery controls;
+- production TLS/network controls and monitoring;
+- key rotation/revocation drills and independent security review.
+
+Example configuration (replace all values with the selected provider's published metadata; never infer them):
+
+```js
+import { createJwtBearerAuthenticator } from "@ninefold/vision-dd-policy/auth";
+
+const authenticateActor = createJwtBearerAuthenticator({
+  issuer: process.env.IDENTITY_ISSUER,
+  audience: process.env.IDENTITY_AUDIENCE,
+  jwksUrl: process.env.IDENTITY_JWKS_URL,
+});
+```
+
+The policy service must also receive a trusted approval-signature verifier and durable approval nonce ledger. A valid JWT authenticates an actor; it does not grant permission to perform an action.
 
 ## Local supervised browser host
 
