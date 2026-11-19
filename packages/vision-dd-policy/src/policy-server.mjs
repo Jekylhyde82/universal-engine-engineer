@@ -1,4 +1,5 @@
 import { createServer as createHttpServer } from "node:http";
+import { createPrivateKey } from "node:crypto";
 import { evaluateAction } from "./policy.mjs";
 import { createGrant } from "./grant.mjs";
 
@@ -72,10 +73,22 @@ export function createServer({
   if (!policy || typeof policy !== "object" ||
       typeof privateKeyPem !== "string" || !privateKeyPem.trim() ||
       typeof authenticateActor !== "function" ||
+      typeof verifyApproval !== "function" ||
+      typeof approvalNonceLedger?.consume !== "function" ||
       typeof clock !== "function" ||
       !Number.isSafeInteger(maxBodyBytes) || maxBodyBytes < 1 ||
       !Number.isSafeInteger(grantTtlMs) || grantTtlMs < 1 || grantTtlMs > 30_000) {
-    throw new TypeError("Policy service configuration is incomplete or invalid.");
+    throw new TypeError("Policy service requires policy, Ed25519 signing key, authentication, approval verification, durable approval nonce consumption and valid limits.");
+  }
+
+  let signingKey;
+  try {
+    signingKey = createPrivateKey(privateKeyPem);
+  } catch {
+    throw new TypeError("Policy service signing key is invalid.");
+  }
+  if (signingKey.asymmetricKeyType !== "ed25519") {
+    throw new TypeError("Policy service requires an Ed25519 signing key.");
   }
 
   const server = createHttpServer(async (request, response) => {
