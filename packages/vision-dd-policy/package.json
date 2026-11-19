@@ -6,9 +6,12 @@
   "description": "Deterministic policy evaluation core for V.I.S.I.O.N. and DESIGNATED DRIVER.",
   "scripts": {
     "test": "node --test",
-    "check": "for file in src/*.mjs; do node --check \"$file\"; done"
+    "check": "for file in src/*.mjs test/*.mjs; do node --check \"$file\"; done"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
   }
 }
