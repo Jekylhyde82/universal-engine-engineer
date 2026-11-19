@@ -57,10 +57,11 @@ print(build_download_command(candidate))  # proposal only; does not execute
 A reviewed candidate can also be imported from a local JSON file:
 
 ```bash
-python -m universal_engine.lmstudio_catalog candidate.json --db uaie.sqlite3
+pip install -e .
+uaie-lmstudio-catalog candidate.json --db uaie.sqlite3
 ```
 
-The CLI creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
+The installed `uaie-lmstudio-catalog` command creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. The core engine is also available as `uaie`. After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
 
 ## Universal Capability Acquisition Register
 
