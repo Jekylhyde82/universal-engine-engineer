@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from universal_engine.uaie import UAIEError, UniversalAssimilationEngine
+from universal_engine.uaie import (UAIEError, UniversalAcquisitionEngine,\n                                    UniversalAssimilationEngine)
 
 
 class UAIETests(unittest.TestCase):
@@ -84,6 +84,13 @@ class UAIETests(unittest.TestCase):
         record = self.engine.ingest_object({"tool": "example", "enabled": False})
         self.assertEqual(record.category, "structured_data")
         self.assertIn('"tool"', self.engine.export_record(record.record_id)["content"])
+
+
+    def test_canonical_engine_name_and_legacy_alias(self):
+        self.assertIs(UniversalAssimilationEngine, UniversalAcquisitionEngine)
+        canonical = UniversalAcquisitionEngine(self.db)
+        self.assertEqual(canonical.ingest_text("canonical", "canonical.txt").state,
+                         "assimilated")
 
 
     def test_capability_register_preserves_original_idea_and_required_fields(self):
