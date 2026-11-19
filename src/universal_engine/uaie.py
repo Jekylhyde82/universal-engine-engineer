@@ -36,6 +36,23 @@ class UAIEError(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
+class AcquisitionRegisterEntry:
+    acquisition_id: str
+    record_id: str
+    original_idea_value: str
+    potential_market_value: str
+    revenue_models: tuple[str, ...]
+    development_timeline: str
+    development_cost: str
+    integration_cost: str
+    risk_assessment: str
+    evidence_verification_status: str
+    lifecycle_status: str
+    created_at: str
+    updated_at: str
+
+
+@dataclass(frozen=True, slots=True)
 class AssimilationRecord:
     record_id: str
     content_hash: str
@@ -94,6 +111,7 @@ class UniversalAcquisitionIntegrationEngine:
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.database)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys=ON")
         return conn
 
     def _init_db(self) -> None:
@@ -116,6 +134,23 @@ class UniversalAcquisitionIntegrationEngine:
             )""")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_source ON assimilations(source)")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_state ON assimilations(state)")
+            db.execute("""CREATE TABLE IF NOT EXISTS acquisition_register (
+                acquisition_id TEXT PRIMARY KEY,
+                record_id TEXT NOT NULL UNIQUE REFERENCES assimilations(record_id),
+                original_idea_value TEXT NOT NULL,
+                potential_market_value TEXT NOT NULL,
+                revenue_models_json TEXT NOT NULL,
+                development_timeline TEXT NOT NULL,
+                development_cost TEXT NOT NULL,
+                integration_cost TEXT NOT NULL,
+                risk_assessment TEXT NOT NULL,
+                evidence_verification_status TEXT NOT NULL,
+                lifecycle_status TEXT NOT NULL CHECK(lifecycle_status IN
+                  ('discovered','proposed','under_evaluation','approved','integrated','rejected','retired')),
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )""")
+            db.execute("CREATE INDEX IF NOT EXISTS idx_acquisition_lifecycle ON acquisition_register(lifecycle_status)")
 
     def ingest_bytes(self, content: bytes, source: str, media_type: str | None = None) -> AssimilationRecord:
         if not isinstance(content, bytes):
@@ -236,6 +271,92 @@ class UniversalAcquisitionIntegrationEngine:
             db.execute("UPDATE assimilations SET state=? WHERE record_id=?", (state, record_id))
             updated = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         return self._row_to_record(updated)
+
+    @staticmethod
+    def _row_to_acquisition(row: sqlite3.Row) -> AcquisitionRegisterEntry:
+        return AcquisitionRegisterEntry(
+            acquisition_id=row["acquisition_id"], record_id=row["record_id"],
+            original_idea_value=row["original_idea_value"],
+            potential_market_value=row["potential_market_value"],
+            revenue_models=tuple(json.loads(row["revenue_models_json"])),
+            development_timeline=row["development_timeline"],
+            development_cost=row["development_cost"], integration_cost=row["integration_cost"],
+            risk_assessment=row["risk_assessment"],
+            evidence_verification_status=row["evidence_verification_status"],
+            lifecycle_status=row["lifecycle_status"], created_at=row["created_at"],
+            updated_at=row["updated_at"])
+
+    def register_acquisition(self, record_id: str, *, original_idea_value: str,
+                             potential_market_value: str = "NOT_ASSESSED",
+                             revenue_models: Iterable[str] = (),
+                             development_timeline: str = "NOT_ASSESSED",
+                             development_cost: str = "NOT_ASSESSED",
+                             integration_cost: str = "NOT_ASSESSED",
+                             risk_assessment: str = "PENDING",
+                             evidence_verification_status: str = "UNVERIFIED") -> AcquisitionRegisterEntry:
+        """Create the intrinsic capability-acquisition register entry for a UAIE record."""
+        text_fields = {
+            "original_idea_value": original_idea_value,
+            "potential_market_value": potential_market_value,
+            "development_timeline": development_timeline,
+            "development_cost": development_cost,
+            "integration_cost": integration_cost,
+            "risk_assessment": risk_assessment,
+            "evidence_verification_status": evidence_verification_status,
+        }
+        for field, value in text_fields.items():
+            if not isinstance(value, str) or not value.strip() or len(value) > 4000:
+                raise UAIEError(f"{field} must be a non-empty string of at most 4000 characters")
+        models = tuple(revenue_models)
+        if len(models) > 20 or any(not isinstance(x, str) or not x.strip() or len(x) > 256 for x in models):
+            raise UAIEError("revenue_models must contain at most 20 non-empty strings of at most 256 characters")
+        acquisition_id = "acq_" + hashlib.sha256(record_id.encode("utf-8")).hexdigest()[:20]
+        now = _now()
+        with self._connect() as db:
+            if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
+                raise UAIEError(f"unknown assimilation record: {record_id}")
+            db.execute("""INSERT OR IGNORE INTO acquisition_register
+                (acquisition_id,record_id,original_idea_value,potential_market_value,revenue_models_json,
+                 development_timeline,development_cost,integration_cost,risk_assessment,
+                 evidence_verification_status,lifecycle_status,created_at,updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?, 'discovered',?,?)""",
+                (acquisition_id,record_id,original_idea_value.strip(),potential_market_value.strip(),
+                 json.dumps(models, ensure_ascii=False),development_timeline.strip(),development_cost.strip(),
+                 integration_cost.strip(),risk_assessment.strip(),evidence_verification_status.strip(),now,now))
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_acquisition(row)
+
+    def get_acquisition(self, record_id: str) -> AcquisitionRegisterEntry:
+        with self._connect() as db:
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        if row is None:
+            raise UAIEError(f"unknown acquisition register entry for record: {record_id}")
+        return self._row_to_acquisition(row)
+
+    def set_acquisition_lifecycle(self, record_id: str, new_status: str) -> AcquisitionRegisterEntry:
+        transitions = {
+            "discovered": {"proposed", "rejected"},
+            "proposed": {"under_evaluation", "rejected"},
+            "under_evaluation": {"approved", "rejected"},
+            "approved": {"integrated", "retired"},
+            "integrated": {"retired"}, "rejected": {"retired"}, "retired": set(),
+        }
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+            if row is None:
+                raise UAIEError(f"unknown acquisition register entry for record: {record_id}")
+            current = row["lifecycle_status"]
+            if new_status not in transitions.get(current, set()):
+                raise UAIEError(f"invalid acquisition lifecycle transition: {current} -> {new_status}")
+            if new_status == "integrated":
+                assimilation = db.execute("SELECT state FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
+                if assimilation is None or assimilation["state"] not in {"approved", "integrated"}:
+                    raise UAIEError("acquisition must be approved in the UAIE lifecycle before integration")
+            db.execute("UPDATE acquisition_register SET lifecycle_status=?,updated_at=? WHERE record_id=?",
+                       (new_status,_now(),record_id))
+            updated = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_acquisition(updated)
 
     def export_record(self, record_id: str) -> dict[str, Any]:
         with self._connect() as db:
