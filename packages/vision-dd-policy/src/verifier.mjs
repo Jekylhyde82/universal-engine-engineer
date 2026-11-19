@@ -8,6 +8,17 @@ const METHODS = new Set([
   "READ_ONLY_BROWSER_SESSION_QUERY",
   "AUTHORITATIVE_APPLICATION_STATE_API",
 ]);
+const MAX_FIELD_LENGTHS = {
+  schema_version: 32,
+  evidence_id: 256,
+  action_id: 256,
+  session_id: 256,
+  observed_url: 2048,
+  observed_at: 64,
+  verifier_id: 128,
+  source_adapter: 128,
+  evidence_method: 64,
+};
 
 function canonicalize(value) {
   if (value === null || typeof value === "string" || typeof value === "boolean") {
@@ -35,7 +46,11 @@ function exactPayload(payload) {
   const actual = Object.keys(payload).sort();
   const expected = [...READBACK_KEYS].sort();
   return actual.length === expected.length && actual.every((key, index) => key === expected[index]) &&
-    READBACK_KEYS.every((key) => typeof payload[key] === "string" && payload[key].trim().length > 0);
+    READBACK_KEYS.every((key) =>
+      typeof payload[key] === "string" &&
+      payload[key].trim().length > 0 &&
+      payload[key].length <= MAX_FIELD_LENGTHS[key]
+    );
 }
 
 /**
@@ -68,12 +83,19 @@ export function verifyNavigationReadback({
 }) {
   try {
     if (!execution || !request || !readback || !readback.payload ||
-        typeof readback.signature !== "string") return unknown("EVIDENCE_MISSING");
+        typeof readback.signature !== "string" || readback.signature.length > 256) {
+      return unknown("EVIDENCE_MISSING_OR_OVERSIZED");
+    }
     if (!["AWAITING_VERIFICATION", "UNKNOWN"].includes(execution.execution_state) ||
         execution.action_id !== request.action_id ||
         request.action_type !== "navigate" ||
+        typeof execution.executor !== "string" || execution.executor.length > 128 ||
+        typeof execution.completed_at !== "string" || execution.completed_at.length > 64 ||
+        typeof request.parameters?.url !== "string" || request.parameters.url.length > 2048 ||
+        typeof expectedVerifierId !== "string" || !expectedVerifierId.trim() || expectedVerifierId.length > 128 ||
+        typeof verifierPublicKeyPem !== "string" || verifierPublicKeyPem.length > 4096 ||
         !Number.isSafeInteger(now) ||
-        !Number.isSafeInteger(maxEvidenceAgeMs) || maxEvidenceAgeMs < 1) {
+        !Number.isSafeInteger(maxEvidenceAgeMs) || maxEvidenceAgeMs < 1 || maxEvidenceAgeMs > 60_000) {
       return unknown("EXECUTION_OR_REQUEST_SCOPE_INVALID");
     }
     const payload = readback.payload;
