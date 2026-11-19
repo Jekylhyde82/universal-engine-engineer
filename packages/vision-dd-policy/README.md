@@ -14,11 +14,11 @@ Node.js reference package for deterministic policy evaluation, signed execution 
 - Ed25519 short-lived grant signing and verification.
 - Grant scope binding to actor, task, action, application and session.
 - Local append-only hash-chained nonce ledger and action audit ledger, with exclusive locking, fsync, partial-tail recovery, restrictive permission checks, bounded storage and atomic duplicate action-ID claims.
-- Authenticated policy-grant HTTP service with mandatory injected authentication and approval-verification functions.
+- Authenticated policy-grant HTTP service that refuses to start without injected authentication, approval-verification and durable approval-nonce consumption providers, and validates its Ed25519 signing key at startup.
 - Consent-provider-gated Playwright page adapter for bounded semantic observation and optional screenshot capture.
 - Strict browser request-origin allowlisting, stale-observation rejection, one-action-at-a-time execution, stop control and navigation-only action support.
 - Signed readback verifier that refuses to trust the executor's own assertion.
-- Governed action orchestrator that requires a durable audit writer, atomically claims task/action IDs, records each state transition before proceeding and will not execute if the audit append fails.
+- Governed action orchestrator that requires a durable audit writer, atomically claims task/action IDs, records each state transition before proceeding and will not execute if the audit append fails. Executor exceptions and timeouts after execution begins are recorded as UNKNOWN because side effects may already have occurred; they are never assumed to be clean failures or safe retries.
 - Automated Node.js tests in GitHub Actions, including real Chromium integration tests against a local fixture and CodeQL static analysis.
 
 ## Validation evidence
