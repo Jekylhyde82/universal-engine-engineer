@@ -41,6 +41,8 @@ class LMStudioCatalogCandidate:
     publisher: str | None
     architecture: str | None
     parameter_sizes: tuple[str, ...]
+    compatibility_types: tuple[str, ...]
+    format: str | None
     max_context: str | None
     minimum_memory: str | None
     availability: tuple[str, ...]
@@ -133,10 +135,13 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
     ):
         raise LMStudioCatalogError("capabilities must contain only supported boolean capability declarations")
     parameter_sizes = value.get("parameter_sizes", [])
+    compatibility_types = value.get("compatibility_types", [])
     availability = value.get("availability", [])
     artifact_links = value.get("artifact_links", [])
     if not isinstance(parameter_sizes, list) or any(not isinstance(x, str) or len(x) > 64 for x in parameter_sizes):
         raise LMStudioCatalogError("parameter_sizes must be an array of short strings")
+    if not isinstance(compatibility_types, list) or any(not isinstance(x, str) or len(x) > 64 for x in compatibility_types):
+        raise LMStudioCatalogError("compatibility_types must be an array of short strings")
     if not isinstance(availability, list) or any(x not in {"local", "cloud"} for x in availability):
         raise LMStudioCatalogError("availability may contain only local and cloud")
     if not isinstance(artifact_links, list) or len(artifact_links) > 50 or any(not isinstance(x, dict) for x in artifact_links):
@@ -163,6 +168,8 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
         publisher=_optional_text(value.get("publisher"), "publisher"),
         architecture=_optional_text(value.get("architecture"), "architecture"),
         parameter_sizes=tuple(parameter_sizes),
+        compatibility_types=tuple(compatibility_types),
+        format=_optional_text(value.get("format"), "format"),
         max_context=_optional_text(value.get("max_context"), "max_context"),
         minimum_memory=_optional_text(value.get("minimum_memory"), "minimum_memory"),
         availability=tuple(sorted(set(availability))),
@@ -273,6 +280,8 @@ def candidate_from_model_yaml(
         "publisher": model_id.split("/", 1)[0],
         "architecture": architectures[0] if architectures else None,
         "parameter_sizes": params,
+        "compatibility_types": compatibility,
+        "format": compatibility[0] if compatibility else None,
         "max_context": str(max(contexts)) if contexts else None,
         "minimum_memory": memory_text,
         "availability": [],
