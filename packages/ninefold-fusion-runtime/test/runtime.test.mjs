@@ -183,6 +183,28 @@ test("one instance process fault does not prevent peer instances from operating"
   });
 });
 
+test("a runtime evidence namespace has one active writer and releases its lock on clean close", async () => {
+  const root = await mkdtemp(join(tmpdir(), "ninefold-lock-"));
+  const options = {
+    evidenceRoot: root,
+    runtimeId: "exclusive-writer",
+    policyVersion: "POLICY-TEST-1",
+    authorizeInstanceAccess: async ({ actorId, instanceId }) => actorId === instanceId,
+  };
+  const first = await NinefoldFusionRuntime.create(options);
+  try {
+    await assert.rejects(
+      NinefoldFusionRuntime.create(options),
+      /already in use or has a stale lock/,
+    );
+  } finally {
+    await first.close();
+  }
+  const second = await NinefoldFusionRuntime.create(options);
+  await second.close();
+  await rm(root, { recursive: true, force: true });
+});
+
 test("a runtime restart reopens and appends to the same instance evidence stream", async () => {
   const root = await mkdtemp(join(tmpdir(), "ninefold-restart-"));
   const first = await NinefoldFusionRuntime.create({
