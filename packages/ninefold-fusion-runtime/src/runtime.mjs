@@ -11,6 +11,7 @@ export class NinefoldFusionRuntime {
   static async create({
     evidenceRoot,
     policyVersion = "NINEFOLD-POLICY-POC-1",
+    authorizeInstanceAccess,
     authorizeCrossInstance,
     requestTimeoutMs = 3_000,
     testMode = false,
@@ -25,6 +26,7 @@ export class NinefoldFusionRuntime {
     const runtime = new NinefoldFusionRuntime({
       evidenceRoot,
       policyVersion,
+      authorizeInstanceAccess,
       authorizeCrossInstance,
       requestTimeoutMs,
       testMode,
@@ -131,7 +133,7 @@ export class NinefoldFusionRuntime {
     entry.pending.clear();
   }
 
-  async request(instanceId, command) {
+  async #request(instanceId, command) {
     if (this.closed) throw new Error("Runtime is closed.");
     const entry = this.instances.get(instanceId);
     if (!entry || entry.status !== "READY" || !entry.child.connected) {
@@ -156,28 +158,35 @@ export class NinefoldFusionRuntime {
     });
   }
 
-  async health(instanceId) {
-    return this.request(instanceId, { type: "health" });
+  async openScope({ actorId, instanceId }) {
+    if (typeof actorId !== "string" || actorId.length === 0) {
+      throw new TypeError("An authenticated actor identity is required.");
+    }
+    const authorize = this.options.authorizeInstanceAccess;
+    const allowed = typeof authorize === "function" && await authorize({
+      actorId,
+      instanceId,
+      resource: "UMIC_INSTANCE_SCOPE",
+      policyVersion: this.options.policyVersion,
+    }) === true;
+    if (!allowed) throw new Error("Instance scope denied by shared governance.");
+
+    return Object.freeze({
+      instanceId,
+      health: () => this.#request(instanceId, { type: "health" }),
+      writeState: (key, value) => this.#request(instanceId, { type: "state.write", key, value }),
+      readState: (key) => this.#request(instanceId, { type: "state.read", key }),
+      getEvidence: () => this.#request(instanceId, { type: "evidence.list" }),
+    });
   }
 
-  async writeState(instanceId, key, value) {
-    return this.request(instanceId, { type: "state.write", key, value });
-  }
-
-  async readState(instanceId, key) {
-    return this.request(instanceId, { type: "state.read", key });
-  }
-
-  async getEvidence(instanceId) {
-    return this.request(instanceId, { type: "evidence.list" });
-  }
-
-  async crossInstanceRead({ sourceInstanceId, destinationInstanceId, key, purpose }) {
+  async crossInstanceRead({ actorId, sourceInstanceId, destinationInstanceId, key, purpose }) {
     if (sourceInstanceId === destinationInstanceId) throw new Error("Cross-instance access requires two different instances.");
     const authorize = this.options.authorizeCrossInstance;
     let allowed = false;
-    if (typeof authorize === "function") {
+    if (typeof authorize === "function" && typeof actorId === "string" && actorId.length > 0) {
       allowed = await authorize({
+        actorId,
         sourceInstanceId,
         destinationInstanceId,
         resource: "state.read",
@@ -187,7 +196,7 @@ export class NinefoldFusionRuntime {
       }) === true;
     }
 
-    await this.request(sourceInstanceId, {
+    await this.#request(sourceInstanceId, {
       type: "audit.marker",
       eventType: allowed ? "CROSS_INSTANCE_ACCESS_REQUESTED" : "CROSS_INSTANCE_ACCESS_DENIED",
       details: { sourceInstanceId, destinationInstanceId, resource: "state.read", key, purpose: purpose ?? null },
@@ -195,12 +204,12 @@ export class NinefoldFusionRuntime {
 
     if (!allowed) throw new Error("Cross-instance access denied by shared governance.");
 
-    await this.request(destinationInstanceId, {
+    await this.#request(destinationInstanceId, {
       type: "audit.marker",
       eventType: "CROSS_INSTANCE_ACCESS_AUTHORISED",
       details: { sourceInstanceId, destinationInstanceId, resource: "state.read", key, purpose: purpose ?? null },
     });
-    return this.readState(destinationInstanceId, key);
+    return this.#request(destinationInstanceId, { type: "state.read", key });
   }
 
   getStatuses() {
