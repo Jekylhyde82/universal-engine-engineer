@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -262,13 +263,19 @@ def download_model(
     """Start an official LM Studio download only after explicit caller approval."""
     if approved is not True:
         raise LMStudioError("explicit approval=True is required before any model download")
+    if api_token is not None and (not isinstance(api_token, str) or not api_token.strip()):
+        raise LMStudioError("API token, when supplied, must be a non-empty string")
     if not isinstance(model_reference, str) or not model_reference.strip():
         raise LMStudioError("model_reference is required")
     parsed_model_url = urllib.parse.urlsplit(model_reference)
     is_hf_url = parsed_model_url.scheme == "https" and parsed_model_url.hostname == "huggingface.co"
     if is_hf_url:
+        try:
+            model_port = parsed_model_url.port
+        except ValueError as exc:
+            raise LMStudioError("model_reference has an invalid port") from exc
         if (parsed_model_url.username or parsed_model_url.password or parsed_model_url.query
-                or parsed_model_url.fragment or parsed_model_url.port not in (None, 443)
+                or parsed_model_url.fragment or model_port not in (None, 443)
                 or not re.fullmatch(r"/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", parsed_model_url.path)):
             raise LMStudioError("model_reference must be a clean Hugging Face model URL")
     elif not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}", model_reference):
@@ -315,6 +322,10 @@ def get_download_status(
     """Read status for a previously approved download job."""
     if not isinstance(job_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", job_id):
         raise LMStudioError("invalid download job identifier")
+    if timeout <= 0 or timeout > 60:
+        raise LMStudioError("status timeout must be greater than 0 and no more than 60 seconds")
+    if api_token is not None and (not isinstance(api_token, str) or not api_token.strip()):
+        raise LMStudioError("API token, when supplied, must be a non-empty string")
     endpoint = _validated_endpoint(base_url)
     headers = {"Accept": "application/json"}
     if api_token:
