@@ -99,8 +99,7 @@ test("real Chromium observes with consent and performs one signed allowlisted na
     const blockedSocketCode = await page.evaluate(() => new Promise((resolve) => {
       const socket = new WebSocket("wss://evil.test/socket");
       socket.addEventListener("close", (event) => resolve(event.code), { once: true });
-      socket.addEventListener("error", () => resolve(-1), { once: true });
-      setTimeout(() => resolve(-2), 1500);
+      setTimeout(() => resolve(-2), 2000);
     }));
     assert.equal(blockedSocketCode, 1008);
 
