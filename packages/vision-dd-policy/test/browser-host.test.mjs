@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer as createHttpServer } from "node:http";
-import { mkdtemp, lstat, rm } from "node:fs/promises";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { generateKeyPairSync } from "node:crypto";
@@ -13,7 +13,7 @@ test("browser host launches isolated Chromium with service workers blocked and c
   const root = await mkdtemp(join(tmpdir(), "vision-dd-profile-root-"));
   const server = createHttpServer((_request, response) => {
     response.writeHead(200, { "content-type": "text/html" });
-    response.end("<!doctype html><title>host fixture</title><p>Ready</p>");
+    response.end('<!doctype html><title>host fixture</title><p>Ready</p><script>window.open("https://evil.test/popup", "_blank")</script>');
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const origin = "http://127.0.0.1:" + server.address().port;
@@ -23,6 +23,7 @@ test("browser host launches isolated Chromium with service workers blocked and c
   try {
     host = await launchBrowserHost({
       profileRoot: root,
+      initialUrl: origin,
       allowedOrigins: [origin],
       publicKeyPem,
       policyVersion: "host-policy",
@@ -30,18 +31,18 @@ test("browser host launches isolated Chromium with service workers blocked and c
       requestConsent: async () => true,
       headless: true,
     });
-    const profilePath = host.profilePath;
-    assert.equal((await lstat(profilePath)).isDirectory(), true);
-    assert.equal(host.context.serviceWorkers().length, 0);
-    await host.page.goto(origin);
+    const profileEntries = await readdir(root);
+    assert.equal(profileEntries.length, 1);
+    assert.equal(host.getStatus().service_worker_count, 0);
     const observation = await host.adapter.observe();
     assert.equal(observation.application_identity, origin);
-    await host.page.evaluate(() => window.open("https://evil.test/popup", "_blank"));
     await new Promise((resolve) => setTimeout(resolve, 100));
-    assert.equal(host.context.pages().length, 1);
+    assert.equal(host.getStatus().page_count, 1);
+    assert.equal("page" in host, false);
+    assert.equal("context" in host, false);
     await host.close();
     host = null;
-    await assert.rejects(() => lstat(profilePath), { code: "ENOENT" });
+    assert.deepEqual(await readdir(root), []);
   } finally {
     if (host) await host.close();
     await new Promise((resolve) => server.close(resolve));
@@ -56,6 +57,7 @@ test("browser host requires an explicit consent provider", async () => {
   try {
     await assert.rejects(() => launchBrowserHost({
       profileRoot: root,
+      initialUrl: "https://example.test",
       allowedOrigins: ["https://example.test"],
       publicKeyPem,
       policyVersion: "host-policy",
