@@ -114,6 +114,11 @@ process.on("message", async (message) => {
 });
 
 main().catch((error) => {
+  const reason = error?.message ?? "Instance startup failed.";
   process.stderr.write((error?.stack ?? String(error)) + "\n");
-  process.exit(72);
+  if (typeof process.send === "function" && process.connected) {
+    process.send({ type: "startup-error", instanceId, error: reason }, () => process.exit(72));
+  } else {
+    process.exit(72);
+  }
 });
