@@ -31,8 +31,7 @@ clones `model.yaml`, README and other metadata files without downloading model w
 After cloning, import the metadata:
 
 ```bash
-uaie-lmstudio-model-yaml model.yaml --db uaie.sqlite3 \\
-  --original-idea-value "Use UAIE PRIME and AFI PRIME to assimilate LM Studio model metadata."
+uaie-lmstudio-model-yaml model.yaml --db uaie.sqlite3 --original-idea-value "Use UAIE PRIME and AFI PRIME to assimilate LM Studio model metadata."
 ```
 
 This produces the UAIE assimilation record, AFI capability profile and acquisition-register entry. It preserves the original `model.yaml` metadata and maps the standard fields into the candidate profile. Model weights remain untouched.
