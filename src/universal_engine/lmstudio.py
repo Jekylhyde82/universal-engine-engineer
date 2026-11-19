@@ -27,6 +27,15 @@ class LMStudioError(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
+class LMStudioDownloadJob:
+    job_id: str | None
+    status: str
+    total_size_bytes: int | None
+    started_at: str | None
+    completed_at: str | None
+
+
+@dataclass(frozen=True, slots=True)
 class LMStudioModel:
     key: str
     display_name: str
@@ -214,6 +223,118 @@ def assimilate_catalog(
         afi_source = f"afi-prime://lm-studio-model-catalog/{quoted_key}"
         afi_records.append(engine.ingest_object(afi.to_record(profile), source=afi_source))
     return CatalogAssimilationResult(tuple(model_records), tuple(afi_records))
+
+
+
+def _parse_download_job(payload: Any) -> LMStudioDownloadJob:
+    if not isinstance(payload, dict):
+        raise LMStudioError("LM Studio download response must be an object")
+    status = payload.get("status")
+    if status not in {"downloading", "paused", "completed", "failed", "already_downloaded"}:
+        raise LMStudioError("LM Studio returned an unknown download status")
+    job_id = payload.get("job_id")
+    if job_id is not None and (not isinstance(job_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", job_id)):
+        raise LMStudioError("LM Studio returned an invalid download job identifier")
+    if status != "already_downloaded" and not job_id:
+        raise LMStudioError("LM Studio download response is missing its job identifier")
+    size = payload.get("total_size_bytes")
+    if size is not None and (isinstance(size, bool) or not isinstance(size, int) or size < 0):
+        raise LMStudioError("LM Studio returned an invalid total_size_bytes value")
+    started = payload.get("started_at")
+    completed = payload.get("completed_at")
+    if started is not None and not isinstance(started, str):
+        raise LMStudioError("LM Studio returned an invalid started_at value")
+    if completed is not None and not isinstance(completed, str):
+        raise LMStudioError("LM Studio returned an invalid completed_at value")
+    return LMStudioDownloadJob(job_id, status, size, started, completed)
+
+
+def download_model(
+    model_reference: str,
+    *,
+    approved: bool = False,
+    base_url: str = DEFAULT_BASE_URL,
+    api_token: str | None = None,
+    quantization: str | None = None,
+    timeout: float = 30.0,
+    opener: Callable[..., Any] | None = None,
+) -> LMStudioDownloadJob:
+    """Start an official LM Studio download only after explicit caller approval."""
+    if approved is not True:
+        raise LMStudioError("explicit approval=True is required before any model download")
+    if not isinstance(model_reference, str) or not model_reference.strip():
+        raise LMStudioError("model_reference is required")
+    parsed_model_url = urllib.parse.urlsplit(model_reference)
+    is_hf_url = parsed_model_url.scheme == "https" and parsed_model_url.hostname == "huggingface.co"
+    if is_hf_url:
+        if (parsed_model_url.username or parsed_model_url.password or parsed_model_url.query
+                or parsed_model_url.fragment or parsed_model_url.port not in (None, 443)
+                or not re.fullmatch(r"/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", parsed_model_url.path)):
+            raise LMStudioError("model_reference must be a clean Hugging Face model URL")
+    elif not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}", model_reference):
+        raise LMStudioError("model_reference must be a publisher/model identifier or exact Hugging Face model URL")
+    if quantization is not None:
+        if not is_hf_url or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}", quantization):
+            raise LMStudioError("quantization is supported here only with an exact Hugging Face model URL")
+    endpoint = _validated_endpoint(base_url)
+    if timeout <= 0 or timeout > 300:
+        raise LMStudioError("download timeout must be greater than 0 and no more than 300 seconds")
+    body: dict[str, Any] = {"model": model_reference}
+    if quantization is not None:
+        body["quantization"] = quantization
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
+    if api_token:
+        headers["Authorization"] = f"Bearer {api_token}"
+    request = urllib.request.Request(
+        endpoint + "/api/v1/models/download",
+        data=json.dumps(body, allow_nan=False).encode("utf-8"),
+        headers=headers, method="POST")
+    open_request = opener or urllib.request.urlopen
+    try:
+        with open_request(request, timeout=timeout) as response:
+            raw = response.read(1024 * 1024 + 1)
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        raise LMStudioError(f"LM Studio model download request failed: {type(exc).__name__}") from exc
+    if len(raw) > 1024 * 1024:
+        raise LMStudioError("LM Studio download response exceeds 1 MiB")
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise LMStudioError("LM Studio returned invalid download JSON") from exc
+    return _parse_download_job(payload)
+
+
+def get_download_status(
+    job_id: str,
+    *,
+    base_url: str = DEFAULT_BASE_URL,
+    api_token: str | None = None,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    opener: Callable[..., Any] | None = None,
+) -> LMStudioDownloadJob:
+    """Read status for a previously approved download job."""
+    if not isinstance(job_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", job_id):
+        raise LMStudioError("invalid download job identifier")
+    endpoint = _validated_endpoint(base_url)
+    headers = {"Accept": "application/json"}
+    if api_token:
+        headers["Authorization"] = f"Bearer {api_token}"
+    request = urllib.request.Request(
+        endpoint + "/api/v1/models/download/status/" + urllib.parse.quote(job_id, safe=""),
+        headers=headers, method="GET")
+    open_request = opener or urllib.request.urlopen
+    try:
+        with open_request(request, timeout=timeout) as response:
+            raw = response.read(1024 * 1024 + 1)
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        raise LMStudioError(f"LM Studio download status request failed: {type(exc).__name__}") from exc
+    if len(raw) > 1024 * 1024:
+        raise LMStudioError("LM Studio download status response exceeds 1 MiB")
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise LMStudioError("LM Studio returned invalid download status JSON") from exc
+    return _parse_download_job(payload)
 
 
 def main(argv: Iterable[str] | None = None) -> int:
