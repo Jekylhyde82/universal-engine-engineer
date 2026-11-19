@@ -85,7 +85,7 @@ At minimum:
 
 The current reference package implements a private per-run Chromium profile, service-worker blocking, popup closure, browser-context HTTP routing that blocks redirect responses without following them, WebSocket origin routing, trusted-consent-provider callbacks, explicit terminal prompts, query/fragment rejection for navigation, short-lived visual observations, signed grants and a signed readback verification primitive. CI includes real Chromium integration tests against a local fixture.
 
-These controls do not establish complete network isolation. Playwright browser-context request and WebSocket routing do not constitute an OS-level firewall; WebRTC/UDP and other non-HTTP transports remain a residual egress risk. Production must run the browser inside an OS-level network sandbox/firewall that enforces the approved destination set. The browser adapter also does not redact screenshots, and its terminal consent provider is a local development UI rather than an authenticated production approval service.
+These controls do not establish complete network isolation. Playwright browser-context request and WebSocket routing do not constitute an OS-level firewall; WebRTC/UDP and other non-HTTP transports remain a residual egress risk. Production must run the browser inside an OS-level network sandbox/firewall that enforces the approved destination set. The browser adapter also does not redact screenshots, and its terminal consent provider is a local development UI rather than an authenticated production approval service. Browser profiles are deleted on graceful close, but crash-orphaned profile cleanup, encrypted-at-rest storage and session-secret rotation are not implemented.
 
 ## 7. Residual risks
 
