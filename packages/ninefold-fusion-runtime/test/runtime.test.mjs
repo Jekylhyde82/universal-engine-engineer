@@ -87,10 +87,10 @@ test("each instance maintains a distinct verifiable append-only evidence stream"
     assert.notEqual(one.events[0].hash, two.events[0].hash);
     assert.equal(verifyEvidenceEvents(one.events, "UMIC-01").valid, true);
     assert.equal(verifyEvidenceEvents(two.events, "UMIC-02").valid, true);
-    assert.notEqual(
-      join(root, "EVIDENCE-UMIC-01.jsonl"),
-      join(root, "EVIDENCE-UMIC-02.jsonl"),
-    );
+    const evidencePaths = runtime.getStatuses().map((item) => item.evidencePath);
+    assert.notEqual(evidencePaths[0], evidencePaths[1]);
+    assert.ok(evidencePaths[0].endsWith("EVIDENCE-UMIC-01.jsonl"));
+    assert.ok(evidencePaths[1].endsWith("EVIDENCE-UMIC-02.jsonl"));
   });
 });
 
@@ -168,7 +168,7 @@ test("evidence tampering is detected when an instance restarts", async () => {
   const one = await scope(runtime, "UMIC-01");
   await one.health();
   await runtime.close();
-  const path = join(root, "EVIDENCE-UMIC-01.jsonl");
+  const path = runtime.getStatuses().find((item) => item.instanceId === "UMIC-01").evidencePath;
   const contents = await readFile(path, "utf8");
   await writeFile(path, contents.replace("INSTANCE_STARTED", "INSTANCE_TAMPERED"));
   await assert.rejects(
