@@ -30,14 +30,15 @@ test("browser host launches isolated Chromium with service workers blocked and c
       requestConsent: async () => true,
       headless: true,
     });
-    assert.equal((await lstat(host.profilePath)).isDirectory(), true);
+    const profilePath = host.profilePath;
+    assert.equal((await lstat(profilePath)).isDirectory(), true);
     assert.equal(host.context.serviceWorkers().length, 0);
     await host.page.goto(origin);
     const observation = await host.adapter.observe();
     assert.equal(observation.application_identity, origin);
     await host.close();
     host = null;
-    await assert.rejects(() => lstat(join(root, "non-existent")), { code: "ENOENT" });
+    await assert.rejects(() => lstat(profilePath), { code: "ENOENT" });
   } finally {
     if (host) await host.close();
     await new Promise((resolve) => server.close(resolve));
