@@ -63,6 +63,10 @@ export async function launchBrowserHost({
     });
     const pages = context.pages();
     const page = pages[0] || await context.newPage();
+    for (const extraPage of pages.slice(1)) await extraPage.close();
+    context.on("page", (newPage) => {
+      if (newPage !== page) void newPage.close().catch(() => {});
+    });
     const adapter = createBrowserAdapter({
       page,
       sessionId: randomUUID(),
