@@ -119,3 +119,22 @@ test("readback cannot verify a URL outside the approved application origin", () 
   });
   assert.equal(result.state, "UNKNOWN");
 });
+
+test("oversized evidence fields and signatures are rejected", () => {
+  const valid = evidence();
+  const oversized = {
+    ...valid,
+    payload: { ...valid.payload, observed_url: "https://example.test/" + "x".repeat(3000) },
+  };
+  const result = verifyNavigationReadback({
+    execution, request, readback: oversized, verifierPublicKeyPem: publicKeyPem,
+    expectedVerifierId: "independent-readonly-verifier", now,
+  });
+  assert.equal(result.state, "UNKNOWN");
+  const hugeSignature = verifyNavigationReadback({
+    execution, request, readback: { ...valid, signature: "x".repeat(3000) },
+    verifierPublicKeyPem: publicKeyPem,
+    expectedVerifierId: "independent-readonly-verifier", now,
+  });
+  assert.equal(hugeSignature.state, "UNKNOWN");
+});
