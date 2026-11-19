@@ -151,7 +151,7 @@ test("navigation refuses stale observations before grant consumption", async () 
   const request = makeNavigateRequest(observation.observation_id);
   const grant = makeGrant(request);
   page.url = () => "https://example.test/changed";
-  await assert.rejects(() => adapter.execute({ request, grant, userConsent: true }), /stale/i);
+  await assert.rejects(() => adapter.execute({ request, grant }), /stale/i);
   assert.equal(consumed, 0);
 });
 
@@ -160,7 +160,7 @@ test("navigation requires a valid signed grant and returns pending verification"
   const { adapter, observation } = await observedAdapter(page);
   const request = makeNavigateRequest(observation.observation_id);
   const result = await adapter.execute({
-    request, grant: makeGrant(request), userConsent: true,
+    request, grant: makeGrant(request),
   });
   assert.equal(result.execution_state, "AWAITING_VERIFICATION");
   assert.equal(result.verified, false);
@@ -176,7 +176,7 @@ test("adapter refuses unsupported actions rather than performing generic clicks"
     parameters: { target_element_id: "button-1" },
   });
   await assert.rejects(() => adapter.execute({
-    request, grant: makeGrant(request), userConsent: true,
+    request, grant: makeGrant(request),
   }), /unsupported action/i);
   assert.equal(page.calls.length, 0);
 });
@@ -187,7 +187,7 @@ test("adapter stop switch prevents further execution", async () => {
   adapter.stop();
   const request = makeNavigateRequest(observation.observation_id);
   await assert.rejects(() => adapter.execute({
-    request, grant: makeGrant(request), userConsent: true,
+    request, grant: makeGrant(request),
   }), /stopped/i);
   assert.equal(page.calls.length, 0);
 });
@@ -213,10 +213,10 @@ test("browser adapter serializes actions and rejects concurrent execution", asyn
   page.state.gotoGate = new Promise((resolve) => { release = resolve; });
   const request = makeNavigateRequest(observation.observation_id);
   const grant = makeGrant(request);
-  const first = adapter.execute({ request, grant, userConsent: true });
+  const first = adapter.execute({ request, grant });
   while (page.calls.length === 0) await new Promise((resolve) => setImmediate(resolve));
   await assert.rejects(
-    () => adapter.execute({ request, grant, userConsent: true }),
+    () => adapter.execute({ request, grant }),
     /already executing/i,
   );
   release();
