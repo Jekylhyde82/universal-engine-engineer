@@ -19,18 +19,20 @@ Node.js reference package for deterministic policy evaluation, signed execution 
 - Consent-provider-gated Playwright page adapter for bounded semantic observation and optional screenshot capture.
 - Strict browser request-origin allowlisting, stale-observation rejection, one-action-at-a-time execution, stop control and navigation-only action support.
 - Signed readback verifier that refuses to trust the executor's own assertion.
+- **Separate read-only verifier HTTP service:** accepts only the action request and executor outcome, fetches evidence through an injected read-only provider, rejects caller-supplied evidence, authenticates the actor, and returns UNKNOWN when independent evidence is unavailable or provenance is invalid. It has no grant-issuing endpoint and receives no signing private key.
 - Governed action orchestrator that requires a durable audit writer, atomically claims task/action IDs, records each state transition before proceeding and will not execute if the audit append fails. Executor exceptions and timeouts after execution begins are recorded as UNKNOWN because side effects may already have occurred; they are never assumed to be clean failures or safe retries.
 - Automated Node.js tests in GitHub Actions, including real Chromium integration tests against a local fixture and CodeQL static analysis.
 
 ## Validation evidence
 
-The latest completed policy workflow for the current implementation and registry content is workflow `44472679774` at commit `e82e8b18f394ec7c7bb2e7d8d1349ca5ca08ee4a`: **132 tests passed, 0 failed, 0 cancelled, 0 skipped**. The run included registry validation, pinned Playwright installation, real Chromium installation, JavaScript syntax checks and browser integration tests against a temporary local fixture. CodeQL workflow `44472679805` completed successfully on the same commit. Later branch commits changed documentation/status records only; the package source and registry validator are unchanged. CodeQL workflow success does not establish that the alert inventory is empty or reviewed. The browser integration suite verifies a signed allowlisted navigation and blocks a redirect to an unapproved origin.
+The latest completed policy workflow for the parent implementation and registry content is workflow `44472679774` at commit `e82e8b18f394ec7c7bb2e7d8d1349ca5ca08ee4a`: **132 tests passed, 0 failed, 0 cancelled, 0 skipped**. The run included registry validation, pinned Playwright installation, real Chromium installation, JavaScript syntax checks and browser integration tests against a temporary local fixture. CodeQL workflow `44472679805` completed successfully on the same commit. This is parent-branch evidence, not validation of the new verifier service. The verifier-service tests added on this branch must pass on its exact head before their result is claimed. CodeQL success does not establish that the alert inventory is empty or reviewed.
 
 ## Important limitations
 
 This is not a complete runtime or production security boundary.
 
-- No production identity provider or real user/device authentication adapter is included. The HTTP service requires an injected authenticator.
+- The verifier service is a separate process boundary only when deployed separately. The injected evidence provider must be authenticated, read-only, independently operated and isolated from the D.D. executor; the prototype does not provision or attest that provider.
+- No production identity provider or real user/device authentication adapter is included. The HTTP services require injected authenticators.
 - Human approval signature verification is injected; tests use fakes. No trusted approval UI or production key-management/rotation service is included.
 - The local nonce ledger is single-host replay protection. Its hash chain is not independently tamper-proof; production audit evidence needs externally anchored checkpoints, backup and restore procedures.
 - The local action audit ledger is single-host and hash-chained, not independently tamper-proof. External signed checkpoints, protected backup/restore, retention controls and a production audit query/access service are not yet implemented.
@@ -38,9 +40,7 @@ This is not a complete runtime or production security boundary.
 - The browser adapter accepts a Playwright-compatible page supplied by a trusted host. CI launches real Chromium for integration tests, but a production browser host/launcher, isolated persistent profile management and trusted user-facing consent UI are not yet implemented.
 - The adapter currently supports navigation only. It does not implement generic clicks, form submissions, typing, file access or arbitrary desktop control.
 - DOM labels are untrusted page data. A trusted consent-provider callback is mandatory for observation, screenshot capture and action execution. Screenshot capture requires separate visual consent and is not redacted; the adapter does not persist screenshots. The production host must create a dedicated browser context with `serviceWorkers: "block"` and a private isolated profile.
-- The signed readback verifier is a verification primitive. A separate authenticated read-only verifier process/provider is not yet implemented.
 - No Android app, MediaProjection/accessibility service, AFI PRIME runtime integration or EB9PRIME governed persistence runtime is included.
-
 
 ## Configured JWT bearer authentication adapter
 
