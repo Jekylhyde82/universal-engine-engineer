@@ -5,11 +5,11 @@ function requiredFunction(value, label) {
   if (typeof value !== "function") throw new TypeError(label + " is required.");
 }
 
-function auditError(error, state, execution) {
+function auditError(error, state, execution, executionAttempted) {
   const wrapped = new Error("Durable audit append failed; action lifecycle cannot be trusted.");
   wrapped.code = "AUDIT_UNAVAILABLE";
   wrapped.lastKnownState = state;
-  wrapped.safeToRetry = execution === null;
+  wrapped.safeToRetry = executionAttempted !== true;
   wrapped.execution = execution;
   wrapped.cause = error;
   return wrapped;
@@ -42,6 +42,7 @@ export async function runGovernedAction({
 
   let state = "PROPOSED";
   let execution = null;
+  let executionAttempted = false;
   let verification = null;
   const history = [];
 
@@ -50,7 +51,7 @@ export async function runGovernedAction({
       const result = await appendAudit(Object.freeze(event));
       if (result === false) throw new Error("Audit store rejected the event.");
     } catch (error) {
-      throw auditError(error, state, execution);
+      throw auditError(error, state, execution, executionAttempted);
     }
   }
 
@@ -123,6 +124,7 @@ export async function runGovernedAction({
   await record("GRANTED", "policy", { grantReference: grantId });
   await record("EXECUTING", "executor");
 
+  executionAttempted = true;
   try {
     execution = await executor.execute({ request, grant });
   } catch {
