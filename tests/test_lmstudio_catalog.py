@@ -89,7 +89,7 @@ class CatalogCandidateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             engine = UniversalAcquisitionIntegrationEngine(Path(tmp) / "uaie.sqlite3")
             candidate = candidate_from_mapping(CANDIDATE)
-            catalog_record, afi_record = assimilate_catalog_candidate(engine, candidate)
+            catalog_record, afi_record, register_entry = assimilate_catalog_candidate(engine, candidate)
             self.assertEqual(catalog_record.state, "assimilated")
             profile = engine.export_record(afi_record.record_id)
             self.assertEqual(profile["source"], "afi-prime://lm-studio-model-catalog/liquid/lfm3-vl-2b")
@@ -101,6 +101,9 @@ class CatalogCandidateTests(unittest.TestCase):
             candidate_data = engine.export_record(catalog_record.record_id)
             self.assertIn("original_idea_value", candidate_data["extracted_text"])
             self.assertIn("NOT_ASSESSED", candidate_data["extracted_text"])
+            self.assertEqual(register_entry.lifecycle_status, "discovered")
+            self.assertEqual(register_entry.original_idea_value, CANDIDATE["original_idea_value"])
+            self.assertEqual(register_entry.evidence_verification_status, "USER_SUPPLIED_UNVERIFIED")
 
 
 if __name__ == "__main__":
