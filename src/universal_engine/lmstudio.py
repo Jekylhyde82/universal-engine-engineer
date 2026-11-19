@@ -16,7 +16,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
-from .uaie import UAIEError, UniversalAssimilationEngine
+from .uaie import UAIEError, UniversalAcquisitionEngine
 
 DEFAULT_BASE_URL = "http://127.0.0.1:1234"
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
@@ -135,7 +135,7 @@ class LMStudioClient:
             ))
         return models
 
-    def assimilate_inventory(self, engine: UniversalAssimilationEngine) -> list[Any]:
+    def assimilate_inventory(self, engine: UniversalAcquisitionEngine) -> list[Any]:
         """Store model metadata as UAIE records; does not acquire model weights."""
         records = []
         for model in self.list_models():
@@ -166,7 +166,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "list":
             print(json.dumps([m.raw_metadata for m in client.list_models()], indent=2))
         else:
-            engine = UniversalAssimilationEngine(args.db)
+            engine = UniversalAcquisitionEngine(args.db)
             records = client.assimilate_inventory(engine)
             print(json.dumps([r.__dict__ if hasattr(r, "__dict__") else {
                 "record_id": r.record_id, "source": r.source, "state": r.state,
