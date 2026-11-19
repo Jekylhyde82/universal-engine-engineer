@@ -151,6 +151,7 @@ def _safe_catalog_url(url: str) -> str:
         raise LMStudioCatalogError("catalog URL contains an invalid port") from exc
     if (parsed.scheme != "https" or parsed.hostname != ALLOWED_HOST
             or parsed.username or parsed.password or port not in (None, 443)
+            or parsed.path not in {"", "/", "/models"}
             or parsed.query or parsed.fragment):
         raise LMStudioCatalogError("only clean HTTPS URLs on lmstudio.ai are permitted")
     return urllib.parse.urlunsplit(("https", ALLOWED_HOST, parsed.path or "/models", "", ""))
