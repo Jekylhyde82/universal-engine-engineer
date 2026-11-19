@@ -71,7 +71,7 @@ class CatalogTests(unittest.TestCase):
                 CATALOG_HTML.replace('href="/models/lfm3"', 'href="/models/lfm3"')
                 + '<a href="/models/other">Other</a>')
 
-    def test_assimilates_public_catalog_and_fuses_afI_profile(self):
+    def test_assimilates_public_catalog_and_fuses_afi_profile(self):
         with tempfile.TemporaryDirectory() as tmp:
             engine = UniversalAcquisitionIntegrationEngine(Path(tmp) / "uaie.sqlite3")
             catalog_records, afi_records = assimilate_public_catalog(
