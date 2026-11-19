@@ -73,7 +73,7 @@ test("audit ledger refuses insecure directory permissions", async () => {
 
 test("audit ledger enforces its configured storage limit before append", async () => {
   await withTempDir(async (directory) => {
-    const ledger = new FileActionAuditLedger(join(directory, "events.jsonl"), { maxLedgerBytes: 128 });
+    const ledger = new FileActionAuditLedger(join(directory, "events.jsonl"), { maxLedgerBytes: 128, maxEventBytes: 128 });
     await assert.rejects(
       () => ledger.append({ event_type: "ACTION_PROPOSED", detail: "x".repeat(50) }),
       /size limit/i,
