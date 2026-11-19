@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer as createHttpServer } from "node:http";
 import { generateKeyPairSync } from "node:crypto";
-import { chromium } from "playwright";
+let chromium;
+try { ({ chromium } = await import("playwright")); } catch { /* Optional outside CI. */ }
 import { createBrowserAdapter } from "../src/browser-adapter.mjs";
 import { computeActionDigest } from "../src/policy.mjs";
 import { createGrant } from "../src/grant.mjs";
@@ -77,7 +78,7 @@ function makeGrant(request, privateKeyPem, now) {
   });
 }
 
-test("real Chromium observes with consent and performs one signed allowlisted navigation", async () => {
+test("real Chromium observes with consent and performs one signed allowlisted navigation", { skip: !chromium }, async () => {
   await withBrowser(async ({ page, origin, context }) => {
     const { publicKeyPem, privateKeyPem } = keys();
     const adapter = createBrowserAdapter({
@@ -108,7 +109,7 @@ test("real Chromium observes with consent and performs one signed allowlisted na
   });
 });
 
-test("real Chromium blocks a redirect outside the configured origin allowlist", async () => {
+test("real Chromium blocks a redirect outside the configured origin allowlist", { skip: !chromium }, async () => {
   await withBrowser(async ({ page, origin }) => {
     const { publicKeyPem, privateKeyPem } = keys();
     const adapter = createBrowserAdapter({
