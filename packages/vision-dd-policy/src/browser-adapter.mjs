@@ -105,7 +105,8 @@ export function createBrowserAdapter({
   navigationTimeoutMs = 5_000,
 }) {
   if (!page || typeof page.url !== "function" || typeof page.evaluate !== "function" ||
-      typeof page.goto !== "function" || typeof page.route !== "function" || typeof page.routeWebSocket !== "function" || !Array.isArray(allowedOrigins) ||
+      typeof page.goto !== "function" || !context || typeof context.route !== "function" ||
+      typeof context.routeWebSocket !== "function" || !Array.isArray(allowedOrigins) ||
       allowedOrigins.length === 0 || typeof sessionId !== "string" || !sessionId.trim() ||
       typeof publicKeyPem !== "string" || typeof policyVersion !== "string" ||
       typeof requestConsent !== "function" || typeof clock !== "function" || !Number.isSafeInteger(observationTtlMs) ||
