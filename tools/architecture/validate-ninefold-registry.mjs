@@ -45,6 +45,27 @@ reservedLineages(registry.master_core_lineages, 9, "Master Core lineage");
 reservedLineages(registry.engine_lineages, 81, "Engine lineage");
 assert(Array.isArray(registry.fusion_core_instances) && registry.fusion_core_instances.length === 9, "exactly nine scoped fusion core instances are required.");
 uniqueIds(registry.fusion_core_instances, "Fusion core instance");
+assert(registry.instance_isolation_contract.execution_context === "DEDICATED_SCOPED_CONTEXT_PER_INSTANCE", "each instance requires its own execution context.");
+assert(registry.instance_isolation_contract.state_boundary === "INSTANCE_LOCAL_STATE_WITH_GOVERNED_CROSS_INSTANCE_CONTRACTS_ONLY", "instance state boundaries must be explicit.");
+assert(registry.instance_isolation_contract.evidence_trail === "INSTANCE_SCOPED_APPEND_ONLY_EVIDENCE_STREAM", "each instance requires its own evidence trail.");
+assert(registry.instance_isolation_contract.fault_containment === "INSTANCE_SCOPED_FAULT_DOMAIN_WITH_BOUNDED_DEGRADATION", "each instance requires its own fault-containment domain.");
+assert(registry.instance_isolation_contract.shared_logic === "ONE_VERSIONED_CANONICAL_AFIPRIME_FUNCTION_IDENTITY", "instances must share one canonical versioned fusion function.");
+assert(registry.instance_isolation_contract.shared_governance === "ONE_CANONICAL_GOVERNANCE_POLICY_WITH_INSTANCE_SCOPED_ENFORCEMENT", "instances must share canonical governance with scoped enforcement.");
+assert(registry.instance_isolation_contract.shared_mutable_state === false, "instances must not share mutable execution state.");
+assert(registry.instance_isolation_contract.implicit_permission_inheritance === false, "permissions must not be implicitly inherited across instances.");
+assert(registry.instance_isolation_contract.implementation_status === "REQUIRED_NOT_IMPLEMENTED", "registry must not claim instance isolation is implemented.");
+const instanceFieldIds = ["execution_context_id", "state_namespace", "evidence_stream_id", "fault_domain_id"];
+for (const field of instanceFieldIds) {
+  const values = registry.fusion_core_instances.map((core) => core[field]);
+  assert(values.every((value) => typeof value === "string" && value.length > 0), field + " must be present for every instance.");
+  assert(new Set(values).size === 9, field + " values must be unique across all nine instances.");
+}
+for (const core of registry.fusion_core_instances) {
+  assert(core.execution_context_status === "NOT_IMPLEMENTED", "execution context status must remain honest.");
+  assert(core.state_boundary_status === "NOT_IMPLEMENTED", "state boundary status must remain honest.");
+  assert(core.evidence_trail_status === "NOT_IMPLEMENTED", "evidence trail status must remain honest.");
+  assert(core.fault_containment_status === "NOT_IMPLEMENTED", "fault containment status must remain honest.");
+}
 for (let index = 0; index < registry.fusion_core_instances.length; index += 1) {
   const core = registry.fusion_core_instances[index];
   const ordinal = String(index + 1).padStart(2, "0");
