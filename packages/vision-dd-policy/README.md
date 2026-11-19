@@ -44,7 +44,7 @@ Requires Node.js 22 or later and the pinned Playwright dependency. The host laun
 
 The consent provider must be a trusted UI surface separate from the page being controlled. A terminal prompt provider is included for local single-user development; it requires typing `YES` and warns that screenshots are not redacted.
 
-The host is a library API, not an unattended service. It still requires a trusted policy public key and a durable grant replay ledger supplied by the caller.
+The host is a library API, not an unattended service. It requires an initial allowlisted URL and obtains separate consent before opening it. It does not expose the raw Playwright page or browser context to the caller; status is available through a read-only summary. It still requires a trusted policy public key and a durable grant replay ledger supplied by the caller.
 
 ```js
 import { join } from "node:path";
@@ -58,6 +58,7 @@ import {
 const consent = createTerminalConsentProvider();
 const host = await launchBrowserHost({
   profileRoot: join(homedir(), ".ninefold", "vision-dd-profiles"),
+  initialUrl: "https://example.test",
   allowedOrigins: ["https://example.test"],
   publicKeyPem: process.env.VISION_DD_POLICY_PUBLIC_KEY,
   policyVersion: "policy-1",
@@ -69,7 +70,6 @@ const host = await launchBrowserHost({
 });
 
 try {
-  await host.page.goto("https://example.test");
   const observation = await host.adapter.observe();
   // Pass the observation to an authorised perception workflow.
   // D.D. still requires a signed grant for each navigation.
