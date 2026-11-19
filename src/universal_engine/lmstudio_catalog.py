@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import urllib.parse
+import yaml
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -78,7 +79,7 @@ def _validate_catalog_url(value: Any) -> str:
     if (parsed.scheme != "https" or parsed.hostname != "lmstudio.ai"
             or parsed.username or parsed.password or port not in (None, 443)
             or parsed.query or parsed.fragment
-            or not re.fullmatch(r"/models/[A-Za-z0-9][A-Za-z0-9._-]*", parsed.path)):
+            or not re.fullmatch(r"/models/[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*", parsed.path)):
         raise LMStudioCatalogError("catalog_url must be a clean HTTPS LM Studio model detail URL")
     return urllib.parse.urlunsplit(("https", "lmstudio.ai", parsed.path, "", ""))
 
@@ -189,6 +190,123 @@ def build_download_command(candidate: LMStudioCatalogCandidate) -> tuple[str, ..
     return ("lms", "get", model_ref)
 
 
+
+
+
+def build_clone_command(candidate: LMStudioCatalogCandidate) -> tuple[str, ...]:
+    """Return LM Studio's metadata-only clone command; it does not fetch model weights."""
+    return ("lms", "clone", candidate.model_id)
+
+
+def candidate_from_model_yaml(
+    value: Mapping[str, Any],
+    *,
+    original_idea_value: str,
+    catalog_url: str | None = None,
+) -> LMStudioCatalogCandidate:
+    """Map the official model.yaml specification into a governed UAIE candidate."""
+    if not isinstance(value, Mapping):
+        raise LMStudioCatalogError("model.yaml root must be a mapping")
+    model_id = value.get("model")
+    if not isinstance(model_id, str) or not MODEL_ID_RE.fullmatch(model_id):
+        raise LMStudioCatalogError("model.yaml requires model: publisher/model")
+    base = value.get("base", [])
+    if not isinstance(base, list) or len(base) > 100 or any(not isinstance(x, dict) for x in base):
+        raise LMStudioCatalogError("model.yaml base must be an array of at most 100 model variants")
+    overrides = value.get("metadataOverrides", {})
+    if not isinstance(overrides, dict):
+        raise LMStudioCatalogError("model.yaml metadataOverrides must be a mapping")
+    architectures = overrides.get("architectures", [])
+    params = overrides.get("paramsStrings", [])
+    contexts = overrides.get("contextLengths", [])
+    compatibility = overrides.get("compatibilityTypes", [])
+    if not isinstance(architectures, list) or any(not isinstance(x, str) for x in architectures):
+        raise LMStudioCatalogError("metadataOverrides.architectures must be an array of strings")
+    if not isinstance(params, list) or any(not isinstance(x, str) for x in params):
+        raise LMStudioCatalogError("metadataOverrides.paramsStrings must be an array of strings")
+    if not isinstance(contexts, list) or any(isinstance(x, bool) or not isinstance(x, int) or x < 1 for x in contexts):
+        raise LMStudioCatalogError("metadataOverrides.contextLengths must contain positive integers")
+    if not isinstance(compatibility, list) or any(not isinstance(x, str) for x in compatibility):
+        raise LMStudioCatalogError("metadataOverrides.compatibilityTypes must be an array of strings")
+    memory_bytes = overrides.get("minMemoryUsageBytes")
+    if memory_bytes is not None and (isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 1):
+        raise LMStudioCatalogError("metadataOverrides.minMemoryUsageBytes must be a positive integer")
+    capabilities = {}
+    for source_key, target_key in (("vision", "vision"), ("reasoning", "reasoning"),
+                                   ("trainedForToolUse", "tool_use")):
+        flag = overrides.get(source_key)
+        if flag is not None:
+            if not isinstance(flag, bool):
+                raise LMStudioCatalogError(f"metadataOverrides.{source_key} must be a boolean")
+            capabilities[target_key] = flag
+    artifact_links = []
+    for variant in base:
+        variant_key = variant.get("key")
+        if variant_key is not None and not isinstance(variant_key, str):
+            raise LMStudioCatalogError("model.yaml variant keys must be strings")
+        sources = variant.get("sources", [])
+        if not isinstance(sources, list):
+            raise LMStudioCatalogError("model.yaml variant sources must be an array")
+        for source in sources:
+            if not isinstance(source, dict):
+                raise LMStudioCatalogError("model.yaml source entries must be mappings")
+            if source.get("type") == "huggingface":
+                user, repo = source.get("user"), source.get("repo")
+                if not isinstance(user, str) or not isinstance(repo, str):
+                    raise LMStudioCatalogError("Hugging Face sources require user and repo")
+                artifact_links.append({
+                    "text": str(variant_key or f"{user}/{repo}"),
+                    "url": f"https://huggingface.co/{urllib.parse.quote(user, safe='')}/{urllib.parse.quote(repo, safe='')}",
+                })
+    display_name = str(overrides.get("name") or model_id.split("/", 1)[1])
+    if catalog_url is None:
+        catalog_url = f"https://lmstudio.ai/models/{model_id}"
+    memory_text = None
+    if memory_bytes is not None:
+        memory_text = f"{memory_bytes / (1024 ** 3):.2f} GB"
+    license_text = value.get("license") or overrides.get("license")
+    description = overrides.get("description") or value.get("description")
+    candidate_mapping = {
+        "model_id": model_id,
+        "display_name": display_name,
+        "catalog_url": catalog_url,
+        "publisher": model_id.split("/", 1)[0],
+        "architecture": architectures[0] if architectures else None,
+        "parameter_sizes": params,
+        "max_context": str(max(contexts)) if contexts else None,
+        "minimum_memory": memory_text,
+        "availability": [],
+        "capabilities": capabilities,
+        "license_text": license_text,
+        "description": description,
+        "artifact_links": artifact_links,
+        "metadata": {"model_yaml": dict(value), "compatibility_types": compatibility},
+        "original_idea_value": original_idea_value,
+    }
+    return candidate_from_mapping(candidate_mapping)
+
+
+def assimilate_model_yaml_file(
+    engine: Any,
+    file_path: str | Path,
+    *,
+    original_idea_value: str,
+    catalog_url: str | None = None,
+) -> tuple[Any, Any, Any]:
+    """Safely read an official model.yaml file and assimilate it through UAIE/AFI."""
+    path = Path(file_path).expanduser()
+    if path.is_symlink() or not path.is_file():
+        raise LMStudioCatalogError("model.yaml path must be a regular non-symlink file")
+    raw = path.read_bytes()
+    if len(raw) > 256 * 1024:
+        raise LMStudioCatalogError("model.yaml exceeds the 256 KiB limit")
+    try:
+        parsed = yaml.safe_load(raw.decode("utf-8"))
+    except (UnicodeDecodeError, yaml.YAMLError) as exc:
+        raise LMStudioCatalogError("model.yaml is invalid UTF-8 or invalid safe YAML") from exc
+    candidate = candidate_from_model_yaml(
+        parsed, original_idea_value=original_idea_value, catalog_url=catalog_url)
+    return assimilate_catalog_candidate(engine, candidate)
 
 
 def download_catalog_candidate(
