@@ -39,6 +39,7 @@ from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
 candidate = candidate_from_mapping({
     "model_id": "publisher/model-name",
+    "original_idea_value": "Record the original user idea behind this acquisition.",
     "display_name": "Model Name",
     "catalog_url": "https://lmstudio.ai/models/model-name",
     "quantization": "Q4_K_M",
