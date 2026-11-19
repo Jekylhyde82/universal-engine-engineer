@@ -19,7 +19,11 @@ from typing import Any, Mapping
 MODEL_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 QUANTIZATION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 ALLOWED_CAPABILITIES = {"vision", "reasoning", "tool_use", "audio", "video"}
-SENSITIVE_METADATA_KEYS = {"token", "api_token", "api_key", "secret", "password", "authorization", "credential", "access_key"}
+SENSITIVE_METADATA_KEYS = {
+    "token", "api_token", "access_token", "refresh_token", "api_key",
+    "secret", "secret_key", "client_secret", "private_key", "password",
+    "authorization", "credential", "access_key",
+}
 
 
 class LMStudioCatalogError(ValueError):
@@ -81,8 +85,8 @@ def _validate_catalog_url(value: Any) -> str:
 def _reject_secret_fields(value: Any) -> None:
     if isinstance(value, dict):
         for key, child in value.items():
-            normalized = str(key).casefold().replace("-", "_")
-            if normalized in SENSITIVE_METADATA_KEYS:
+            normalized = re.sub(r"(?<!^)(?=[A-Z])", "_", str(key)).casefold().replace("-", "_")
+            if normalized in SENSITIVE_METADATA_KEYS or normalized.endswith(("_token", "_secret", "_password", "_credential", "_api_key")):
                 raise LMStudioCatalogError(f"metadata field {key!r} is not permitted")
             _reject_secret_fields(child)
     elif isinstance(value, list):
