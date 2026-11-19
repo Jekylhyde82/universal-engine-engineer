@@ -49,7 +49,7 @@ class CapabilityAssessment:
 
 
 @dataclass(frozen=True, slots=True)
-class AssimilationRecord:
+class AcquisitionRecord:
     record_id: str
     content_hash: str
     source: str
@@ -142,7 +142,7 @@ class UniversalAcquisitionEngine:
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_source ON assimilations(source)")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_state ON assimilations(state)")
 
-    def ingest_bytes(self, content: bytes, source: str, media_type: str | None = None) -> AssimilationRecord:
+    def ingest_bytes(self, content: bytes, source: str, media_type: str | None = None) -> AcquisitionRecord:
         if not isinstance(content, bytes):
             raise UAIEError("content must be bytes")
         if len(content) > self.max_bytes:
@@ -175,12 +175,12 @@ class UniversalAcquisitionEngine:
         # unique constraint instead of leaking an IntegrityError to the caller.
         return self._row_to_record(row, duplicate=cursor.rowcount == 0)
 
-    def ingest_text(self, text: str, source: str = "inline://user-input") -> AssimilationRecord:
+    def ingest_text(self, text: str, source: str = "inline://user-input") -> AcquisitionRecord:
         if not isinstance(text, str):
             raise UAIEError("text must be a string")
         return self.ingest_bytes(text.encode("utf-8"), source, "text/plain; charset=utf-8")
 
-    def ingest_object(self, value: Any, source: str = "inline://structured-object") -> AssimilationRecord:
+    def ingest_object(self, value: Any, source: str = "inline://structured-object") -> AcquisitionRecord:
         try:
             encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2,
                                  allow_nan=False).encode("utf-8")
@@ -188,7 +188,7 @@ class UniversalAcquisitionEngine:
             raise UAIEError("object must be finite JSON-serializable data") from exc
         return self.ingest_bytes(encoded, source, "application/json")
 
-    def ingest_path(self, path: str | os.PathLike[str], recursive: bool = True) -> list[AssimilationRecord]:
+    def ingest_path(self, path: str | os.PathLike[str], recursive: bool = True) -> list[AcquisitionRecord]:
         root = Path(path).expanduser()
         if root.is_symlink():
             raise UAIEError("symbolic links are not followed")
@@ -199,7 +199,7 @@ class UniversalAcquisitionEngine:
         ) if recursive and root.is_dir() else []
         if root.is_dir() and not recursive:
             paths = sorted(p for p in root.iterdir() if p.is_file() and not p.is_symlink())
-        records: list[AssimilationRecord] = []
+        records: list[AcquisitionRecord] = []
         for item in paths:
             size = item.stat().st_size
             if size > self.max_bytes:
@@ -208,22 +208,22 @@ class UniversalAcquisitionEngine:
         return records
 
     @staticmethod
-    def _row_to_record(row: sqlite3.Row, duplicate: bool = False) -> AssimilationRecord:
-        return AssimilationRecord(
+    def _row_to_record(row: sqlite3.Row, duplicate: bool = False) -> AcquisitionRecord:
+        return AcquisitionRecord(
             record_id=row["record_id"], content_hash=row["content_hash"],
             source=row["source"], media_type=row["media_type"], category=row["category"],
             byte_size=row["byte_size"], value_score=row["value_score"],
             signals=tuple(json.loads(row["signals_json"])), state=row["state"],
             created_at=row["created_at"], duplicate=duplicate)
 
-    def get(self, record_id: str) -> AssimilationRecord:
+    def get(self, record_id: str) -> AcquisitionRecord:
         with self._connect() as db:
             row = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         if row is None:
             raise UAIEError(f"unknown record: {record_id}")
         return self._row_to_record(row)
 
-    def search(self, query: str, limit: int = 20) -> list[AssimilationRecord]:
+    def search(self, query: str, limit: int = 20) -> list[AcquisitionRecord]:
         if not query.strip():
             raise UAIEError("search query is required")
         if not 1 <= limit <= 100:
@@ -237,7 +237,7 @@ class UniversalAcquisitionEngine:
                 (needle, needle, needle, needle, limit)).fetchall()
         return [self._row_to_record(row) for row in rows]
 
-    def set_state(self, record_id: str, state: str) -> AssimilationRecord:
+    def set_state(self, record_id: str, state: str) -> AcquisitionRecord:
         allowed = {"approved", "integrated", "rejected"}
         if state not in allowed:
             raise UAIEError(f"state must be one of: {', '.join(sorted(allowed))}")
@@ -343,10 +343,10 @@ class UniversalAcquisitionEngine:
 
 # Backwards-compatible aliases for existing prototype callers and stored records.
 UniversalAssimilationEngine = UniversalAcquisitionEngine
-AcquisitionRecord = AssimilationRecord
+AssimilationRecord = AcquisitionRecord
 
 
-def _print(record: AssimilationRecord) -> None:
+def _print(record: AcquisitionRecord) -> None:
     print(json.dumps(asdict(record), indent=2))
 
 
