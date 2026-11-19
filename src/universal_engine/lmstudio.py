@@ -354,6 +354,7 @@ def get_download_status(
     open_request = opener or urllib.request.urlopen
     try:
         with open_request(request, timeout=timeout) as response:
+            _ensure_loopback_response(response, endpoint)
             raw = response.read(1024 * 1024 + 1)
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise LMStudioError(f"LM Studio download status request failed: {type(exc).__name__}") from exc
