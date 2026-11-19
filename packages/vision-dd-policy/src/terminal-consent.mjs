@@ -7,7 +7,7 @@ import { createInterface } from "node:readline";
  */
 function safeDisplay(value, maxLength = 256) {
   return String(value ?? "unknown")
-    .replace(/[\\u0000-\\u001f\\u007f\\u001b]/g, " ")
+    .replace(/[\x00-\x1f\x7f\x1b]/g, " ")
     .slice(0, maxLength);
 }
 
