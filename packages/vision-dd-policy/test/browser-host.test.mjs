@@ -38,6 +38,7 @@ test("browser host launches isolated Chromium with service workers blocked and c
     assert.equal(observation.application_identity, origin);
     await new Promise((resolve) => setTimeout(resolve, 100));
     assert.equal(host.getStatus().page_count, 1);
+    assert.ok(host.getStatus().blocked_popup_count >= 1);
     assert.equal("page" in host, false);
     assert.equal("context" in host, false);
     await host.close();
