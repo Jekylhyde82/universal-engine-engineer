@@ -42,12 +42,12 @@ This specification and prototype do not claim live access to the user's camera, 
 | Local nonce replay ledger | Implemented; unit-tested; single-host prototype |
 | Policy HTTP service | Implemented; injected identity/approval adapters required |
 | Supervised browser observation adapter | Implemented; fake-page contract tests plus real Chromium integration tests |
-| Optional screenshot capture | Implemented behind separate visual consent; no redaction or persistence |
+| Optional screenshot capture | Implemented behind separate trusted-consent-provider approval; no redaction or persistence |
 | Browser execution | Navigation only; grant, trusted consent-provider and fresh-observation gated; real Chromium integration tested against local fixture |
 | Browser network-origin restriction | Implemented in adapter via request interception; external redirect blocked in real Chromium integration test |
 | Independent readback verification primitive | Implemented; signed evidence contract only |
 | Real independent verifier provider | Not implemented |
-| Real Chromium host/launcher | Not implemented or integration-tested |
+| Production Chromium host/launcher | Not implemented; local-fixture Chromium integration tests pass |
 | Production identity provider and key management | Not implemented |
 | Durable externally anchored audit evidence | Not implemented |
 | AFI PRIME runtime integration | Not implemented |
@@ -56,7 +56,7 @@ This specification and prototype do not claim live access to the user's camera, 
 | Staging, monitoring, rollback and incident response | Not implemented |
 | Production deployment | Not approved |
 
-The latest recorded policy CI run reported **65 passing tests and zero failures** at commit `090d4f089d67a8c18c407f24f05e26d076909ec2`. This is unit-test evidence for the code at that SHA, not production assurance.
+The latest recorded policy CI run reported **69 passing tests and zero failures** at commit `75ff874873ed1784009a5ea06c076ea51546a70a`. Two tests launch real Chromium against a temporary local fixture. This is integration evidence for the adapter boundary, not production assurance.
 
 ## Decision
 
