@@ -1,7 +1,7 @@
 const TERMINAL_STATES = new Set(["VERIFIED", "DENIED", "CANCELLED", "EXPIRED", "FAILED"]);
 
 const TRANSITIONS = {
-  PROPOSED: { POLICY_CHECK: new Set(["orchestrator"]), CANCELLED: new Set(["human"]) },
+  PROPOSED: { POLICY_CHECK: new Set(["orchestrator"]), CANCELLED: new Set(["human", "system"]) },
   POLICY_CHECK: {
     AWAITING_APPROVAL: new Set(["policy"]),
     GRANTED: new Set(["policy"]),
@@ -16,7 +16,7 @@ const TRANSITIONS = {
   },
   GRANTED: {
     EXECUTING: new Set(["executor"]),
-    CANCELLED: new Set(["human", "policy"]),
+    CANCELLED: new Set(["human", "policy", "system"]),
     EXPIRED: new Set(["system"]),
   },
   EXECUTING: {
