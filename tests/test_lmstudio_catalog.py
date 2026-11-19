@@ -10,7 +10,7 @@ from universal_engine.lmstudio_catalog import (
     LMStudioCatalogError, assimilate_catalog_candidate,
     assimilate_model_yaml_file, build_clone_command, build_download_command,
     candidate_from_mapping, candidate_from_model_yaml, download_catalog_candidate,
-    main, status_main,
+    main, model_yaml_main, status_main,
 )
 from universal_engine.lmstudio import LMStudioDownloadJob
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
@@ -80,6 +80,29 @@ class CatalogCandidateTests(unittest.TestCase):
         self.assertEqual(len(candidate.artifact_links), 2)
         self.assertEqual(candidate.catalog_url, "https://lmstudio.ai/models/qwen/qwen3-8b")
         self.assertEqual(build_clone_command(candidate), ("lms", "clone", "qwen/qwen3-8b"))
+
+    def test_model_yaml_cli_imports_metadata_without_downloading_weights(self):
+        model_yaml = """model: publisher/example-model
+metadataOverrides:
+  architectures: [llama]
+  paramsStrings: [7B]
+  contextLengths: [8192]
+  reasoning: true
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            yaml_path = Path(tmp) / "model.yaml"
+            yaml_path.write_text(model_yaml, encoding="utf-8")
+            output = StringIO()
+            with redirect_stdout(output):
+                result = model_yaml_main([
+                    str(yaml_path), "--db", str(Path(tmp) / "uaie.sqlite3"),
+                    "--original-idea-value", "Ingest the official metadata-only model.yaml file."
+                ])
+        self.assertEqual(result, 0)
+        payload = json.loads(output.getvalue())
+        self.assertEqual(payload["model_id"], "publisher/example-model")
+        self.assertFalse(payload["weights_downloaded"])
+        self.assertEqual(payload["lifecycle_status"], "discovered")
 
     def test_model_yaml_rejects_invalid_metadata(self):
         with self.assertRaises(LMStudioCatalogError):
