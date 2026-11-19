@@ -110,3 +110,12 @@ test("missing readback is UNKNOWN", () => {
   });
   assert.equal(result.state, "UNKNOWN");
 });
+
+test("readback cannot verify a URL outside the approved application origin", () => {
+  const result = verifyNavigationReadback({
+    execution, request: { ...request, target_application: "https://other.test" },
+    readback: evidence(), verifierPublicKeyPem: publicKeyPem,
+    expectedVerifierId: "independent-readonly-verifier", now,
+  });
+  assert.equal(result.state, "UNKNOWN");
+});
