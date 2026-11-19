@@ -236,3 +236,13 @@ test("execution is blocked when trusted action consent is denied", async () => {
   assert.equal(consumed, 0);
   assert.equal(page.calls.length, 0);
 });
+
+test("navigation with hidden query or fragment parameters is denied in v1", async () => {
+  const page = fakePage();
+  const { adapter, observation } = await observedAdapter(page);
+  const request = makeNavigateRequest(observation.observation_id, {
+    parameters: { url: "https://example.test/help?token=secret#section" },
+  });
+  await assert.rejects(() => adapter.execute({ request, grant: makeGrant(request) }), /query or fragment/i);
+  assert.equal(page.calls.length, 0);
+});
