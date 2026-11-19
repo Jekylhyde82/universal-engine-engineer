@@ -35,11 +35,11 @@ __all__ += [
 ]
 
 from .lmstudio_catalog import (
-    LMStudioCatalogEntry, LMStudioCatalogError,
-    assimilate_public_catalog, discover_catalog,
+    LMStudioCatalogCandidate, LMStudioCatalogError,
+    assimilate_catalog_candidate, build_download_command, candidate_from_mapping,
 )
 
 __all__ += [
-    "LMStudioCatalogEntry", "LMStudioCatalogError",
-    "assimilate_public_catalog", "discover_catalog",
+    "LMStudioCatalogCandidate", "LMStudioCatalogError",
+    "assimilate_catalog_candidate", "build_download_command", "candidate_from_mapping",
 ]
