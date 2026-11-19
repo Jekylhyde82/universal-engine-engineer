@@ -233,6 +233,11 @@ export class FileActionAuditLedger {
       } finally {
         await handle.close();
       }
+      // Persist the directory entry as well as the file contents. Without
+      // this, a newly created ledger can lose its name after a power failure
+      // even though the file descriptor was successfully synced.
+      const directoryHandle = await open(dirname(this.path), "r");
+      try { await directoryHandle.sync(); } finally { await directoryHandle.close(); }
       return Object.freeze({
         sequence: record.sequence,
         reference: "audit:" + record.sequence + ":" + record.hash,
