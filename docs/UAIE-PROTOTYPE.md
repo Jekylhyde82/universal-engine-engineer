@@ -54,7 +54,7 @@ This is a real executable prototype, not yet the full universal system. The firs
 
 Not yet implemented: broad web crawling, authenticated connector integrations, archive/document format extraction, OCR, audio/video understanding, source-code dependency analysis, semantic embeddings, autonomous tool acquisition, sandboxed capability execution, distributed storage, identity/authentication, multi-user authorization, external audit anchoring or production operations.
 
-The local audit chain detects edits, missing events and broken sequence continuity, but it is not tamper-proof against an administrator who can rewrite the database and recompute hashes; production requires external audit anchoring and authenticated actor identities.
+The local audit chain detects edits and sequence gaps in retained history, including a deleted tail followed by a later append. It cannot detect removal of the final event if no later event is appended, and it is not tamper-proof against an administrator who can rewrite the database and recompute hashes. Production requires external audit anchoring and authenticated actor identities.
 
 The value score is an explainable keyword heuristic, not an authoritative measure of usefulness or intelligence. Binary content is preserved but not semantically decoded. Acquired content is **never executed**. The core intake engine performs no network access or external system mutation. The optional LM Studio adapter makes one bounded, read-only request to a loopback LM Studio API; it does not download models or mutate LM Studio.
 
