@@ -6,7 +6,7 @@ const REQUEST_KEYS = new Set([
   "target_session_id", "action_type", "parameters", "requested_at", "expires_at",
 ]);
 const APPROVAL_KEYS = new Set([
-  "action_digest", "task_id", "actor_id", "target_application", "target_session_id",
+  "action_digest", "policy_version", "task_id", "actor_id", "target_application", "target_session_id",
   "approved_by", "issued_at", "expires_at", "nonce", "signature",
 ]);
 
@@ -23,7 +23,8 @@ function assertExactKeys(value, allowed, label) {
   }
 }
 
-function canonicalize(value) {
+function canonicalize(value, depth = 0) {
+  if (depth > 16) throw new TypeError("Maximum JSON nesting depth exceeded.");
   if (value === null || typeof value === "string" || typeof value === "boolean") {
     return JSON.stringify(value);
   }
@@ -31,13 +32,17 @@ function canonicalize(value) {
     if (!Number.isFinite(value)) throw new TypeError("Non-finite numbers are not permitted.");
     return JSON.stringify(value);
   }
-  if (Array.isArray(value)) return "[" + value.map(canonicalize).join(",") + "]";
+  if (Array.isArray(value)) {
+    if (value.length > 256) throw new TypeError("Array exceeds the permitted item limit.");
+    return "[" + value.map((item) => canonicalize(item, depth + 1)).join(",") + "]";
+  }
   if (!isPlainObject(value)) throw new TypeError("Only plain JSON values are permitted.");
   const keys = Object.keys(value).sort();
+  if (keys.length > 128) throw new TypeError("Object exceeds the permitted key limit.");
   if (keys.some((key) => ["__proto__", "prototype", "constructor"].includes(key))) {
     throw new TypeError("Unsafe object key.");
   }
-  return "{" + keys.map((key) => JSON.stringify(key) + ":" + canonicalize(value[key])).join(",") + "}";
+  return "{" + keys.map((key) => JSON.stringify(key) + ":" + canonicalize(value[key], depth + 1)).join(",") + "}";
 }
 
 function requiredString(value, label, max = 256) {
@@ -69,7 +74,11 @@ export function computeActionDigest(request) {
     action_type: request.action_type,
     parameters: request.parameters,
   };
-  return "sha256:" + createHash("sha256").update(canonicalize(payload), "utf8").digest("hex");
+  const serialized = canonicalize(payload);
+  if (Buffer.byteLength(serialized, "utf8") > 32_768) {
+    throw new TypeError("Action payload exceeds the 32 KiB digest limit.");
+  }
+  return "sha256:" + createHash("sha256").update(serialized, "utf8").digest("hex");
 }
 
 /**
@@ -142,6 +151,7 @@ export async function evaluateAction({
 
     assertExactKeys(approval, APPROVAL_KEYS, "Approval");
     requiredString(approval.action_digest, "approval.action_digest", 80);
+    requiredString(approval.policy_version, "approval.policy_version", 80);
     requiredString(approval.task_id, "approval.task_id");
     requiredString(approval.actor_id, "approval.actor_id");
     requiredString(approval.target_application, "approval.target_application");
@@ -157,7 +167,8 @@ export async function evaluateAction({
         approvalExpiresAt - approvalIssuedAt > policy.maxApprovalTtlMs) {
       return deny("APPROVAL_EXPIRED_OR_INVALID_TIME");
     }
-    if (approval.action_digest !== actionDigest ||
+    if (approval.policy_version !== policy.version ||
+        approval.action_digest !== actionDigest ||
         approval.task_id !== request.task_id ||
         approval.actor_id !== request.actor_id ||
         approval.target_application !== request.target_application ||
