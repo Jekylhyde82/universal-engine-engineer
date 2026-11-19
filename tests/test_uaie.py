@@ -2,7 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from universal_engine.uaie import (UAIEError, UniversalAcquisitionEngine,\n                                    UniversalAssimilationEngine)
+from universal_engine.uaie import (UAIEError, UniversalAcquisitionEngine,
+                                    UniversalAssimilationEngine)
 
 
 class UAIETests(unittest.TestCase):
