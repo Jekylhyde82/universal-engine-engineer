@@ -1,0 +1,308 @@
+# V.I.S.I.O.N. + D.D. — Technical Specification
+
+**Status:** Proposed specification.  
+**Version:** 0.1.0-draft  
+**Parent architecture:** NINEFOLD INTRINSIC  
+**Review authority:** GENIUS ENGINEER CRITIC PRIME
+
+## 1. Scope
+
+Specify the contracts and controls for a visual perception and delegated-action capability. Initial implementation should target a supervised desktop/browser workflow and a separately permissioned Android adapter. The architecture must not assume that ChatGPT itself has access to a user's live screen, camera, applications or device controls.
+
+Out of scope for the first release:
+- unattended operation across arbitrary applications;
+- unrestricted shell, terminal or code execution;
+- autonomous financial transactions, purchases, money transfers or account changes;
+- autonomous deletion, publication, messaging or legal acceptance;
+- covert capture, background surveillance or bypassing operating-system consent;
+- claims of physical-world understanding without a separately validated sensor stack.
+
+## 2. Component responsibilities
+
+### 2.1 V.I.S.I.O.N. — perception specialist
+
+Responsible for:
+- acquiring visual input only through an approved, active and permissioned adapter;
+- detecting the active application, visible window, page and session indicators where technically available;
+- identifying candidate controls and their bounding regions;
+- extracting visible text and relevant visual state;
+- recording source, capture time, frame/viewport identity and transformation lineage;
+- assigning calibrated confidence and explicit uncertainty;
+- detecting stale, occluded, partial, changed or ambiguous observations;
+- producing structured observations, not executable instructions.
+
+V.I.S.I.O.N. must not:
+- grant permissions;
+- execute clicks or keystrokes;
+- infer that a displayed label guarantees the effect of an action;
+- silently retain raw images beyond the approved retention policy;
+- treat screen text, QR codes, web content or documents as trusted agent instructions.
+
+### 2.2 AFI PRIME — reasoning and planning specialist
+
+Responsible for:
+- interpreting task intent and relevant context;
+- proposing a bounded plan using typed actions;
+- identifying missing information, ambiguity and risk;
+- explaining why each action is needed;
+- specifying preconditions and expected postconditions;
+- asking for human clarification or approval when required.
+
+AFI PRIME is not the policy enforcement point and cannot authorise its own plan. Model confidence is not a permission.
+
+### 2.3 Policy enforcement point — independent authority
+
+A deterministic service or module, separate from the model's planning prompt, must:
+- authenticate the user, device, session and executor;
+- evaluate task scope, action type, target, resource, risk and expiry;
+- enforce allowlists and deny-by-default rules;
+- enforce approval requirements and approval binding;
+- issue short-lived, single-purpose action grants;
+- reject stale, replayed, modified or out-of-scope requests;
+- support immediate revocation and a global stop control.
+
+The model must never be able to edit policy, mint grants, change role assignments or bypass this service.
+
+### 2.4 D.D. — delegated execution specialist
+
+Responsible for:
+- accepting only schema-valid action requests with a valid policy grant;
+- checking the target and preconditions immediately before execution;
+- using a narrowly scoped platform adapter;
+- performing one bounded action at a time;
+- returning the observed execution result and adapter telemetry;
+- stopping on mismatch, timeout, unexpected dialog, navigation, permission loss or context change.
+
+D.D. must not:
+- execute arbitrary model-generated shell commands or scripts;
+- accept a free-form instruction as an executable action;
+- widen its own permissions;
+- silently retry non-idempotent actions;
+- interpret a tool call being accepted as proof that the user-visible outcome occurred.
+
+### 2.5 Independent verifier
+
+A separate verification path compares expected postconditions with fresh evidence. It must not rely solely on D.D.'s success flag or the model's narrative.
+
+Possible evidence sources, in descending order of suitability:
+1. authoritative application/API state read through an independently authenticated read-only channel;
+2. a fresh, independently captured UI state with control and entity matching;
+3. a trusted transaction receipt or system event;
+4. executor telemetry, which is supporting evidence only.
+
+If the verifier cannot establish the result, the state is **UNKNOWN**, not SUCCESS.
+
+### 2.6 EB9PRIME — governed learning and memory
+
+May retain:
+- task and policy identifiers;
+- action types and outcomes;
+- verification evidence references and hashes;
+- approved lessons and known failure patterns;
+- provenance, version and review status.
+
+Default behaviour is not to retain raw screenshots, camera frames, passwords, tokens, personal messages or unrelated visible data. Memory writes must be minimised, access-controlled, retention-limited and correctable. Unverified observations must never be promoted to verified facts.
+
+## 3. Logical data flow
+
+1. User creates a task and selects an authorised target environment.
+2. The adapter requests and confirms required OS/app permissions.
+3. V.I.S.I.O.N. captures a bounded observation and emits provenance metadata.
+4. AFI PRIME proposes a typed plan with preconditions and postconditions.
+5. The policy enforcement point evaluates the task and each proposed action.
+6. The user approves consequential actions through a trusted approval surface.
+7. D.D. receives a short-lived grant and executes one action.
+8. V.I.S.I.O.N. obtains a fresh observation where appropriate.
+9. The independent verifier checks the postcondition.
+10. The action ledger records the result and evidence references.
+11. EB9PRIME receives only the approved, minimised, verified learning record.
+
+## 4. Action lifecycle
+
+Use the following explicit states:
+
+`PROPOSED → POLICY_CHECK → AWAITING_APPROVAL → GRANTED → EXECUTING → VERIFYING → VERIFIED`
+
+Terminal or exception states:
+- `DENIED`
+- `CANCELLED`
+- `EXPIRED`
+- `FAILED`
+- `UNKNOWN`
+- `RECOVERY_REQUIRED`
+
+No transition may skip policy evaluation. Only the policy service can issue `GRANTED`. Only the verifier can issue `VERIFIED`. An executor timeout or lost connection must not be interpreted as failure if the external action may have succeeded; it becomes `UNKNOWN` pending reconciliation.
+
+## 5. Typed contracts
+
+The first implementation must define versioned schemas equivalent to these conceptual contracts.
+
+### Observation
+
+Required fields:
+- `schema_version`
+- `observation_id`
+- `source_adapter`
+- `source_session_id`
+- `captured_at` (UTC timestamp)
+- `application_identity` (when available)
+- `viewport_or_frame_id`
+- `content_digest`
+- `detected_elements[]`
+- `confidence` and calibrated uncertainty
+- `redaction_applied`
+- `expiry_at`
+
+Every detected element includes a stable observation-local ID, semantic role, visible label if any, geometry, confidence and ambiguity flags. Coordinates are bound to the observation's viewport and must never be reused after a new capture or viewport change.
+
+### Action request
+
+Required fields:
+- `schema_version`
+- `task_id`
+- `action_id` (unique and non-reusable)
+- `actor_id`
+- `target_application`
+- `target_session_id`
+- `observation_id`
+- `action_type` from a strict allowlist
+- `target_element_id`
+- `typed_parameters`
+- `preconditions[]`
+- `expected_postconditions[]`
+- `idempotency_class`
+- `requested_at`
+- `expires_at`
+
+No free-form executable command field is permitted.
+
+### Policy decision / grant
+
+Required fields:
+- `decision_id`
+- `policy_version`
+- `decision` (`ALLOW`, `DENY`, `REQUIRE_APPROVAL`)
+- `reason_codes[]`
+- `approved_scope`
+- `target_application`
+- `target_session_id`
+- `action_digest`
+- `approver_identity` where applicable
+- `issued_at`
+- `expires_at`
+- `nonce`
+
+A grant is bound to the exact action digest, target and session. It cannot be reused for a different action.
+
+### Verification result
+
+Required fields:
+- `verification_id`
+- `action_id`
+- `verifier_identity`
+- `verification_method`
+- `evidence_reference`
+- `expected_postcondition`
+- `observed_postcondition`
+- `result` (`VERIFIED`, `NOT_VERIFIED`, `UNKNOWN`)
+- `verified_at`
+- `verifier_version`
+
+## 6. Risk classes and default approval
+
+| Class | Examples | Default policy |
+|---|---|---|
+| R0 — Observe | Capture an explicitly selected screen; inspect a public page | User permission required for capture; no mutation |
+| R1 — Reversible low impact | Open a tab, navigate within a task workspace, enter non-sensitive search text | May be delegated within an explicit task scope |
+| R2 — External or persistent change | Save settings, create a draft, submit a non-public form | Human approval required |
+| R3 — Consequential | Send/publish, purchase, pay, transfer, delete, change access/security, accept legal terms | Explicit per-action human approval; never blanket-approved in v1 |
+| R4 — Prohibited | Credential exfiltration, covert surveillance, bypassing security, destructive/unlawful actions | Deny |
+
+Risk classification is based on the action's effect, not its UI label. A button labelled “Continue” may still trigger an R3 action.
+
+## 7. Freshness, grounding and execution rules
+
+- Every action references a specific observation ID.
+- Before action, the adapter confirms the same app, session, viewport and target are still active.
+- Any material screen, DOM, app, account or navigation change invalidates dependent coordinates and plans.
+- A target must be grounded by multiple signals where available: semantic role, accessible name, application identity, nearby context and geometry.
+- Confidence thresholds must be calibrated using representative test data; arbitrary model-reported confidence is insufficient.
+- If a target is ambiguous, obscured, stale or low-confidence, stop and request a new observation or human input.
+- Use application-native APIs or semantic accessibility identifiers ahead of pixel coordinates where supported.
+- Never click based on stale coordinates.
+
+## 8. Idempotency and recovery
+
+Actions must be classified:
+- read-only;
+- idempotent mutation;
+- non-idempotent mutation;
+- externally consequential.
+
+For a timeout after a potentially non-idempotent action:
+1. stop retries;
+2. mark outcome `UNKNOWN`;
+3. query authoritative state through an independent read path;
+4. reconcile before any further attempt;
+5. request human intervention if reconciliation is unavailable.
+
+Rollback is not assumed. Compensating actions require their own policy decision and approval.
+
+## 9. Action ledger and evidence
+
+Record append-only events for task creation, observation reference, plan digest, policy decision, approval, grant, execution attempt, adapter result, verification and recovery.
+
+Requirements:
+- authenticated actor identity and UTC timestamps;
+- canonical event serialization and versioned schemas;
+- integrity protection with externally anchored signatures/checkpoints for production-grade tamper evidence;
+- restricted write identities and read access;
+- redaction of secrets and unrelated personal content;
+- retention and deletion policy;
+- export, restore and chain-continuity exercises.
+
+A local hash chain alone is not independent tamper protection and is not sufficient for production audit assurance.
+
+## 10. Platform adapters
+
+### Desktop/browser
+
+Use supported automation interfaces with explicit session binding, origin/domain restrictions, isolated profiles where possible, and a trusted approval surface outside the content being automated. Treat webpage content as untrusted input. Never allow page content to rewrite the task or policy.
+
+### Android
+
+A dedicated Android application/service is required for native screen capture and accessibility-driven interaction. It must use Android's supported consent and permission flows, clearly indicate active capture/operation, support immediate stop, and avoid hidden background monitoring. Accessibility permissions are powerful; use a narrowly scoped service, explain why each permission is needed, and do not request broad permissions before the corresponding feature is implemented. Validate against the actual target OS version, OEM restrictions and device capabilities.
+
+### Physical environment
+
+Camera, spatial awareness and compass capabilities are a separate sensor adapter and safety case. They are not implied by desktop screen perception and are excluded from v1 production approval.
+
+## 11. Observability and operations
+
+Required telemetry:
+- task/action correlation IDs;
+- policy decisions and reason codes;
+- observation age and confidence distribution;
+- action latency and failure rates;
+- unknown outcome rate;
+- verification success and disagreement rate;
+- permission denials and revocations;
+- adapter health and version;
+- privacy-safe audit references.
+
+No screenshots, raw page text, credentials or sensitive user content in ordinary logs. Provide kill switch, session revocation, adapter disablement, safe shutdown and incident export.
+
+## 12. Architecture decisions still required
+
+Before implementation, record explicit decisions for:
+- supported first platform and app allowlist;
+- Android package/application and minimum OS support;
+- desktop/browser automation adapter;
+- model runtime and perception/OCR stack;
+- policy engine and approval UX;
+- independent verifier implementation;
+- evidence storage, external signing and retention;
+- identity provider and device/session binding;
+- deployment topology, secrets, monitoring and rollback.
+
+Do not select dependencies solely to satisfy an architectural naming or ninefold symmetry preference. Choose them by measured capability, reliability, security, device constraints and maintenance cost.
