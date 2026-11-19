@@ -55,7 +55,7 @@ class AFIPrimeFusionAdapter:
             facts.add("text_embedding")
         elif model.model_type == "decision":
             facts.add("decision_model")
-        elif model.model_type == "catalog_model":
+        elif model.model_type in {"catalog_model", "catalog_candidate"}:
             facts.add("catalog_model")
         capabilities = getattr(model, "capabilities", None) or {}
         if capabilities.get("vision") is True:
@@ -79,7 +79,7 @@ class AFIPrimeFusionAdapter:
         if "cloud" in availability:
             facts.add("cloud_catalog_availability")
         key = str(model.key)
-        is_public_catalog = model.model_type == "catalog_model"
+        is_public_catalog = model.model_type in {"catalog_model", "catalog_candidate"}
         return AFIModelCapabilityProfile(
             profile_id="afi_model_" + hashlib.sha256(key.encode("utf-8")).hexdigest()[:20],
             model_key=key,
@@ -100,14 +100,14 @@ class AFIPrimeFusionAdapter:
             catalog_star_count=getattr(model, "star_count", None),
             catalog_updated=getattr(model, "updated", None),
             catalog_artifact_links=tuple(getattr(model, "artifact_links", ()) or ()),
-            source_url=getattr(model, "details_url", None),
+            source_url=getattr(model, "details_url", getattr(model, "catalog_url", None)),
             capability_facts=tuple(sorted(facts)),
             evidence_source=(
-                "LM Studio public Model Catalog page" if is_public_catalog
+                "User-supplied LM Studio Model Catalog record" if is_public_catalog
                 else "LM Studio native REST API v1 model inventory"
             ),
             evidence_class=(
-                "PUBLISHER_REPORTED_CATALOG_METADATA" if is_public_catalog
+                "USER_SUPPLIED_CATALOG_METADATA" if model.model_type == "catalog_candidate" else "PUBLISHER_REPORTED_CATALOG_METADATA" if is_public_catalog
                 else "PUBLISHER_REPORTED_METADATA"
             ),
             evaluation_state="METADATA_ONLY_NOT_BENCHMARKED",
