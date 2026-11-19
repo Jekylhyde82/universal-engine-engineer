@@ -34,6 +34,13 @@ class AcquisitionRegisterTests(unittest.TestCase):
         self.assertEqual(entry.evidence_verification_status, "UNVERIFIED")
         self.assertEqual(self.engine.get_acquisition(self.record.record_id), entry)
 
+    def test_rejects_non_string_lifecycle_status(self):
+        self.engine.register_acquisition(
+            self.record.record_id, original_idea_value="Test invalid lifecycle type."
+        )
+        with self.assertRaises(UAIEError):
+            self.engine.set_acquisition_lifecycle(self.record.record_id, ["approved"])
+
     def test_rejects_revenue_models_as_a_plain_string(self):
         with self.assertRaises(UAIEError):
             self.engine.register_acquisition(
