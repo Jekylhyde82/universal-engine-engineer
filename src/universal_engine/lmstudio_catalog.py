@@ -239,49 +239,12 @@ def download_catalog_candidate(
     )
 
 
-def main(argv: Any = None) -> int:
-    """Import a reviewed JSON candidate and print the official CLI proposal."""
-    parser = argparse.ArgumentParser(
-        description="Import a reviewed LM Studio catalog candidate into UAIE and AFI")
-    parser.add_argument("candidate_json", help="path to a user-reviewed candidate JSON file")
-    parser.add_argument("--db", default="uaie.sqlite3", help="UAIE SQLite database path")
-    args = parser.parse_args(argv)
-    try:
-        source_path = Path(args.candidate_json).expanduser()
-        if source_path.is_symlink() or not source_path.is_file():
-            raise LMStudioCatalogError("candidate path must be a regular non-symlink file")
-        raw = source_path.read_bytes()
-        if len(raw) > 256 * 1024:
-            raise LMStudioCatalogError("candidate JSON exceeds the 256 KiB limit")
-        value = json.loads(raw.decode("utf-8"))
-        candidate = candidate_from_mapping(value)
-        from .uaie import UniversalAcquisitionIntegrationEngine
-        engine = UniversalAcquisitionIntegrationEngine(args.db)
-        catalog_record, afi_record, register_entry = assimilate_catalog_candidate(engine, candidate)
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError, LMStudioCatalogError, ValueError) as exc:
-        print(f"UAIE catalog intake error: {exc}", file=sys.stderr)
-        return 2
-    print(json.dumps({
-        "catalog_record_id": catalog_record.record_id,
-        "afi_profile_record_id": afi_record.record_id,
-        "acquisition_id": register_entry.acquisition_id,
-        "lifecycle_status": register_entry.lifecycle_status,
-        "download_command_proposal": build_download_command(candidate),
-        "command_executed": False,
-        "model_downloaded": False,
-    }, indent=2))
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-
 def assimilate_catalog_candidate(
     engine: Any,
     candidate: LMStudioCatalogCandidate,
     afi_adapter: Any | None = None,
-) -> tuple[Any, Any]:
-    """Persist the supplied candidate and AFI profile; no website or model access."""
+) -> tuple[Any, Any, Any]:
+    """Persist the supplied candidate, AFI profile and acquisition-register entry."""
     from .afi import AFIPrimeFusionAdapter
 
     if not isinstance(candidate, LMStudioCatalogCandidate):
@@ -305,3 +268,87 @@ def assimilate_catalog_candidate(
         evidence_verification_status=candidate.evidence_verification_status,
     )
     return catalog_record, profile_record, register_entry
+
+
+def main(argv: Any = None) -> int:
+    """Import a reviewed catalog candidate, or download it after dual approval."""
+    parser = argparse.ArgumentParser(
+        description="Import and govern an LM Studio catalog candidate in UAIE")
+    parser.add_argument("candidate_json", help="path to a user-reviewed candidate JSON file")
+    parser.add_argument("--db", default="uaie.sqlite3", help="UAIE SQLite database path")
+    parser.add_argument("--download", action="store_true", help="start an approved model download")
+    parser.add_argument("--approved", action="store_true", help="explicitly confirm the download action")
+    parser.add_argument("--record-id", help="UAIE acquisition record ID; required for download")
+    parser.add_argument("--base-url", default="http://127.0.0.1:1234")
+    parser.add_argument("--token-env", default="LM_API_TOKEN")
+    parser.add_argument("--huggingface-url", help="exact reviewed Hugging Face artifact URL")
+    args = parser.parse_args(argv)
+    try:
+        if args.download and not args.approved:
+            raise LMStudioCatalogError("--download requires explicit --approved")
+        if args.approved and not args.download:
+            raise LMStudioCatalogError("--approved is valid only with --download")
+        if args.download and not args.record_id:
+            raise LMStudioCatalogError("--download requires --record-id for the approved acquisition entry")
+        source_path = Path(args.candidate_json).expanduser()
+        if source_path.is_symlink() or not source_path.is_file():
+            raise LMStudioCatalogError("candidate path must be a regular non-symlink file")
+        raw = source_path.read_bytes()
+        if len(raw) > 256 * 1024:
+            raise LMStudioCatalogError("candidate JSON exceeds the 256 KiB limit")
+        value = json.loads(raw.decode("utf-8"))
+        candidate = candidate_from_mapping(value)
+        from .uaie import UniversalAcquisitionIntegrationEngine
+        engine = UniversalAcquisitionIntegrationEngine(args.db)
+        catalog_record, afi_record, register_entry = assimilate_catalog_candidate(engine, candidate)
+        if args.download:
+            from .lmstudio import download_model
+            job = download_catalog_candidate(
+                engine, candidate, args.record_id, approved=True,
+                base_url=args.base_url, api_token=os.environ.get(args.token_env),
+                huggingface_model_url=args.huggingface_url,
+            )
+            result = {
+                "catalog_record_id": catalog_record.record_id,
+                "afi_profile_record_id": afi_record.record_id,
+                "acquisition_id": register_entry.acquisition_id,
+                "download_job": asdict(job),
+                "download_started": job.status in {"downloading", "paused"},
+            }
+        else:
+            result = {
+                "catalog_record_id": catalog_record.record_id,
+                "afi_profile_record_id": afi_record.record_id,
+                "acquisition_id": register_entry.acquisition_id,
+                "lifecycle_status": register_entry.lifecycle_status,
+                "download_command_proposal": build_download_command(candidate),
+                "command_executed": False,
+                "model_downloaded": False,
+            }
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, LMStudioCatalogError, ValueError) as exc:
+        print(f"UAIE catalog intake error: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
+def status_main(argv: Any = None) -> int:
+    """Poll a download job through the official local LM Studio REST API."""
+    parser = argparse.ArgumentParser(description="Check an LM Studio model download job")
+    parser.add_argument("job_id")
+    parser.add_argument("--base-url", default="http://127.0.0.1:1234")
+    parser.add_argument("--token-env", default="LM_API_TOKEN")
+    args = parser.parse_args(argv)
+    try:
+        from .lmstudio import get_download_status
+        job = get_download_status(
+            args.job_id, base_url=args.base_url, api_token=os.environ.get(args.token_env))
+    except ValueError as exc:
+        print(f"UAIE download status error: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(asdict(job), indent=2, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
