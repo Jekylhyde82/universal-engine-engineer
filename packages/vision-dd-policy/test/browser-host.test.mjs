@@ -36,6 +36,9 @@ test("browser host launches isolated Chromium with service workers blocked and c
     await host.page.goto(origin);
     const observation = await host.adapter.observe();
     assert.equal(observation.application_identity, origin);
+    await host.page.evaluate(() => window.open("https://evil.test/popup", "_blank"));
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    assert.equal(host.context.pages().length, 1);
     await host.close();
     host = null;
     await assert.rejects(() => lstat(profilePath), { code: "ENOENT" });
