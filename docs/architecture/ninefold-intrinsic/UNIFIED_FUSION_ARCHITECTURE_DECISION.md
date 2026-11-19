@@ -120,6 +120,21 @@ Required safeguards:
 
 A failure or quarantine of one internal capability must not silently corrupt the whole unified entity.
 
+### 5.1 Nine scoped instance boundaries
+
+Each of the nine UMIC-scoped instances of the shared Unified Fusion Synergy — AFI PRIME function must have its own independently bounded:
+
+- **Execution context:** a dedicated context identity, lifecycle, resource budget, cancellation path and runtime boundary. One instance must not be able to inspect or control another instance's execution context except through an explicitly governed contract.
+- **State boundary:** an instance-specific state namespace and ownership model. No shared mutable execution state. Cross-instance information exchange must use typed, versioned, policy-checked messages with provenance, validation and explicit data classification.
+- **Evidence trail:** a distinct, append-only, instance-scoped evidence stream. Events must identify the instance, shared fusion-function version, policy version, task/action correlation, timestamps and evidence digests. Evidence streams may be aggregated for entity-level audit, but aggregation must preserve source identity and must not erase or rewrite instance provenance.
+- **Fault-containment domain:** an instance-specific failure boundary with bounded resource use, timeouts, cancellation, health state, quarantine and recovery. A fault in one instance must not silently corrupt another instance's state or disable the whole entity. Cross-instance degradation must be explicit and observable.
+
+The nine instances share one versioned canonical AFI PRIME logic identity and one canonical governance model. Shared logic and policy definitions are immutable/versioned inputs to an instance; mutable runtime state, credentials, grants, evidence streams and fault state are not implicitly shared.
+
+Permissions are evaluated for the requesting instance, actor, task, resource and action. No instance inherits another instance's permissions by virtue of common identity. Cross-instance access requires an explicit, least-privilege, auditable contract. Governance remains an independent authority and the fusion function cannot grant itself access.
+
+**Implementation status:** required architecture contract; nine isolated runtime contexts, state stores, evidence streams and fault domains are **not implemented or independently verified** by this decision record.
+
 ## 6. Governance and independent verification
 
 Unity of identity does not confer unlimited authority.
@@ -180,6 +195,7 @@ The architecture is not implementation-complete until all applicable criteria ar
 8. **Security and authority:** tests show that internal fusion cannot bypass policy, permissions, approvals or data boundaries.
 9. **Independent verification:** verification is performed by a genuinely separate authority and is bound to exact artefacts and postconditions.
 10. **Evolution and rollback:** a new capability can be evaluated, integrated, rejected or retired with provenance and safe rollback.
+11. **Instance isolation:** tests demonstrate nine unique execution contexts, state namespaces, evidence streams and fault domains; no shared mutable state or implicit permission inheritance; and fault injection confirms bounded cross-instance impact.
 
 Passing documentation checks alone is not sufficient. Each criterion requires implementation evidence appropriate to its risk.
 
