@@ -156,3 +156,14 @@ test("invalid JSON and oversized request bodies are rejected", async () => {
     assert.equal((await fetch(url + "/v1/grants", { method: "POST", headers, body: "x".repeat(100) })).status, 413);
   });
 });
+
+test("JSONP-like media types are not accepted as JSON", async () => {
+  await withServer(baseOptions(), async (url) => {
+    const response = await fetch(url + "/v1/grants", {
+      method: "POST",
+      headers: { authorization: "Bearer test-token", "content-type": "application/jsonp" },
+      body: JSON.stringify({ action_request: request() }),
+    });
+    assert.equal(response.status, 415);
+  });
+});
