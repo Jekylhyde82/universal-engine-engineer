@@ -144,6 +144,15 @@ Do not set `approved=True` in unattended discovery or assimilation workflows.
 
 `universal_engine.lmstudio` reads the documented native v1 endpoint `GET /api/v1/models` from an explicitly configured loopback server. It is read-only. It does not download weights, load/unload models, execute inference or change LM Studio configuration. Optional API tokens are read at runtime and never persisted.
 
+The installed inventory command can inspect the local catalogue or persist the inventory and AFI profiles:
+
+```bash
+uaie-lmstudio-inventory
+LM_API_TOKEN='your-token' uaie-lmstudio-inventory --ingest --db uaie.sqlite3
+```
+
+The `--ingest` mode is read-only with respect to LM Studio: it only reads model metadata and stores UAIE/AFI records. It does not download, load, unload or execute models.
+
 This local API adapter is the post-acquisition verification step: it can confirm that a selected model appears in the local LM Studio inventory, but it does not by itself prove that the model performs well or is suitable for a particular Engine task.
 
 ## Governance and production gates
