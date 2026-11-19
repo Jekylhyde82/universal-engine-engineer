@@ -124,10 +124,15 @@ export function createBrowserAdapter({
   const observations = new Map();
   let stopped = false;
   let actionInFlight = false;
+  let blockedHttpRequests = 0;
+  let blockedWebSocketRequests = 0;
   const activeWebSockets = new Set();
   const routeReady = Promise.all([
     Promise.resolve(context.route("**/*", async (route) => {
-      if (stopped) return route.abort("blockedbyclient");
+      if (stopped) {
+        blockedHttpRequests += 1;
+        return route.abort("blockedbyclient");
+      }
       const rawUrl = route.request().url();
       if (rawUrl === "about:blank" || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:")) {
         return route.continue();
@@ -136,11 +141,15 @@ export function createBrowserAdapter({
         safePageUrl(rawUrl, origins);
         return route.continue();
       } catch {
+        blockedHttpRequests += 1;
         return route.abort("blockedbyclient");
       }
     })),
     Promise.resolve(context.routeWebSocket("**/*", async (webSocketRoute) => {
-      if (stopped) return webSocketRoute.close({ code: 1008, reason: "session stopped" });
+      if (stopped) {
+        blockedWebSocketRequests += 1;
+        return webSocketRoute.close({ code: 1008, reason: "session stopped" });
+      }
       try {
         const socketUrl = new URL(webSocketRoute.url());
         if (socketUrl.username || socketUrl.password ||
@@ -169,6 +178,7 @@ export function createBrowserAdapter({
         webSocketRoute.onClose((code, reason) => closePeer(upstream, code, reason));
         upstream.onClose((code, reason) => closePeer(webSocketRoute, code, reason));
       } catch {
+        blockedWebSocketRequests += 1;
         return webSocketRoute.close({ code: 1008, reason: "WebSocket origin not allowlisted" });
       }
     })),
@@ -375,6 +385,16 @@ export function createBrowserAdapter({
   return Object.freeze({
     observe,
     execute,
+    getStatus() {
+      return Object.freeze({
+        stopped,
+        action_in_flight: actionInFlight,
+        active_websockets: activeWebSockets.size,
+        blocked_http_requests: blockedHttpRequests,
+        blocked_websocket_requests: blockedWebSocketRequests,
+        retained_observations: observations.size,
+      });
+    },
     stop() {
       stopped = true;
       observations.clear();
