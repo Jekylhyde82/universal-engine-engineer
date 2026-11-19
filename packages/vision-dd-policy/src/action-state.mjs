@@ -6,6 +6,7 @@ const TRANSITIONS = {
     AWAITING_APPROVAL: new Set(["policy"]),
     GRANTED: new Set(["policy"]),
     DENIED: new Set(["policy"]),
+    CANCELLED: new Set(["system"]),
     EXPIRED: new Set(["system"]),
   },
   AWAITING_APPROVAL: {
