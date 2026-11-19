@@ -3,6 +3,8 @@ import { chmod, mkdir, open, readFile } from "node:fs/promises";
 import { dirname } from "node:path";
 
 const ZERO_HASH = "0".repeat(64);
+const MAX_EVIDENCE_BYTES = 16 * 1024 * 1024;
+const MAX_EVIDENCE_EVENTS = 100_000;
 
 export function hashEvidencePayload(payload) {
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
@@ -29,6 +31,7 @@ export async function openEvidenceStream({ filePath, instanceId, functionVersion
   await chmod(filePath, 0o600);
 
   const existing = await readFile(filePath, "utf8");
+  let fileBytes = (await handle.stat()).size;
   const events = existing.trim() ? existing.trimEnd().split("\n").map((line) => JSON.parse(line)) : [];
   const verified = verifyEvidenceEvents(events, instanceId);
   for (const event of events) {
@@ -55,9 +58,14 @@ export async function openEvidenceStream({ filePath, instanceId, functionVersion
         details,
         previousHash,
       };
+      if (events.length >= MAX_EVIDENCE_EVENTS) throw new Error("Evidence event limit reached.");
       const event = { ...payload, hash: hashEvidencePayload(payload) };
-      await handle.write(JSON.stringify(event) + "\n");
+      const line = JSON.stringify(event) + "\n";
+      const lineBytes = Buffer.byteLength(line);
+      if (fileBytes + lineBytes > MAX_EVIDENCE_BYTES) throw new Error("Evidence stream byte limit reached.");
+      await handle.write(line);
       await handle.sync();
+      fileBytes += lineBytes;
       events.push(event);
       previousHash = event.hash;
       return { ...event };
