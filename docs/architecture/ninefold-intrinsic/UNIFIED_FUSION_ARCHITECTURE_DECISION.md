@@ -133,7 +133,7 @@ The nine instances share one versioned canonical AFI PRIME logic identity and on
 
 Permissions are evaluated for the requesting instance, actor, task, resource and action. No instance inherits another instance's permissions by virtue of common identity. Cross-instance access requires an explicit, least-privilege, auditable contract. Governance remains an independent authority and the fusion function cannot grant itself access.
 
-**Implementation status:** required architecture contract; nine isolated runtime contexts, state stores, evidence streams and fault domains are **not implemented or independently verified** by this decision record.
+**Implementation status:** a limited proof-of-capability now runs nine separate Node.js child processes with instance-local in-memory state, per-instance hash-chained evidence files, governed parent-broker access and process-level fault containment. This is not the production NINEFOLD INTRINSIC runtime: host-OS isolation, hardened resource/network controls, durable state recovery, external evidence anchoring, production identity/approval and independent verification remain outstanding. See `packages/ninefold-fusion-runtime/`.
 
 ## 6. Governance and independent verification
 
