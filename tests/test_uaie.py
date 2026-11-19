@@ -86,5 +86,39 @@ class UAIETests(unittest.TestCase):
         self.assertIn('"tool"', self.engine.export_record(record.record_id)["content"])
 
 
+    def test_capability_register_preserves_original_idea_and_required_fields(self):
+        record = self.engine.ingest_text("candidate", "ideas/original.md")
+        assessment = self.engine.record_capability_assessment(
+            record.record_id,
+            original_idea_value="Original concept: adaptive capability discovery.",
+            market_value="Unknown; requires market research.",
+            revenue_models=["subscription", "licensing"],
+            development_timeline="Unknown; requires technical scoping.",
+            risk_assessment="Unassessed; threat and feasibility reviews required.",
+            evidence=["https://example.invalid/source-note"],
+            verification_status="under_review",
+        )
+        self.assertEqual(assessment.original_idea_value,
+                         "Original concept: adaptive capability discovery.")
+        self.assertEqual(assessment.verification_status, "under_review")
+        self.assertEqual(assessment.revenue_models, ("subscription", "licensing"))
+        self.assertEqual(self.engine.get_capability_assessment(record.record_id), assessment)
+
+    def test_capability_register_rejects_missing_original_idea_value(self):
+        record = self.engine.ingest_text("candidate", "ideas/empty.md")
+        with self.assertRaises(UAIEError):
+            self.engine.record_capability_assessment(
+                record.record_id, original_idea_value=" ", market_value="unknown",
+                revenue_models=[], development_timeline="unknown",
+                risk_assessment="unknown", evidence=[])
+
+    def test_capability_register_requires_existing_acquisition_record(self):
+        with self.assertRaises(UAIEError):
+            self.engine.record_capability_assessment(
+                "missing", original_idea_value="Original idea",
+                market_value="unknown", revenue_models=[],
+                development_timeline="unknown", risk_assessment="unknown", evidence=[])
+
+
 if __name__ == "__main__":
     unittest.main()
