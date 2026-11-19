@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { generateKeyPairSync } from "node:crypto";
 import { createServer } from "../src/policy-server.mjs";
+import { computeActionDigest } from "../src/policy.mjs";
 
 const { privateKey } = generateKeyPairSync("ed25519");
 const privateKeyPem = privateKey.export({ type: "pkcs8", format: "pem" });
@@ -118,7 +119,7 @@ test("R2 action requires and validates a human approval", async () => {
     });
     assert.equal(missing.status, 409);
     const approval = {
-      action_digest: "digest-placeholder",
+      action_digest: computeActionDigest(action_request),
       policy_version: "policy-7",
       task_id: "task-1",
       actor_id: "user-1",
