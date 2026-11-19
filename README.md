@@ -129,7 +129,7 @@ The SQLite ledger is local persistence, not distributed consensus or tamper-proo
 May our RAM never run out, our dependencies never conflict, and our builds always pass!
 
 
-## UAIE — Universal Assimilation and Integration Engine
+## UAIE — Universal Acquisition and Integration Engine
 
 The first local-first working prototype is documented in [UAIE Prototype v0.1](docs/UAIE-PROTOTYPE.md).
 

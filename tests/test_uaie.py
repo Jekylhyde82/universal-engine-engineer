@@ -2,7 +2,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from universal_engine.uaie import UAIEError, UniversalAssimilationEngine
+from universal_engine.uaie import (UAIEError, UniversalAcquisitionEngine,
+                                    UniversalAssimilationEngine)
 
 
 class UAIETests(unittest.TestCase):
@@ -84,6 +85,109 @@ class UAIETests(unittest.TestCase):
         record = self.engine.ingest_object({"tool": "example", "enabled": False})
         self.assertEqual(record.category, "structured_data")
         self.assertIn('"tool"', self.engine.export_record(record.record_id)["content"])
+
+
+    def test_audit_chain_records_acquisition_and_detects_tampering(self):
+        record = self.engine.ingest_text("audited payload", "audit/source.md")
+        self.engine.ingest_text("audited payload", "audit/duplicate.md")
+        self.assertTrue(self.engine.verify_audit_chain()["valid"])
+        self.assertEqual(self.engine.verify_audit_chain()["event_count"], 2)
+        import sqlite3
+        with sqlite3.connect(self.db) as db:
+            db.execute("UPDATE audit_events SET payload_json=? WHERE sequence=1",
+                       ('{"tampered":true}',))
+        result = self.engine.verify_audit_chain()
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["failure_sequence"], 1)
+
+    def test_audit_chain_detects_deleted_tail_after_later_append(self):
+        import sqlite3
+        self.engine.ingest_text("event one", "audit/one.md")
+        self.engine.ingest_text("event two", "audit/two.md")
+        with sqlite3.connect(self.db) as db:
+            db.execute("DELETE FROM audit_events WHERE sequence=2")
+        self.engine.ingest_text("event three", "audit/three.md")
+        result = self.engine.verify_audit_chain()
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["failure_sequence"], 3)
+
+
+    def test_audit_chain_records_lifecycle_and_assessment_events(self):
+        record = self.engine.ingest_text("audited lifecycle", "audit/lifecycle.md")
+        self.engine.record_capability_assessment(
+            record.record_id, original_idea_value="Original idea",
+            market_value="Unknown", revenue_models=[],
+            development_timeline="Unknown", risk_assessment="Unassessed", evidence=[])
+        self.engine.set_state(record.record_id, "approved")
+        self.assertTrue(self.engine.verify_audit_chain()["valid"])
+        self.assertEqual(self.engine.verify_audit_chain()["event_count"], 3)
+
+
+    def test_duplicate_content_retains_all_source_provenance(self):
+        first = self.engine.ingest_text("shared artifact", "source/first.md")
+        second = self.engine.ingest_text("shared artifact", "source/second.md")
+        self.assertEqual(first.record_id, second.record_id)
+        self.assertTrue(second.duplicate)
+        sources = self.engine.get_sources(first.record_id)
+        self.assertEqual({item["source"] for item in sources},
+                         {"source/first.md", "source/second.md"})
+
+
+    def test_canonical_engine_name_and_legacy_alias(self):
+        self.assertIs(UniversalAssimilationEngine, UniversalAcquisitionEngine)
+        canonical = UniversalAcquisitionEngine(self.db)
+        self.assertEqual(canonical.ingest_text("canonical", "canonical.txt").state,
+                         "assimilated")
+
+
+    def test_capability_register_preserves_original_idea_and_required_fields(self):
+        record = self.engine.ingest_text("candidate", "ideas/original.md")
+        assessment = self.engine.record_capability_assessment(
+            record.record_id,
+            original_idea_value="Original concept: adaptive capability discovery.",
+            market_value="Unknown; requires market research.",
+            revenue_models=["subscription", "licensing"],
+            development_timeline="Unknown; requires technical scoping.",
+            risk_assessment="Unassessed; threat and feasibility reviews required.",
+            evidence=["https://example.invalid/source-note"],
+            verification_status="under_review",
+        )
+        self.assertEqual(assessment.original_idea_value,
+                         "Original concept: adaptive capability discovery.")
+        self.assertEqual(assessment.verification_status, "under_review")
+        self.assertEqual(assessment.revenue_models, ("subscription", "licensing"))
+        self.assertEqual(self.engine.get_capability_assessment(record.record_id), assessment)
+
+    def test_original_idea_value_cannot_be_overwritten(self):
+        record = self.engine.ingest_text("original concept", "ideas/immutable.md")
+        self.engine.record_capability_assessment(
+            record.record_id, original_idea_value="Exact original wording",
+            market_value="Unknown", revenue_models=[],
+            development_timeline="Unknown", risk_assessment="Unassessed", evidence=[])
+        with self.assertRaises(UAIEError):
+            self.engine.record_capability_assessment(
+                record.record_id, original_idea_value="Rewritten by a later process",
+                market_value="Updated estimate", revenue_models=[],
+                development_timeline="Updated timeline",
+                risk_assessment="Updated risk review", evidence=[])
+        stored = self.engine.get_capability_assessment(record.record_id)
+        self.assertEqual(stored.original_idea_value, "Exact original wording")
+
+
+    def test_capability_register_rejects_missing_original_idea_value(self):
+        record = self.engine.ingest_text("candidate", "ideas/empty.md")
+        with self.assertRaises(UAIEError):
+            self.engine.record_capability_assessment(
+                record.record_id, original_idea_value=" ", market_value="unknown",
+                revenue_models=[], development_timeline="unknown",
+                risk_assessment="unknown", evidence=[])
+
+    def test_capability_register_requires_existing_acquisition_record(self):
+        with self.assertRaises(UAIEError):
+            self.engine.record_capability_assessment(
+                "missing", original_idea_value="Original idea",
+                market_value="unknown", revenue_models=[],
+                development_timeline="unknown", risk_assessment="unknown", evidence=[])
 
 
 if __name__ == "__main__":

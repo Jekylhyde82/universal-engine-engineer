@@ -1,7 +1,7 @@
-"""UAIE: local-first universal acquisition, understanding and assimilation prototype.
+"""UAIE: local-first Universal Acquisition and Integration Engine prototype.
 
 This module stores source material and provenance without executing acquired content.
-It is intentionally conservative: discovery/assimilation are automatic; integration
+It is intentionally conservative: discovery/acquisition intake is automatic; integration
 and execution remain explicit, separately governed operations.
 """
 from __future__ import annotations
@@ -36,7 +36,20 @@ class UAIEError(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
-class AssimilationRecord:
+class CapabilityAssessment:
+    record_id: str
+    original_idea_value: str
+    market_value: str
+    revenue_models: tuple[str, ...]
+    development_timeline: str
+    risk_assessment: str
+    evidence: tuple[str, ...]
+    verification_status: str
+    updated_at: str
+
+
+@dataclass(frozen=True, slots=True)
+class AcquisitionRecord:
     record_id: str
     content_hash: str
     source: str
@@ -80,8 +93,8 @@ def _assess(text: str | None) -> tuple[int, tuple[str, ...]]:
     return score, found
 
 
-class UniversalAssimilationEngine:
-    """Persistent intake and assessment store. Acquired material is never executed."""
+class UniversalAcquisitionEngine:
+    """Persistent acquisition and assessment store. Acquired material is never executed."""
 
     def __init__(self, database: str | os.PathLike[str] = "uaie.sqlite3",
                  max_bytes: int = DEFAULT_MAX_BYTES):
@@ -114,10 +127,39 @@ class UniversalAssimilationEngine:
                   ('discovered','assimilated','approved','integrated','rejected')),
                 created_at TEXT NOT NULL
             )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS audit_events (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                record_id TEXT NOT NULL,
+                actor TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                previous_hash TEXT NOT NULL,
+                event_hash TEXT NOT NULL UNIQUE,
+                created_at TEXT NOT NULL
+            )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS acquisition_sources (
+                record_id TEXT NOT NULL,
+                source TEXT NOT NULL,
+                media_type TEXT NOT NULL,
+                observed_at TEXT NOT NULL,
+                PRIMARY KEY(record_id, source, media_type)
+            )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS capability_assessments (
+                record_id TEXT PRIMARY KEY,
+                original_idea_value TEXT NOT NULL,
+                market_value TEXT NOT NULL,
+                revenue_models_json TEXT NOT NULL,
+                development_timeline TEXT NOT NULL,
+                risk_assessment TEXT NOT NULL,
+                evidence_json TEXT NOT NULL,
+                verification_status TEXT NOT NULL CHECK(verification_status IN
+                  ('not_assessed','under_review','verified','failed')),
+                updated_at TEXT NOT NULL
+            )""")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_source ON assimilations(source)")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_state ON assimilations(state)")
 
-    def ingest_bytes(self, content: bytes, source: str, media_type: str | None = None) -> AssimilationRecord:
+    def ingest_bytes(self, content: bytes, source: str, media_type: str | None = None) -> AcquisitionRecord:
         if not isinstance(content, bytes):
             raise UAIEError("content must be bytes")
         if len(content) > self.max_bytes:
@@ -146,16 +188,23 @@ class UniversalAssimilationEngine:
                 (record_id,digest,source,guessed,category,len(content),content,text,
                  score,json.dumps(signals),state,now))
             row = db.execute("SELECT * FROM assimilations WHERE content_hash=?", (digest,)).fetchone()
+            db.execute("""INSERT OR IGNORE INTO acquisition_sources
+                (record_id,source,media_type,observed_at) VALUES (?,?,?,?)""",
+                (row["record_id"], source, guessed, now))
+            self._append_audit_event(db,
+                "acquired" if cursor.rowcount else "duplicate_source_observed",
+                row["record_id"], {"content_hash": digest, "source": source,
+                                   "media_type": guessed, "state": row["state"]})
         # INSERT OR IGNORE makes concurrent duplicate intake idempotent under SQLite's
         # unique constraint instead of leaking an IntegrityError to the caller.
         return self._row_to_record(row, duplicate=cursor.rowcount == 0)
 
-    def ingest_text(self, text: str, source: str = "inline://user-input") -> AssimilationRecord:
+    def ingest_text(self, text: str, source: str = "inline://user-input") -> AcquisitionRecord:
         if not isinstance(text, str):
             raise UAIEError("text must be a string")
         return self.ingest_bytes(text.encode("utf-8"), source, "text/plain; charset=utf-8")
 
-    def ingest_object(self, value: Any, source: str = "inline://structured-object") -> AssimilationRecord:
+    def ingest_object(self, value: Any, source: str = "inline://structured-object") -> AcquisitionRecord:
         try:
             encoded = json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2,
                                  allow_nan=False).encode("utf-8")
@@ -163,7 +212,7 @@ class UniversalAssimilationEngine:
             raise UAIEError("object must be finite JSON-serializable data") from exc
         return self.ingest_bytes(encoded, source, "application/json")
 
-    def ingest_path(self, path: str | os.PathLike[str], recursive: bool = True) -> list[AssimilationRecord]:
+    def ingest_path(self, path: str | os.PathLike[str], recursive: bool = True) -> list[AcquisitionRecord]:
         root = Path(path).expanduser()
         if root.is_symlink():
             raise UAIEError("symbolic links are not followed")
@@ -174,7 +223,7 @@ class UniversalAssimilationEngine:
         ) if recursive and root.is_dir() else []
         if root.is_dir() and not recursive:
             paths = sorted(p for p in root.iterdir() if p.is_file() and not p.is_symlink())
-        records: list[AssimilationRecord] = []
+        records: list[AcquisitionRecord] = []
         for item in paths:
             size = item.stat().st_size
             if size > self.max_bytes:
@@ -183,22 +232,80 @@ class UniversalAssimilationEngine:
         return records
 
     @staticmethod
-    def _row_to_record(row: sqlite3.Row, duplicate: bool = False) -> AssimilationRecord:
-        return AssimilationRecord(
+    def _row_to_record(row: sqlite3.Row, duplicate: bool = False) -> AcquisitionRecord:
+        return AcquisitionRecord(
             record_id=row["record_id"], content_hash=row["content_hash"],
             source=row["source"], media_type=row["media_type"], category=row["category"],
             byte_size=row["byte_size"], value_score=row["value_score"],
             signals=tuple(json.loads(row["signals_json"])), state=row["state"],
             created_at=row["created_at"], duplicate=duplicate)
 
-    def get(self, record_id: str) -> AssimilationRecord:
+    @staticmethod
+    def _append_audit_event(db: sqlite3.Connection, event_type: str,
+                            record_id: str, payload: dict[str, Any],
+                            actor: str = "local-unverified") -> None:
+        previous = db.execute(
+            "SELECT event_hash FROM audit_events ORDER BY sequence DESC LIMIT 1"
+        ).fetchone()
+        previous_hash = previous["event_hash"] if previous else "0" * 64
+        sequence = db.execute(
+            "SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name='audit_events'), 0) + 1"
+        ).fetchone()[0]
+        created_at = _now()
+        payload_json = json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                                  separators=(",", ":"), allow_nan=False)
+        material = json.dumps({
+            "sequence": sequence, "event_type": event_type, "record_id": record_id,
+            "actor": actor, "payload": payload_json, "previous_hash": previous_hash,
+            "created_at": created_at,
+        }, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        event_hash = hashlib.sha256(material.encode("utf-8")).hexdigest()
+        db.execute("""INSERT INTO audit_events
+            (sequence,event_type,record_id,actor,payload_json,previous_hash,event_hash,created_at)
+            VALUES (?,?,?,?,?,?,?,?)""",
+            (sequence,event_type,record_id,actor,payload_json,previous_hash,event_hash,created_at))
+
+    def verify_audit_chain(self) -> dict[str, Any]:
+        """Verify the local append-only hash chain; this is not external tamper-proofing."""
+        with self._connect() as db:
+            rows = db.execute("SELECT * FROM audit_events ORDER BY sequence").fetchall()
+        previous_hash = "0" * 64
+        for expected_sequence, row in enumerate(rows, start=1):
+            if row["sequence"] != expected_sequence or row["previous_hash"] != previous_hash:
+                return {"valid": False, "event_count": len(rows),
+                        "failure_sequence": row["sequence"], "final_hash": previous_hash}
+            material = json.dumps({
+                "sequence": row["sequence"], "event_type": row["event_type"],
+                "record_id": row["record_id"], "actor": row["actor"],
+                "payload": row["payload_json"], "previous_hash": row["previous_hash"],
+                "created_at": row["created_at"],
+            }, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            expected_hash = hashlib.sha256(material.encode("utf-8")).hexdigest()
+            if row["event_hash"] != expected_hash:
+                return {"valid": False, "event_count": len(rows),
+                        "failure_sequence": row["sequence"], "final_hash": previous_hash}
+            previous_hash = row["event_hash"]
+        return {"valid": True, "event_count": len(rows), "failure_sequence": None,
+                "final_hash": previous_hash}
+
+    def get_sources(self, record_id: str) -> list[dict[str, str]]:
+        """Return every observed source for a content record, not only its first source."""
+        with self._connect() as db:
+            if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
+                raise UAIEError(f"unknown record: {record_id}")
+            rows = db.execute("""SELECT source,media_type,observed_at
+                FROM acquisition_sources WHERE record_id=? ORDER BY observed_at,source""",
+                (record_id,)).fetchall()
+        return [dict(row) for row in rows]
+
+    def get(self, record_id: str) -> AcquisitionRecord:
         with self._connect() as db:
             row = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         if row is None:
             raise UAIEError(f"unknown record: {record_id}")
         return self._row_to_record(row)
 
-    def search(self, query: str, limit: int = 20) -> list[AssimilationRecord]:
+    def search(self, query: str, limit: int = 20) -> list[AcquisitionRecord]:
         if not query.strip():
             raise UAIEError("search query is required")
         if not 1 <= limit <= 100:
@@ -212,7 +319,7 @@ class UniversalAssimilationEngine:
                 (needle, needle, needle, needle, limit)).fetchall()
         return [self._row_to_record(row) for row in rows]
 
-    def set_state(self, record_id: str, state: str) -> AssimilationRecord:
+    def set_state(self, record_id: str, state: str) -> AcquisitionRecord:
         allowed = {"approved", "integrated", "rejected"}
         if state not in allowed:
             raise UAIEError(f"state must be one of: {', '.join(sorted(allowed))}")
@@ -234,8 +341,84 @@ class UniversalAssimilationEngine:
             if state not in transitions[current_state]:
                 raise UAIEError(f"invalid transition: {current_state} -> {state}")
             db.execute("UPDATE assimilations SET state=? WHERE record_id=?", (state, record_id))
+            self._append_audit_event(db, "lifecycle_transition", record_id,
+                                     {"from": current_state, "to": state})
             updated = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         return self._row_to_record(updated)
+
+    def record_capability_assessment(
+        self, record_id: str, *, original_idea_value: str, market_value: str,
+        revenue_models: list[str] | tuple[str, ...], development_timeline: str,
+        risk_assessment: str, evidence: list[str] | tuple[str, ...],
+        verification_status: str = "not_assessed",
+    ) -> CapabilityAssessment:
+        """Persist mandatory portfolio fields without inventing missing evidence."""
+        required = {
+            "original_idea_value": original_idea_value,
+            "market_value": market_value,
+            "development_timeline": development_timeline,
+            "risk_assessment": risk_assessment,
+        }
+        for name, value in required.items():
+            if not isinstance(value, str) or not value.strip():
+                raise UAIEError(f"{name} is mandatory and must be non-empty")
+        if verification_status not in {"not_assessed", "under_review", "verified", "failed"}:
+            raise UAIEError("invalid verification_status")
+        if not isinstance(revenue_models, (list, tuple)) or not all(
+            isinstance(item, str) and item.strip() for item in revenue_models
+        ):
+            raise UAIEError("revenue_models must contain non-empty strings")
+        if not isinstance(evidence, (list, tuple)) or not all(
+            isinstance(item, str) and item.strip() for item in evidence
+        ):
+            raise UAIEError("evidence must contain non-empty source references")
+        now = _now()
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
+                raise UAIEError(f"unknown record: {record_id}")
+            existing = db.execute(
+                "SELECT original_idea_value FROM capability_assessments WHERE record_id=?",
+                (record_id,)).fetchone()
+            if existing is not None and existing["original_idea_value"] != original_idea_value:
+                raise UAIEError("Original Idea Value is immutable; create a new candidate/version to preserve the change.")
+            db.execute("""INSERT INTO capability_assessments
+                (record_id,original_idea_value,market_value,revenue_models_json,
+                 development_timeline,risk_assessment,evidence_json,verification_status,updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(record_id) DO UPDATE SET
+                 market_value=excluded.market_value,
+                 revenue_models_json=excluded.revenue_models_json,
+                 development_timeline=excluded.development_timeline,
+                 risk_assessment=excluded.risk_assessment,
+                 evidence_json=excluded.evidence_json,
+                 verification_status=excluded.verification_status,
+                 updated_at=excluded.updated_at""",
+                (record_id, original_idea_value, market_value,
+                 json.dumps(list(revenue_models), ensure_ascii=False),
+                 development_timeline, risk_assessment,
+                 json.dumps(list(evidence), ensure_ascii=False), verification_status, now))
+            self._append_audit_event(db, "capability_assessment_updated", record_id,
+                {"verification_status": verification_status, "evidence_count": len(evidence)})
+        return self.get_capability_assessment(record_id)
+
+    def get_capability_assessment(self, record_id: str) -> CapabilityAssessment:
+        with self._connect() as db:
+            row = db.execute("SELECT * FROM capability_assessments WHERE record_id=?",
+                             (record_id,)).fetchone()
+        if row is None:
+            raise UAIEError(f"no capability assessment for record: {record_id}")
+        return CapabilityAssessment(
+            record_id=row["record_id"],
+            original_idea_value=row["original_idea_value"],
+            market_value=row["market_value"],
+            revenue_models=tuple(json.loads(row["revenue_models_json"])),
+            development_timeline=row["development_timeline"],
+            risk_assessment=row["risk_assessment"],
+            evidence=tuple(json.loads(row["evidence_json"])),
+            verification_status=row["verification_status"],
+            updated_at=row["updated_at"],
+        )
 
     def export_record(self, record_id: str) -> dict[str, Any]:
         with self._connect() as db:
@@ -248,18 +431,23 @@ class UniversalAssimilationEngine:
         return result
 
 
-def _print(record: AssimilationRecord) -> None:
+# Backwards-compatible aliases for existing prototype callers and stored records.
+UniversalAssimilationEngine = UniversalAcquisitionEngine
+AssimilationRecord = AcquisitionRecord
+
+
+def _print(record: AcquisitionRecord) -> None:
     print(json.dumps(asdict(record), indent=2))
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="uaie", description="Universal Assimilation and Integration Engine prototype")
+    parser = argparse.ArgumentParser(prog="uaie", description="Universal Acquisition and Integration Engine prototype")
     parser.add_argument("--db", default="uaie.sqlite3", help="SQLite database path")
     sub = parser.add_subparsers(dest="command", required=True)
-    ingest = sub.add_parser("ingest", help="assimilate a file or directory without executing it")
+    ingest = sub.add_parser("ingest", help="acquire a file or directory without executing it")
     ingest.add_argument("path")
     ingest.add_argument("--shallow", action="store_true", help="do not recurse into directories")
-    search = sub.add_parser("search", help="search assimilated records")
+    search = sub.add_parser("search", help="search acquired records")
     search.add_argument("query")
     show = sub.add_parser("show", help="show record metadata and extracted content")
     show.add_argument("record_id")
@@ -267,13 +455,13 @@ def main(argv: Iterable[str] | None = None) -> int:
     state.add_argument("record_id")
     state.add_argument("new_state", choices=("approved", "integrated", "rejected"))
     args = parser.parse_args(argv)
-    engine = UniversalAssimilationEngine(args.db)
+    engine = UniversalAcquisitionEngine(args.db)
     try:
         if args.command == "ingest":
             records = engine.ingest_path(args.path, recursive=not args.shallow)
             for record in records:
                 _print(record)
-            print(f"Assimilated {len(records)} file(s).", file=sys.stderr)
+            print(f"Acquired {len(records)} file(s).", file=sys.stderr)
         elif args.command == "search":
             for record in engine.search(args.query):
                 _print(record)
