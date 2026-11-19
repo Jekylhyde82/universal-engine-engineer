@@ -9,6 +9,7 @@ on:
       - extraction/syphon-full-gateway-checkpoints
     paths:
       - "packages/vision-dd-policy/**"
+      - "packages/ninefold-fusion-runtime/**"
       - ".github/workflows/vision-dd-codeql.yml"
   schedule:
     - cron: "23 4 * * 1"
