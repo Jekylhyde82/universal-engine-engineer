@@ -5,6 +5,12 @@ import { createInterface } from "node:readline";
  * It is deliberately explicit and fails closed. Production deployments should
  * replace or wrap it with an authenticated, accessible, auditable consent UI.
  */
+function safeDisplay(value, maxLength = 256) {
+  return String(value ?? "unknown")
+    .replace(/[\\u0000-\\u001f\\u007f\\u001b]/g, " ")
+    .slice(0, maxLength);
+}
+
 export function createTerminalConsentProvider({
   input = process.stdin,
   output = process.stdout,
@@ -18,21 +24,21 @@ export function createTerminalConsentProvider({
     let detail;
     if (request.purpose === "OBSERVE") {
       heading = "Allow V.I.S.I.O.N. to inspect visible interface labels?";
-      detail = "Application: " + String(request.application_origin || "unknown") +
-        "\nSession: " + String(request.session_id || "unknown");
+      detail = "Application: " + safeDisplay(request.application_origin) +
+        "\nSession: " + safeDisplay(request.session_id);
     } else if (request.purpose === "VISUAL_FRAME_CAPTURE") {
       heading = "Allow V.I.S.I.O.N. to capture a visual screenshot?";
       detail = "WARNING: the screenshot is NOT REDACTED and may contain sensitive information. " +
         "The adapter does not persist it; downstream handling remains the caller's responsibility.\n" +
-        "Application: " + String(request.application_origin || "unknown");
+        "Application: " + safeDisplay(request.application_origin);
     } else if (request.purpose === "EXECUTE_ACTION") {
       heading = "Allow D.D. to execute this supervised browser action?";
       detail = [
-        "Action: " + String(request.action_type || "unknown"),
-        "Action ID: " + String(request.action_id || "unknown"),
-        "Application: " + String(request.application_origin || "unknown"),
-        "Destination: " + String(request.destination_url || "not provided"),
-        "Action digest: " + String(request.action_digest || "not provided"),
+        "Action: " + safeDisplay(request.action_type),
+        "Action ID: " + safeDisplay(request.action_id),
+        "Application: " + safeDisplay(request.application_origin),
+        "Destination: " + safeDisplay(request.destination_url),
+        "Action digest: " + safeDisplay(request.action_digest),
         "Only the typed, policy-approved action is authorised.",
       ].join("\n");
     } else {
