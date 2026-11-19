@@ -234,7 +234,8 @@ export function createJwtBearerAuthenticator({
         issuedAt: claims.iat,
         expiresAt: claims.exp,
       });
-    } catch {
+    } catch (error) {
+      console.error("JWT_AUTHENTICATOR_DIAGNOSTIC", error?.stack || error?.message || "unknown");
       return null;
     }
   };
