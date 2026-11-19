@@ -101,11 +101,14 @@ export class FileNonceLedger {
       bytes = bytes.subarray(0, lastNewline + 1);
     }
     const text = bytes.toString("utf8");
+    const lines = text.length === 0 ? [] : text.slice(0, -1).split("\n");
+    if (lines.some((line) => line.length === 0)) {
+      throw new Error("Nonce ledger contains an unexpected blank record.");
+    }
     const records = [];
     const seen = new Set();
     let previousHash = ZERO_HASH;
-    for (const line of text.split("\n")) {
-      if (!line) continue;
+    for (const line of lines) {
       let record;
       try { record = JSON.parse(line); } catch {
         throw new Error("Nonce ledger contains an invalid complete record.");
