@@ -20,7 +20,7 @@ CATALOG_HTML = """
 DETAIL_HTML = """
 <html><body>
 <h1>LFM3</h1>
-<p>LFM3-VL-2B is a vision-language model for on-device image and video understanding.</p>
+<p>LFM3-VL-2B is a vision-language model for on-device image and video understanding with a 128K-token context window.</p>
 <a href="https://huggingface.co/liquid-ai/lfm3-vl-2b">liquid/lfm3-vl-2b</a>
 <h2>Memory Requirements</h2><p>To run the smallest LFM3, you need at least 1 GB of RAM.</p>
 <h2>Capabilities</h2><p>LFM3 models support tool use, vision input, and reasoning. They are available in gguf.</p>
@@ -47,7 +47,7 @@ class CatalogTests(unittest.TestCase):
         self.assertIn("vision", entry.capability_tags)
         self.assertIn("reasoning", entry.capability_tags)
         self.assertEqual(entry.minimum_memory, "1 GB")
-        self.assertEqual(entry.max_context, None)
+        self.assertEqual(entry.max_context, "128K")
         self.assertEqual(entry.license_text, "LFM Open License v1.0")
         self.assertEqual(entry.download_count, "4.8K")
         self.assertTrue(any("huggingface.co" in item["url"] for item in entry.artifact_links))
