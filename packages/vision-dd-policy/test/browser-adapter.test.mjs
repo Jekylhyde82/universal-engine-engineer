@@ -102,6 +102,7 @@ test("observation is provenance-bound, time-limited and excludes raw form values
   assert.equal(observation.detected_elements.length, 1);
   assert.equal(Object.hasOwn(observation.detected_elements[0], "value"), false);
   assert.ok(observation.expiry_at);
+  assert.equal(observation.redaction_applied, false);
 });
 
 test("visual frame is captured only with separate explicit visual consent", async () => {
