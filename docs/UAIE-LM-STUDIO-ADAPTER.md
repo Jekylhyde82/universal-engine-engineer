@@ -4,7 +4,7 @@
 **Parent architecture:** NINEFOLD INTRINSIC  
 **Specialist intelligence and fusion:** AFI PRIME  
 **First acquisition source:** [LM Studio Model Catalog](https://lmstudio.ai/models)  
-**Status:** Governed candidate-intake and local inventory adapters implemented; automated tests pass on the previous exact head; current changes require fresh CI and operational validation.
+**Status:** Governed candidate intake, AFI fusion, intrinsic acquisition-register persistence and local inventory adapter implemented; exact-head CI and live operational validation remain separate gates.
 
 ## Source and interface distinction
 
@@ -25,6 +25,8 @@ LM Studio's Hub terms restrict integrations to officially supported interfaces. 
 - Bounds metadata to 256 KiB and requires finite JSON-compatible data.
 - Creates an official `lms get` command proposal without executing it.
 - Persists the candidate through UAIE with the original catalog URL as provenance.
+- Creates an intrinsic Universal Capability Acquisition Register entry linked to the UAIE record.
+- Requires Original Idea Value and records potential market value, revenue models, development timeline, development/integration costs, risk assessment and evidence-verification status. Unassessed values are explicitly labelled.
 - Fuses the candidate through AFI PRIME into a separate capability profile.
 - Keeps performance verification and integration approval false.
 
@@ -48,11 +50,17 @@ candidate = candidate_from_mapping({
 })
 
 uaie = UniversalAcquisitionIntegrationEngine("uaie.sqlite3")
-catalog_record, afi_profile_record = assimilate_catalog_candidate(uaie, candidate)
+catalog_record, afi_profile_record, acquisition_entry = assimilate_catalog_candidate(uaie, candidate)
 print(build_download_command(candidate))  # proposal only; does not execute
 ```
 
 After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
+
+## Universal Capability Acquisition Register
+
+Every catalog candidate is linked to a structured `acquisition_register` row in the UAIE SQLite database. Its lifecycle is governed separately from assimilation: `discovered → proposed → under_evaluation → approved → integrated`, with rejection and retirement paths. Register approval requires the corresponding UAIE assimilation record to be approved; register integration requires the UAIE record to be integrated. No candidate is automatically approved or integrated.
+
+The register retains Original Idea Value, potential market value, revenue models, development timeline, development cost, integration cost, risk assessment and evidence-verification status. Default values such as `NOT_ASSESSED`, `PENDING` and `UNVERIFIED` are explicit placeholders, not claims.
 
 ## AFI PRIME fusion
 
@@ -77,7 +85,7 @@ This local API adapter is the post-acquisition verification step: it can confirm
 
 ## Verification required
 
-- Deterministic unit tests cover candidate validation, command construction, provenance and AFI fusion without network access or downloads.
+- Deterministic unit tests cover candidate validation, command construction, provenance, AFI fusion and acquisition-register lifecycle gates without network access or downloads.
 - Exact-head GitHub Actions must pass after the latest changes.
 - A live local inventory smoke test requires a user-authorised LM Studio host and token if authentication is enabled.
 - Production readiness requires an approved catalogue access method, robust register linkage, licence review, hardware/resource evaluation, independent model benchmarks, security review, audit/retention policy, backup/restore, monitoring and deployment documentation.
