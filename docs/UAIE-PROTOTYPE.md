@@ -33,7 +33,7 @@ python -m universal_engine.uaie --db ./uaie.sqlite3 show uaie_<record-id>
 python -m unittest discover -s tests -v
 ```
 
-The default database is `uaie.sqlite3` in the current directory. Use `--db` to select another location.
+The default database is `uaie.sqlite3` in the current directory. Use `--db` to select another location. The persisted lifecycle label `assimilated` is retained for compatibility with existing prototype databases; it means the content has been acquired and its supported text representation processed. A versioned migration will replace legacy schema terminology without losing records.
 
 ## Python API
 
