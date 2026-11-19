@@ -51,6 +51,12 @@ export async function runGovernedAction({
       const result = await appendAudit(Object.freeze(event));
       if (result === false) throw new Error("Audit store rejected the event.");
     } catch (error) {
+      if (error?.code === "ACTION_ID_ALREADY_CLAIMED") {
+        error.safeToRetry = false;
+        error.lastKnownState = state;
+        error.execution = execution;
+        throw error;
+      }
       throw auditError(error, state, execution, executionAttempted);
     }
   }
