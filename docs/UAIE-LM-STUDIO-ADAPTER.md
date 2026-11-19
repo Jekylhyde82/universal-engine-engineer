@@ -54,7 +54,13 @@ catalog_record, afi_profile_record, acquisition_entry = assimilate_catalog_candi
 print(build_download_command(candidate))  # proposal only; does not execute
 ```
 
-After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
+A reviewed candidate can also be imported from a local JSON file:
+
+```bash
+python -m universal_engine.lmstudio_catalog candidate.json --db uaie.sqlite3
+```
+
+The CLI creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. After a human reviews and approves the candidate, the operator may run the displayed `lms get` command in the LM Studio environment. UAIE does not run the command or download weights.
 
 ## Universal Capability Acquisition Register
 
