@@ -37,6 +37,8 @@ CANDIDATE = {
     "catalog_url": "https://lmstudio.ai/models/lfm3",
     "publisher": "Liquid AI",
     "parameter_sizes": ["1.92B", "2B"],
+    "compatibility_types": ["gguf", "safetensors"],
+    "format": "gguf",
     "max_context": "128K",
     "minimum_memory": "1 GB",
     "availability": ["local"],
@@ -75,6 +77,8 @@ class CatalogCandidateTests(unittest.TestCase):
         self.assertEqual(candidate.model_id, "qwen/qwen3-8b")
         self.assertEqual(candidate.architecture, "qwen3")
         self.assertEqual(candidate.parameter_sizes, ("8B",))
+        self.assertEqual(candidate.compatibility_types, ("gguf", "safetensors"))
+        self.assertEqual(candidate.format, "gguf")
         self.assertEqual(candidate.max_context, "40960")
         self.assertIn("reasoning", candidate.capabilities)
         self.assertEqual(len(candidate.artifact_links), 2)
