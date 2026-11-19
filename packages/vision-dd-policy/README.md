@@ -24,7 +24,7 @@ Node.js reference package for deterministic policy evaluation, signed execution 
 
 ## Validation evidence
 
-The latest policy workflow on the current branch ran **114 tests: 114 passed, 0 failed, 0 skipped**. The run included two real Chromium integration tests against a temporary local fixture. The exact tested commit is recorded by the GitHub Actions run linked from the pull request; this evidence applies only to that commit. The browser integration suite verifies a signed allowlisted navigation and blocks a redirect to an unapproved origin.
+The latest completed policy workflow for the current implementation and registry content is workflow `44472679774` at commit `e82e8b18f394ec7c7bb2e7d8d1349ca5ca08ee4a`: **132 tests passed, 0 failed, 0 cancelled, 0 skipped**. The run included registry validation, pinned Playwright installation, real Chromium installation, JavaScript syntax checks and browser integration tests against a temporary local fixture. CodeQL workflow `44472679805` completed successfully on the same commit. Later branch commits changed documentation/status records only; the package source and registry validator are unchanged. CodeQL workflow success does not establish that the alert inventory is empty or reviewed. The browser integration suite verifies a signed allowlisted navigation and blocks a redirect to an unapproved origin.
 
 ## Important limitations
 
