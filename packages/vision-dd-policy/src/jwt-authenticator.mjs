@@ -54,7 +54,7 @@ function validateConfig({ issuer, audience, jwksUrl, clock, cacheTtlMs, maxToken
       jwks.username || jwks.password || jwks.hash) {
     throw new TypeError("Issuer and JWKS endpoints must be fixed HTTPS URLs without credentials or fragments.");
   }
-  return { issuer, jwksUrl: jwks.href, fetchImpl: fetchImpl ?? globalThis.fetch };
+  return { issuer, audience, jwksUrl: jwks.href, fetchImpl: fetchImpl ?? globalThis.fetch };
 }
 
 async function readBoundedResponse(response) {
@@ -90,13 +90,6 @@ function importJwksKeys(document) {
   }
   const keys = new Map();
   for (const jwk of document.keys) {
-    console.error("JWKS_KEY_DIAGNOSTIC", {
-      plain: plainObject(jwk), kty: jwk?.kty,
-      kidValid: validText(jwk?.kid, MAX_KID_LENGTH),
-      alg: jwk?.alg, use: jwk?.use,
-      keyOps: jwk?.key_ops, hasPrivate: PRIVATE_JWK_FIELDS.some((field) => jwk && Object.hasOwn(jwk, field)),
-      modulusType: typeof jwk?.n, exponentType: typeof jwk?.e,
-    });
     if (!plainObject(jwk) || jwk.kty !== "RSA" ||
         !validText(jwk.kid, MAX_KID_LENGTH) ||
         (jwk.alg !== undefined && jwk.alg !== "RS256") ||
@@ -214,27 +207,21 @@ export function createJwtBearerAuthenticator({
       const signature = decodeSegment(parts[2], 2_048, "JWT signature");
       const key = await getSigningKey(header.kid);
       const signingInput = Buffer.from(parts[0] + "." + parts[1], "ascii");
-      const signatureValid = verify("RSA-SHA256", signingInput, key, signature);
-      console.error("JWT_SIGNATURE_DIAGNOSTIC", { signatureValid, signatureBytes: signature.length });
-      if (!signatureValid) return null;
+      if (!verify("RSA-SHA256", signingInput, key, signature)) return null;
 
       const now = clock();
       if (!Number.isSafeInteger(now)) return null;
       const nowSeconds = Math.floor(now / 1000);
       const audienceMatches = claims.aud === config.audience ||
         (Array.isArray(claims.aud) && claims.aud.includes(config.audience));
-      const claimsValid = claims.iss === config.issuer && audienceMatches &&
-        validText(claims.sub, 256) &&
-        Number.isSafeInteger(claims.exp) && Number.isSafeInteger(claims.iat) &&
-        claims.exp > nowSeconds && claims.iat <= nowSeconds + 30 &&
-        nowSeconds - claims.iat <= maxTokenAgeMs / 1000 &&
-        claims.exp > claims.iat && claims.exp - claims.iat <= 3_600;
-      console.error("JWT_CLAIMS_DIAGNOSTIC", {
-        issuerMatches: claims.iss === config.issuer, audienceMatches,
-        subjectValid: validText(claims.sub, 256), exp: claims.exp, iat: claims.iat,
-        nowSeconds, claimsValid,
-      });
-      if (!claimsValid) return null;
+      if (claims.iss !== config.issuer || !audienceMatches ||
+          !validText(claims.sub, 256) ||
+          !Number.isSafeInteger(claims.exp) || !Number.isSafeInteger(claims.iat) ||
+          claims.exp <= nowSeconds || claims.iat > nowSeconds + 30 ||
+          nowSeconds - claims.iat > maxTokenAgeMs / 1000 ||
+          claims.exp <= claims.iat || claims.exp - claims.iat > 3_600) {
+        return null;
+      }
       if (claims.nbf !== undefined &&
           (!Number.isSafeInteger(claims.nbf) || claims.nbf > nowSeconds + 30)) return null;
       if (Array.isArray(claims.aud) && claims.aud.length > 1 && claims.azp !== config.audience) return null;
@@ -247,8 +234,7 @@ export function createJwtBearerAuthenticator({
         issuedAt: claims.iat,
         expiresAt: claims.exp,
       });
-    } catch (error) {
-      console.error("JWT_AUTHENTICATOR_DIAGNOSTIC", error?.stack || error?.message || "unknown");
+    } catch {
       return null;
     }
   };
