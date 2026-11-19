@@ -228,3 +228,12 @@ test("nonce ledger rejects non-canonical JSON record encodings", async () => {
     await assert.rejects(() => ledger.consume("nonce-2"), /non-canonical/i);
   });
 });
+
+test("nonce ledger fails closed on a pre-existing stale lock", async () => {
+  await withTempDir(async (directory) => {
+    const path = join(directory, "nonces.jsonl");
+    await writeFile(path + ".lock", "stale-lock", { mode: 0o600 });
+    const ledger = new FileNonceLedger(path, { lockTimeoutMs: 30, retryMs: 5 });
+    await assert.rejects(() => ledger.consume("nonce-1"), /lock unavailable/i);
+  });
+});
