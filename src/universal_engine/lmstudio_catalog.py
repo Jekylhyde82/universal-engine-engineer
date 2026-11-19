@@ -195,10 +195,10 @@ def _build_entry(slug: str, detail_url: str, card_text: str, detail_html: str) -
         ("audio", ("audio",)),
         ("video", ("video",)),
     ) if any(needle in lower for needle in needles))
-    availability = tuple(value for value, pattern in (("local", r"\\blocal\\s*[—-]\\s*available"), ("cloud", r"\\bcloud\\s*[—-]\\s*available"))
+    availability = tuple(value for value, pattern in (("local", r"\blocal\s*[—-]\s*available"), ("cloud", r"\bcloud\s*[—-]\s*available"))
                          if re.search(pattern, card_text, flags=re.IGNORECASE))
     params = tuple(dict.fromkeys(re.findall(r"\b\d+(?:\.\d+)?\s*(?:B|M)\b", combined, flags=re.I)))
-    context = _extract_card_value(combined, r"\b(\d+(?:\.\d+)?\s*[KMB])\s*(?:token\s+)?context")
+    context = _extract_card_value(combined, r"\b(\d+(?:\.\d+)?\s*[KMB])[- ]?(?:token\s+)?context")
     memory = _extract_card_value(combined, r"(?:at least\s+)?(\d+(?:\.\d+)?\s*(?:GB|MB|TB))\s+(?:of\s+)?RAM")
     downloads = _extract_card_value(card_text, r"(\d+(?:\.\d+)?\s*[KMB]?)\s+downloads?")
     stars = _extract_card_value(card_text, r"(\d+(?:\.\d+)?\s*[KMB]?)\s+stars?")
