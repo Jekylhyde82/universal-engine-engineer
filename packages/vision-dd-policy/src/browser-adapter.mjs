@@ -106,14 +106,16 @@ export function createBrowserAdapter({
       allowedOrigins.length === 0 || typeof sessionId !== "string" || !sessionId.trim() ||
       typeof publicKeyPem !== "string" || typeof policyVersion !== "string" ||
       typeof clock !== "function" || !Number.isSafeInteger(observationTtlMs) ||
-      observationTtlMs < 100 || !Number.isSafeInteger(navigationTimeoutMs) ||
+      observationTtlMs < 100 || observationTtlMs > 30_000 || !Number.isSafeInteger(navigationTimeoutMs) ||
       navigationTimeoutMs < 100 || navigationTimeoutMs > 15_000) {
     throw new TypeError("Browser adapter configuration is incomplete or invalid.");
   }
   const origins = new Set(allowedOrigins.map(normaliseOrigin));
   const observations = new Map();
   let stopped = false;
+  let actionInFlight = false;
   const routeReady = Promise.resolve(page.route("**/*", async (route) => {
+    if (stopped) return route.abort("blockedbyclient");
     const rawUrl = route.request().url();
     if (rawUrl === "about:blank" || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:")) {
       return route.continue();
@@ -137,6 +139,7 @@ export function createBrowserAdapter({
 
   async function observe({ userConsent = false, includeScreenshot = false, visualConsent = false } = {}) {
     if (stopped) throw new Error("Browser adapter is stopped.");
+    if (actionInFlight) throw new Error("Observation is unavailable while an action is executing.");
     if (userConsent !== true) throw new Error("Explicit user consent is required for observation.");
     if (includeScreenshot && visualConsent !== true) {
       throw new Error("Separate explicit visual consent is required for screenshot capture.");
@@ -213,7 +216,7 @@ export function createBrowserAdapter({
     return observation;
   }
 
-  async function execute({ request, grant, userConsent = false }) {
+  async function executeInternal({ request, grant, userConsent = false }) {
     if (stopped) throw new Error("Browser adapter is stopped.");
     await routeReady;
     if (userConsent !== true) throw new Error("Explicit user consent is required for execution.");
@@ -284,6 +287,13 @@ export function createBrowserAdapter({
         note: "Navigation outcome is uncertain; do not retry until independently reconciled.",
       });
     }
+  }
+
+  async function execute(args) {
+    if (actionInFlight) throw new Error("Another browser action is already executing.");
+    actionInFlight = true;
+    try { return await executeInternal(args); }
+    finally { actionInFlight = false; }
   }
 
   return Object.freeze({
