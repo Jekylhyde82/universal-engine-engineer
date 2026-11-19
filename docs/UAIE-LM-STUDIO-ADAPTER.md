@@ -61,7 +61,31 @@ pip install -e .
 uaie-lmstudio-catalog candidate.json --db uaie.sqlite3
 ```
 
-The installed `uaie-lmstudio-catalog` command creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. The core engine is also available as `uaie`. After a human reviews and approves the candidate, the operator may either run the displayed `lms get` command or call the official REST download method with `approved=True`. The API method starts a download job and returns its status; `get_download_status` can poll that job. Quantization through the REST API is accepted only with an explicitly selected Hugging Face artifact URL; for a catalog identifier with a quantization suffix, use the reviewed CLI proposal. No download occurs during discovery, candidate intake or AFI fusion.
+The installed `uaie-lmstudio-catalog` command creates the UAIE record, AFI profile and acquisition-register entry, then prints the official command proposal. The core engine is also available as `uaie`.
+
+After independently evaluating the candidate, an operator can update its assessment and advance both governed lifecycles:
+
+```bash
+uaie --db uaie.sqlite3 acquisition assess <record-id> --risk-assessment "Reviewed" --evidence-verification-status "INDEPENDENT_CHECK_PENDING"
+uaie --db uaie.sqlite3 state <record-id> approved
+uaie --db uaie.sqlite3 acquisition status <record-id> proposed
+uaie --db uaie.sqlite3 acquisition status <record-id> under_evaluation
+uaie --db uaie.sqlite3 acquisition status <record-id> approved
+```
+
+Only then can an operator deliberately start the official REST download:
+
+```bash
+uaie-lmstudio-catalog candidate.json --db uaie.sqlite3 --download --approved --record-id <record-id>
+```
+
+For a quantized Hugging Face artifact, add `--huggingface-url` with the exact artifact URL already recorded in the candidate. For a catalog identifier with quantization, use the reviewed `lms get` command proposal instead.
+
+Poll a returned job with:
+
+```bash
+uaie-lmstudio-status <job-id>
+``` After a human reviews and approves the candidate, the operator may either run the displayed `lms get` command or call the official REST download method with `approved=True`. The API method starts a download job and returns its status; `get_download_status` can poll that job. Quantization through the REST API is accepted only with an explicitly selected Hugging Face artifact URL; for a catalog identifier with a quantization suffix, use the reviewed CLI proposal. No download occurs during discovery, candidate intake or AFI fusion.
 
 ## Universal Capability Acquisition Register
 
