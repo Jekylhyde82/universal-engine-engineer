@@ -95,6 +95,13 @@ test("real Chromium observes with consent and performs one signed allowlisted na
     assert.equal(observation.visual_frame.mime_type, "image/png");
     assert.equal(JSON.stringify(observation).includes("never-export-this-value"), false);
     assert.equal(context.serviceWorkers().length, 0);
+    const blockedSocketCode = await page.evaluate(() => new Promise((resolve) => {
+      const socket = new WebSocket("wss://evil.test/socket");
+      socket.addEventListener("close", (event) => resolve(event.code), { once: true });
+      socket.addEventListener("error", () => resolve(-1), { once: true });
+      setTimeout(() => resolve(-2), 1500);
+    }));
+    assert.equal(blockedSocketCode, 1008);
 
     const now = Date.now();
     const request = makeRequest({ origin, observationId: observation.observation_id, now });
