@@ -34,6 +34,14 @@ class AcquisitionRegisterTests(unittest.TestCase):
         self.assertEqual(entry.evidence_verification_status, "UNVERIFIED")
         self.assertEqual(self.engine.get_acquisition(self.record.record_id), entry)
 
+    def test_rejects_revenue_models_as_a_plain_string(self):
+        with self.assertRaises(UAIEError):
+            self.engine.register_acquisition(
+                self.record.record_id,
+                original_idea_value="Test invalid revenue model input.",
+                revenue_models="not-a-list",
+            )
+
     def test_register_creation_is_idempotent(self):
         kwargs = {"original_idea_value": "Preserve the original acquisition idea."}
         first = self.engine.register_acquisition(self.record.record_id, **kwargs)
