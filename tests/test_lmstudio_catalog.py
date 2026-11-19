@@ -8,7 +8,8 @@ from unittest.mock import patch
 
 from universal_engine.lmstudio_catalog import (
     LMStudioCatalogError, assimilate_catalog_candidate,
-    build_download_command, candidate_from_mapping, download_catalog_candidate,
+    assimilate_model_yaml_file, build_clone_command, build_download_command,
+    candidate_from_mapping, candidate_from_model_yaml, download_catalog_candidate,
     main, status_main,
 )
 from universal_engine.lmstudio import LMStudioDownloadJob
@@ -50,6 +51,70 @@ CANDIDATE = {
 
 
 class CatalogCandidateTests(unittest.TestCase):
+    def test_model_yaml_maps_official_metadata_and_variants(self):
+        model_yaml = {
+            "model": "qwen/qwen3-8b",
+            "base": [
+                {"key": "lmstudio-community/qwen3-8b-gguf", "sources": [
+                    {"type": "huggingface", "user": "lmstudio-community", "repo": "Qwen3-8B-GGUF"}
+                ]},
+                {"key": "lmstudio-community/qwen3-8b-mlx-4bit", "sources": [
+                    {"type": "huggingface", "user": "lmstudio-community", "repo": "Qwen3-8B-MLX-4bit"}
+                ]},
+            ],
+            "metadataOverrides": {
+                "domain": "llm", "architectures": ["qwen3"],
+                "compatibilityTypes": ["gguf", "safetensors"],
+                "paramsStrings": ["8B"], "minMemoryUsageBytes": 4600000000,
+                "contextLengths": [40960], "vision": False,
+                "reasoning": True, "trainedForToolUse": True,
+            },
+        }
+        candidate = candidate_from_model_yaml(
+            model_yaml, original_idea_value="Integrate official LM Studio model.yaml metadata.")
+        self.assertEqual(candidate.model_id, "qwen/qwen3-8b")
+        self.assertEqual(candidate.architecture, "qwen3")
+        self.assertEqual(candidate.parameter_sizes, ("8B",))
+        self.assertEqual(candidate.max_context, "40960")
+        self.assertIn("reasoning", candidate.capabilities)
+        self.assertEqual(len(candidate.artifact_links), 2)
+        self.assertEqual(candidate.catalog_url, "https://lmstudio.ai/models/qwen/qwen3-8b")
+        self.assertEqual(build_clone_command(candidate), ("lms", "clone", "qwen/qwen3-8b"))
+
+    def test_model_yaml_rejects_invalid_metadata(self):
+        with self.assertRaises(LMStudioCatalogError):
+            candidate_from_model_yaml(
+                {"model": "publisher/model", "metadataOverrides": {"vision": "yes"}},
+                original_idea_value="Test invalid model.yaml.")
+
+    def test_model_yaml_file_assimilates_into_uaie_afi_and_register(self):
+        model_yaml = """model: qwen/qwen3-8b
+base:
+  - key: lmstudio-community/qwen3-8b-gguf
+    sources:
+      - type: huggingface
+        user: lmstudio-community
+        repo: Qwen3-8B-GGUF
+metadataOverrides:
+  architectures: [qwen3]
+  paramsStrings: [8B]
+  contextLengths: [40960]
+  minMemoryUsageBytes: 4600000000
+  reasoning: true
+  trainedForToolUse: true
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "model.yaml"
+            path.write_text(model_yaml, encoding="utf-8")
+            engine = UniversalAcquisitionIntegrationEngine(Path(tmp) / "uaie.sqlite3")
+            catalog_record, afi_record, register_entry = assimilate_model_yaml_file(
+                engine, path, original_idea_value="Acquire model.yaml metadata without model weights.")
+            self.assertEqual(catalog_record.state, "assimilated")
+            self.assertEqual(register_entry.lifecycle_status, "discovered")
+            profile = engine.export_record(afi_record.record_id)
+            self.assertIn("reasoning_listed_in_catalog", profile["extracted_text"])
+            self.assertIn("8B", profile["extracted_text"])
+
     def test_validates_user_supplied_catalog_candidate(self):
         candidate = candidate_from_mapping(CANDIDATE)
         self.assertEqual(candidate.model_id, "liquid/lfm3-vl-2b")
