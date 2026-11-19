@@ -70,7 +70,7 @@ A shared governance policy may be centrally versioned, but its enforcement must 
 
 Cross-instance communication must use typed, versioned contracts with schema validation, provenance, data classification, size/time limits, replay protection where relevant and an auditable decision. Failure or unavailability of a peer must produce an explicit degraded/unknown state rather than fabricated completion.
 
-**Runtime status:** NOT IMPLEMENTED. These are acceptance requirements, not claims about the current Node.js policy package. The current package's per-run browser profile and action ledger do not demonstrate nine AFI PRIME runtime instances or the four required isolation dimensions.
+**Runtime status:** a limited proof-of-capability exists in `packages/ninefold-fusion-runtime/`. It starts nine separate Node.js child processes, gives each process private in-memory state and its own hash-chained evidence file, brokers cross-instance reads through an injected governance callback, and demonstrates process-level fault containment. This deterministic harness is not the production NINEFOLD INTRINSIC runtime or an intelligent AFI PRIME reasoning engine. The processes share the host OS identity/kernel; production still requires hardened process/container isolation, resource and network controls, durable state recovery, external evidence anchoring, production identity/approval, independent verification and full fault/security evaluation.
 
 **Minimum proof-of-capability tests:**
 1. Assert nine unique execution-context IDs and verify context handles cannot cross instance boundaries.
