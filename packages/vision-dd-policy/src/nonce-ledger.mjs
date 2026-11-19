@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { constants } from "node:fs";
 import { open, mkdir, lstat, readFile, unlink } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -81,30 +82,32 @@ export class FileNonceLedger {
   }
 
   async #readAndRecover() {
+    let handle;
     let bytes;
     try {
-      const info = await lstat(this.path);
-      if (!info.isFile() || info.isSymbolicLink() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
-        throw new Error("Nonce ledger must be a private 0600 regular file, not a symlink.");
+      const flags = constants.O_RDWR | (constants.O_NOFOLLOW ?? 0);
+      handle = await open(this.path, flags);
+      const info = await handle.stat();
+      if (!info.isFile() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
+        throw new Error("Nonce ledger must be a private 0600 regular file opened without following symlinks.");
       }
-      if (info.size > this.maxLedgerBytes) throw new Error("Nonce ledger size limit exceeded; refusing to disable replay protection.");
-      bytes = await readFile(this.path);
+      if (info.size > this.maxLedgerBytes) {
+        throw new Error("Nonce ledger size limit exceeded; refusing to disable replay protection.");
+      }
+      bytes = await handle.readFile();
+      const lastNewline = bytes.lastIndexOf(0x0a);
+      if (bytes.length > 0 && lastNewline !== bytes.length - 1) {
+        await handle.truncate(lastNewline + 1);
+        await handle.sync();
+        bytes = bytes.subarray(0, lastNewline + 1);
+      }
     } catch (error) {
       if (error?.code === "ENOENT") return { records: [], previousHash: ZERO_HASH, size: 0 };
       throw error;
+    } finally {
+      await handle?.close().catch(() => {});
     }
 
-    const lastNewline = bytes.lastIndexOf(0x0a);
-    if (bytes.length > 0 && lastNewline !== bytes.length - 1) {
-      const handle = await open(this.path, "r+");
-      try {
-        await handle.truncate(lastNewline + 1);
-        await handle.sync();
-      } finally {
-        await handle.close();
-      }
-      bytes = bytes.subarray(0, lastNewline + 1);
-    }
     const text = bytes.toString("utf8");
     const lines = text.length === 0 ? [] : text.slice(0, -1).split("\n");
     if (lines.some((line) => line.length === 0)) {
@@ -151,8 +154,13 @@ export class FileNonceLedger {
       if (size + Buffer.byteLength(line, "utf8") > this.maxLedgerBytes) {
         throw new Error("Nonce ledger size limit reached; refusing to bypass replay protection.");
       }
-      const handle = await open(this.path, "a", 0o600);
+      const appendFlags = constants.O_WRONLY | constants.O_APPEND | constants.O_CREAT | (constants.O_NOFOLLOW ?? 0);
+      const handle = await open(this.path, appendFlags, 0o600);
       try {
+        const info = await handle.stat();
+        if (!info.isFile() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
+          throw new Error("Nonce ledger append target is not a private regular file.");
+        }
         await handle.writeFile(line, "utf8");
         await handle.sync();
       } finally {
