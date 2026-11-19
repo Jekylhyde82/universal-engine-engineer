@@ -326,7 +326,7 @@ def download_model(
         endpoint + "/api/v1/models/download",
         data=json.dumps(body, allow_nan=False).encode("utf-8"),
         headers=headers, method="POST")
-    open_request = opener or urllib.request.urlopen
+    open_request = opener or _open_local_request
     try:
         with open_request(request, timeout=timeout) as response:
             _ensure_loopback_response(response, endpoint)
@@ -364,7 +364,7 @@ def get_download_status(
     request = urllib.request.Request(
         endpoint + "/api/v1/models/download/status/" + urllib.parse.quote(job_id, safe=""),
         headers=headers, method="GET")
-    open_request = opener or urllib.request.urlopen
+    open_request = opener or _open_local_request
     try:
         with open_request(request, timeout=timeout) as response:
             _ensure_loopback_response(response, endpoint)
