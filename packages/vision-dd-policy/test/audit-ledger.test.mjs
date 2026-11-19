@@ -89,3 +89,14 @@ test("audit ledger rejects non-JSON and unsafe event values", async () => {
     await assert.rejects(() => ledger.append(unsafe), /unsafe|plain/i);
   });
 });
+
+test("audit ledger rejects blank complete records instead of silently skipping them", async () => {
+  await withTempDir(async (directory) => {
+    const path = join(directory, "events.jsonl");
+    const ledger = new FileActionAuditLedger(path);
+    await ledger.append({ event_type: "ACTION_PROPOSED", action_id: "a-1" });
+    const bytes = await readFile(path, "utf8");
+    await writeFile(path, bytes.replace("\\n", "\\n\\n"));
+    await assert.rejects(() => ledger.verifyIntegrity(), /blank record/i);
+  });
+});
