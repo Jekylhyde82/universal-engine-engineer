@@ -138,15 +138,15 @@ test("terminal consent prompt strips bidirectional control characters", async ()
       purpose: "EXECUTE_ACTION",
       session_id: "session-1",
       application_origin: "https://example.test",
-      action_id: "action-1\\u202eTXT",
+      action_id: "action-1\u202eTXT",
       action_type: "navigate",
       action_digest: "sha256:abc",
       destination_url: "https://example.test/help",
     });
-    input.write("NO\\n");
+    input.write("NO\n");
     await pending;
     const text = output.read()?.toString() || "";
-    assert.equal(text.includes("\\u202e"), false);
+    assert.equal(text.includes("\u202e"), false);
   } finally {
     provider.close();
     input.destroy();
