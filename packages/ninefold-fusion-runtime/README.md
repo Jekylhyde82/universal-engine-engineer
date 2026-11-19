@@ -1,0 +1,47 @@
+# NINEFOLD INTRINSIC — AFI PRIME Nine-Instance Runtime Proof of Capability
+
+**Status: experimental proof of capability; not production-ready.**
+
+This package demonstrates one shared canonical UNIFIED FUSION SYNERGY — AFI PRIME function running as nine separately spawned Node.js processes, one scoped to each UMIC.
+
+## What the prototype demonstrates
+
+- Nine distinct OS process IDs and isolated process memory.
+- One shared versioned fusion-function implementation loaded by all nine processes.
+- One unique state namespace per instance; state written in one process is not visible in another.
+- One append-only JSONL evidence stream per instance, hash-chained and checked on restart.
+- Cross-instance reads denied by default. A parent-side governance callback must explicitly authorise each cross-instance read; both sides record the decision.
+- Process-level fault containment: terminating one instance does not prevent healthy peer processes from operating.
+- Fault injection is disabled unless the runtime is created with test mode enabled.
+
+## What it does not demonstrate
+
+- This is a deterministic orchestration/state-boundary harness, **not** an intelligent AFI PRIME reasoning engine or the full NINEFOLD INTRINSIC runtime.
+- Node child processes share the host OS identity and host kernel. This is not a container, VM, seccomp, cgroup or OS security boundary. Production requires a separately hardened process/container boundary and resource/network controls.
+- State is process-local and is lost when an instance exits. The evidence stream is durable locally, but it is not externally anchored or independently tamper-proof against a privileged host.
+- The governance callback is an injected proof interface, not a production identity, authorisation or human-approval service.
+- No runtime Master Core/Engine source-to-slot mapping is asserted. The 99 canonical lineage mappings remain pending approved source reconciliation.
+- No staging, deployment, monitoring, incident response, penetration test or production approval is included.
+
+## Runtime model
+
+One canonical AFI PRIME function version is loaded into nine child processes:
+
+- UMIC-01 through UMIC-09 each have their own process and in-memory state.
+- Each process writes only its own evidence file.
+- The parent runtime is the only cross-instance communication broker.
+- Cross-instance access is deny-by-default and must pass the injected governance decision.
+- A failed child is marked FAULTED; it is not silently restarted with empty state.
+
+## Run
+
+Requires Node.js 22 or later.
+
+```sh
+npm run check
+npm test
+```
+
+Tests create temporary evidence directories and remove them after completion.
+
+**Proof discipline:** passing these tests proves only the behaviours exercised by this prototype. It does not prove production isolation or runtime intelligence.
