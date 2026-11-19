@@ -36,6 +36,23 @@ class UAIEError(ValueError):
 
 
 @dataclass(frozen=True, slots=True)
+class AcquisitionRegisterEntry:
+    acquisition_id: str
+    record_id: str
+    original_idea_value: str
+    potential_market_value: str
+    revenue_models: tuple[str, ...]
+    development_timeline: str
+    development_cost: str
+    integration_cost: str
+    risk_assessment: str
+    evidence_verification_status: str
+    lifecycle_status: str
+    created_at: str
+    updated_at: str
+
+
+@dataclass(frozen=True, slots=True)
 class AssimilationRecord:
     record_id: str
     content_hash: str
@@ -80,7 +97,7 @@ def _assess(text: str | None) -> tuple[int, tuple[str, ...]]:
     return score, found
 
 
-class UniversalAssimilationEngine:
+class UniversalAcquisitionIntegrationEngine:
     """Persistent intake and assessment store. Acquired material is never executed."""
 
     def __init__(self, database: str | os.PathLike[str] = "uaie.sqlite3",
@@ -94,6 +111,7 @@ class UniversalAssimilationEngine:
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.database)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys=ON")
         return conn
 
     def _init_db(self) -> None:
@@ -116,6 +134,23 @@ class UniversalAssimilationEngine:
             )""")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_source ON assimilations(source)")
             db.execute("CREATE INDEX IF NOT EXISTS idx_uaie_state ON assimilations(state)")
+            db.execute("""CREATE TABLE IF NOT EXISTS acquisition_register (
+                acquisition_id TEXT PRIMARY KEY,
+                record_id TEXT NOT NULL UNIQUE REFERENCES assimilations(record_id),
+                original_idea_value TEXT NOT NULL,
+                potential_market_value TEXT NOT NULL,
+                revenue_models_json TEXT NOT NULL,
+                development_timeline TEXT NOT NULL,
+                development_cost TEXT NOT NULL,
+                integration_cost TEXT NOT NULL,
+                risk_assessment TEXT NOT NULL,
+                evidence_verification_status TEXT NOT NULL,
+                lifecycle_status TEXT NOT NULL CHECK(lifecycle_status IN
+                  ('discovered','proposed','under_evaluation','approved','integrated','rejected','retired')),
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )""")
+            db.execute("CREATE INDEX IF NOT EXISTS idx_acquisition_lifecycle ON acquisition_register(lifecycle_status)")
 
     def ingest_bytes(self, content: bytes, source: str, media_type: str | None = None) -> AssimilationRecord:
         if not isinstance(content, bytes):
@@ -237,6 +272,144 @@ class UniversalAssimilationEngine:
             updated = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         return self._row_to_record(updated)
 
+    @staticmethod
+    def _row_to_acquisition(row: sqlite3.Row) -> AcquisitionRegisterEntry:
+        return AcquisitionRegisterEntry(
+            acquisition_id=row["acquisition_id"], record_id=row["record_id"],
+            original_idea_value=row["original_idea_value"],
+            potential_market_value=row["potential_market_value"],
+            revenue_models=tuple(json.loads(row["revenue_models_json"])),
+            development_timeline=row["development_timeline"],
+            development_cost=row["development_cost"], integration_cost=row["integration_cost"],
+            risk_assessment=row["risk_assessment"],
+            evidence_verification_status=row["evidence_verification_status"],
+            lifecycle_status=row["lifecycle_status"], created_at=row["created_at"],
+            updated_at=row["updated_at"])
+
+    def register_acquisition(self, record_id: str, *, original_idea_value: str,
+                             potential_market_value: str = "NOT_ASSESSED",
+                             revenue_models: Iterable[str] = (),
+                             development_timeline: str = "NOT_ASSESSED",
+                             development_cost: str = "NOT_ASSESSED",
+                             integration_cost: str = "NOT_ASSESSED",
+                             risk_assessment: str = "PENDING",
+                             evidence_verification_status: str = "UNVERIFIED") -> AcquisitionRegisterEntry:
+        """Create the intrinsic capability-acquisition register entry for a UAIE record."""
+        text_fields = {
+            "original_idea_value": original_idea_value,
+            "potential_market_value": potential_market_value,
+            "development_timeline": development_timeline,
+            "development_cost": development_cost,
+            "integration_cost": integration_cost,
+            "risk_assessment": risk_assessment,
+            "evidence_verification_status": evidence_verification_status,
+        }
+        for field, value in text_fields.items():
+            if not isinstance(value, str) or not value.strip() or len(value) > 4000:
+                raise UAIEError(f"{field} must be a non-empty string of at most 4000 characters")
+        if isinstance(revenue_models, (str, bytes)):
+            raise UAIEError("revenue_models must be an iterable of model descriptions, not a string")
+        if not isinstance(record_id, str) or not record_id.strip():
+            raise UAIEError("record_id is required")
+        models = tuple(revenue_models)
+        if len(models) > 20 or any(not isinstance(x, str) or not x.strip() or len(x) > 256 for x in models):
+            raise UAIEError("revenue_models must contain at most 20 non-empty strings of at most 256 characters")
+        acquisition_id = "acq_" + hashlib.sha256(record_id.encode("utf-8")).hexdigest()[:20]
+        now = _now()
+        with self._connect() as db:
+            if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
+                raise UAIEError(f"unknown assimilation record: {record_id}")
+            db.execute("""INSERT OR IGNORE INTO acquisition_register
+                (acquisition_id,record_id,original_idea_value,potential_market_value,revenue_models_json,
+                 development_timeline,development_cost,integration_cost,risk_assessment,
+                 evidence_verification_status,lifecycle_status,created_at,updated_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?, 'discovered',?,?)""",
+                (acquisition_id,record_id,original_idea_value.strip(),potential_market_value.strip(),
+                 json.dumps(models, ensure_ascii=False),development_timeline.strip(),development_cost.strip(),
+                 integration_cost.strip(),risk_assessment.strip(),evidence_verification_status.strip(),now,now))
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_acquisition(row)
+
+    def update_acquisition_assessment(self, record_id: str, *,
+                                      potential_market_value: str | None = None,
+                                      revenue_models: Iterable[str] | None = None,
+                                      development_timeline: str | None = None,
+                                      development_cost: str | None = None,
+                                      integration_cost: str | None = None,
+                                      risk_assessment: str | None = None,
+                                      evidence_verification_status: str | None = None) -> AcquisitionRegisterEntry:
+        """Update assessment fields without changing immutable Original Idea Value."""
+        text_fields = {
+            "potential_market_value": potential_market_value,
+            "development_timeline": development_timeline,
+            "development_cost": development_cost,
+            "integration_cost": integration_cost,
+            "risk_assessment": risk_assessment,
+            "evidence_verification_status": evidence_verification_status,
+        }
+        updates: dict[str, Any] = {}
+        for field, value in text_fields.items():
+            if value is not None:
+                if not isinstance(value, str) or not value.strip() or len(value) > 4000:
+                    raise UAIEError(f"{field} must be a non-empty string of at most 4000 characters")
+                updates[field] = value.strip()
+        if revenue_models is not None:
+            if isinstance(revenue_models, (str, bytes)):
+                raise UAIEError("revenue_models must be an iterable of model descriptions, not a string")
+            models = tuple(revenue_models)
+            if len(models) > 20 or any(not isinstance(x, str) or not x.strip() or len(x) > 256 for x in models):
+                raise UAIEError("revenue_models must contain at most 20 non-empty strings of at most 256 characters")
+            updates["revenue_models_json"] = json.dumps(models, ensure_ascii=False)
+        if not updates:
+            raise UAIEError("at least one assessment field must be supplied")
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+            if row is None:
+                raise UAIEError(f"unknown acquisition register entry for record: {record_id}")
+            if row["lifecycle_status"] not in {"discovered", "proposed", "under_evaluation"}:
+                raise UAIEError("assessment fields are locked after approval, rejection or retirement")
+            assignments = ", ".join(f"{field}=?" for field in updates)
+            values = list(updates.values()) + [_now(), record_id]
+            db.execute(f"UPDATE acquisition_register SET {assignments},updated_at=? WHERE record_id=?", values)
+            updated = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_acquisition(updated)
+
+    def get_acquisition(self, record_id: str) -> AcquisitionRegisterEntry:
+        with self._connect() as db:
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        if row is None:
+            raise UAIEError(f"unknown acquisition register entry for record: {record_id}")
+        return self._row_to_acquisition(row)
+
+    def set_acquisition_lifecycle(self, record_id: str, new_status: str) -> AcquisitionRegisterEntry:
+        if not isinstance(new_status, str):
+            raise UAIEError("acquisition lifecycle status must be a string")
+        transitions = {
+            "discovered": {"proposed", "rejected"},
+            "proposed": {"under_evaluation", "rejected"},
+            "under_evaluation": {"approved", "rejected"},
+            "approved": {"integrated", "retired"},
+            "integrated": {"retired"}, "rejected": {"retired"}, "retired": set(),
+        }
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+            if row is None:
+                raise UAIEError(f"unknown acquisition register entry for record: {record_id}")
+            current = row["lifecycle_status"]
+            if new_status not in transitions.get(current, set()):
+                raise UAIEError(f"invalid acquisition lifecycle transition: {current} -> {new_status}")
+            if new_status in {"approved", "integrated"}:
+                assimilation = db.execute("SELECT state FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
+                required_state = "approved" if new_status == "approved" else "integrated"
+                if assimilation is None or assimilation["state"] != required_state:
+                    raise UAIEError(f"assimilation record must be {required_state} before acquisition lifecycle can become {new_status}")
+            db.execute("UPDATE acquisition_register SET lifecycle_status=?,updated_at=? WHERE record_id=?",
+                       (new_status,_now(),record_id))
+            updated = db.execute("SELECT * FROM acquisition_register WHERE record_id=?", (record_id,)).fetchone()
+        return self._row_to_acquisition(updated)
+
     def export_record(self, record_id: str) -> dict[str, Any]:
         with self._connect() as db:
             row = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
@@ -248,12 +421,17 @@ class UniversalAssimilationEngine:
         return result
 
 
+
+# Backwards-compatible alias for the original prototype API.
+UniversalAssimilationEngine = UniversalAcquisitionIntegrationEngine
+
+
 def _print(record: AssimilationRecord) -> None:
     print(json.dumps(asdict(record), indent=2))
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="uaie", description="Universal Assimilation and Integration Engine prototype")
+    parser = argparse.ArgumentParser(prog="uaie", description="Universal Acquisition and Integration Engine prototype")
     parser.add_argument("--db", default="uaie.sqlite3", help="SQLite database path")
     sub = parser.add_subparsers(dest="command", required=True)
     ingest = sub.add_parser("ingest", help="assimilate a file or directory without executing it")
@@ -263,9 +441,25 @@ def main(argv: Iterable[str] | None = None) -> int:
     search.add_argument("query")
     show = sub.add_parser("show", help="show record metadata and extracted content")
     show.add_argument("record_id")
-    state = sub.add_parser("state", help="approve, integrate, or reject a record")
+    state = sub.add_parser("state", help="approve, integrate, or reject an assimilation record")
     state.add_argument("record_id")
     state.add_argument("new_state", choices=("approved", "integrated", "rejected"))
+    acquisition = sub.add_parser("acquisition", help="inspect and govern the intrinsic acquisition register")
+    acquisition_sub = acquisition.add_subparsers(dest="acquisition_action", required=True)
+    acquisition_show = acquisition_sub.add_parser("show", help="show an acquisition register entry")
+    acquisition_show.add_argument("record_id")
+    acquisition_status = acquisition_sub.add_parser("status", help="advance the acquisition register lifecycle")
+    acquisition_status.add_argument("record_id")
+    acquisition_status.add_argument("new_status", choices=("proposed", "under_evaluation", "approved", "integrated", "rejected", "retired"))
+    acquisition_assess = acquisition_sub.add_parser("assess", help="update an acquisition assessment before approval")
+    acquisition_assess.add_argument("record_id")
+    acquisition_assess.add_argument("--potential-market-value")
+    acquisition_assess.add_argument("--revenue-model", action="append")
+    acquisition_assess.add_argument("--development-timeline")
+    acquisition_assess.add_argument("--development-cost")
+    acquisition_assess.add_argument("--integration-cost")
+    acquisition_assess.add_argument("--risk-assessment")
+    acquisition_assess.add_argument("--evidence-verification-status")
     args = parser.parse_args(argv)
     engine = UniversalAssimilationEngine(args.db)
     try:
@@ -281,6 +475,23 @@ def main(argv: Iterable[str] | None = None) -> int:
             print(json.dumps(engine.export_record(args.record_id), indent=2, ensure_ascii=False))
         elif args.command == "state":
             _print(engine.set_state(args.record_id, args.new_state))
+        elif args.command == "acquisition":
+            if args.acquisition_action == "show":
+                print(json.dumps(asdict(engine.get_acquisition(args.record_id)), indent=2, ensure_ascii=False))
+            elif args.acquisition_action == "status":
+                print(json.dumps(asdict(engine.set_acquisition_lifecycle(args.record_id, args.new_status)), indent=2, ensure_ascii=False))
+            elif args.acquisition_action == "assess":
+                updates = {
+                    "potential_market_value": args.potential_market_value,
+                    "revenue_models": args.revenue_model,
+                    "development_timeline": args.development_timeline,
+                    "development_cost": args.development_cost,
+                    "integration_cost": args.integration_cost,
+                    "risk_assessment": args.risk_assessment,
+                    "evidence_verification_status": args.evidence_verification_status,
+                }
+                updates = {key: value for key, value in updates.items() if value is not None}
+                print(json.dumps(asdict(engine.update_acquisition_assessment(args.record_id, **updates)), indent=2, ensure_ascii=False))
         return 0
     except (UAIEError, OSError) as exc:
         print(f"UAIE error: {exc}", file=sys.stderr)

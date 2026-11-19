@@ -2,7 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from universal_engine.uaie import UAIEError, UniversalAssimilationEngine
+from universal_engine.uaie import (
+    UAIEError, UniversalAcquisitionIntegrationEngine, UniversalAssimilationEngine,
+)
 
 
 class UAIETests(unittest.TestCase):
@@ -13,6 +15,9 @@ class UAIETests(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
+
+    def test_canonical_engine_name_and_legacy_alias(self):
+        self.assertIs(UniversalAssimilationEngine, UniversalAcquisitionIntegrationEngine)
 
     def test_ingests_and_assesses_text(self):
         record = self.engine.ingest_text(

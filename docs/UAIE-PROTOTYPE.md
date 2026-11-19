@@ -1,6 +1,6 @@
 # UAIE Working Prototype v0.1
 
-**U.A.I.E. — Universal Assimilation and Integration Engine**  
+**U.A.I.E. — Universal Acquisition and Integration Engine**  
 Foundational architecture: NINEFOLD INTRINSIC  
 Governing invariant: INTRINSIC BY DESIGN
 
@@ -36,7 +36,7 @@ The default database is `uaie.sqlite3` in the current directory. Use `--db` to s
 ## Python API
 
 ```python
-from universal_engine.uaie import UniversalAssimilationEngine
+from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
 uaie = UniversalAssimilationEngine("uaie.sqlite3")
 record = uaie.ingest_text(
