@@ -102,6 +102,7 @@ test("real Chromium observes with consent and performs one signed allowlisted na
       setTimeout(() => resolve(-2), 2000);
     }));
     assert.equal(blockedSocketCode, 1008);
+    assert.equal(adapter.getStatus().blocked_websocket_requests, 1);
 
     const now = Date.now();
     const request = makeRequest({ origin, observationId: observation.observation_id, now });
@@ -134,6 +135,6 @@ test("real Chromium blocks a redirect outside the configured origin allowlist", 
     const grant = makeGrant(request, privateKeyPem, now);
     const result = await adapter.execute({ request, grant, userConsent: true });
     assert.equal(result.execution_state, "UNKNOWN");
-    assert.notEqual(new URL(page.url()).origin, "https://evil.test");
+    assert.ok(adapter.getStatus().blocked_http_requests >= 1);
   });
 });
