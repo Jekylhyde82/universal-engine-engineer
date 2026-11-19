@@ -16,6 +16,7 @@ from typing import Any, Mapping
 MODEL_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}/[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 QUANTIZATION_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 ALLOWED_CAPABILITIES = {"vision", "reasoning", "tool_use", "audio", "video"}
+SENSITIVE_METADATA_KEYS = {"token", "api_token", "api_key", "secret", "password", "authorization", "credential", "access_key"}
 
 
 class LMStudioCatalogError(ValueError):
@@ -74,6 +75,18 @@ def _validate_catalog_url(value: Any) -> str:
     return urllib.parse.urlunsplit(("https", "lmstudio.ai", parsed.path, "", ""))
 
 
+def _reject_secret_fields(value: Any) -> None:
+    if isinstance(value, dict):
+        for key, child in value.items():
+            normalized = str(key).casefold().replace("-", "_")
+            if normalized in SENSITIVE_METADATA_KEYS:
+                raise LMStudioCatalogError(f"metadata field {key!r} is not permitted")
+            _reject_secret_fields(child)
+    elif isinstance(value, list):
+        for child in value:
+            _reject_secret_fields(child)
+
+
 def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate:
     """Validate a user-supplied/exported catalog record without network access."""
     if not isinstance(value, Mapping):
@@ -103,6 +116,7 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
         raise LMStudioCatalogError("metadata must contain finite JSON-compatible values") from exc
     if len(encoded) > 256 * 1024:
         raise LMStudioCatalogError("metadata exceeds the 256 KiB limit")
+    _reject_secret_fields(metadata)
     capabilities = value.get("capabilities", {})
     if not isinstance(capabilities, dict) or any(
         key not in ALLOWED_CAPABILITIES or not isinstance(flag, bool)
@@ -116,15 +130,20 @@ def candidate_from_mapping(value: Mapping[str, Any]) -> LMStudioCatalogCandidate
         raise LMStudioCatalogError("parameter_sizes must be an array of short strings")
     if not isinstance(availability, list) or any(x not in {"local", "cloud"} for x in availability):
         raise LMStudioCatalogError("availability may contain only local and cloud")
-    if not isinstance(artifact_links, list) or any(not isinstance(x, dict) for x in artifact_links):
-        raise LMStudioCatalogError("artifact_links must be an array of objects")
+    if not isinstance(artifact_links, list) or len(artifact_links) > 50 or any(not isinstance(x, dict) for x in artifact_links):
+        raise LMStudioCatalogError("artifact_links must be an array of at most 50 objects")
     checked_links = []
     for link in artifact_links:
         url = link.get("url")
         parsed = urllib.parse.urlsplit(url) if isinstance(url, str) else None
+        try:
+            port = parsed.port if parsed is not None else None
+        except ValueError as exc:
+            raise LMStudioCatalogError("artifact link has an invalid port") from exc
         if (parsed is None or parsed.scheme != "https"
                 or parsed.hostname not in {"lmstudio.ai", "huggingface.co"}
-                or parsed.username or parsed.password or parsed.query or parsed.fragment):
+                or parsed.username or parsed.password or port not in (None, 443)
+                or parsed.query or parsed.fragment or len(url) > 2048):
             raise LMStudioCatalogError("artifact links must use approved HTTPS model origins")
         checked_links.append({"text": str(link.get("text", ""))[:256], "url": url})
     return LMStudioCatalogCandidate(
