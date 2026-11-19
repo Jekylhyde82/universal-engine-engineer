@@ -1,22 +1,23 @@
 # V.I.S.I.O.N. + DESIGNATED DRIVER (D.D.)
 
-**Architecture status:** Design specification proposed; not implemented or activated.  
-**Target authority:** NINEFOLD INTRINSIC  
-**Constituent identities:** V.I.S.I.O.N., DESIGNATED DRIVER (D.D.), AFI PRIME  
+**Architecture authority:** NINEFOLD INTRINSIC  
+**Specialist identities:** V.I.S.I.O.N., D.D., AFI PRIME  
 **Governed memory relationship:** EB9PRIME  
-**Review standard:** GENIUS ENGINEER CRITIC PRIME
+**Critical review discipline:** GENIUS ENGINEER CRITIC PRIME  
+**Release decision:** NO-GO — prototype implementation only.
 
 ## Purpose
 
-Define a safe, testable architecture for visual perception and delegated computer interaction. V.I.S.I.O.N. interprets authorised visual inputs. AFI PRIME reasons over observations and task context. D.D. executes only explicitly authorised, bounded actions. An independent verifier checks outcomes. EB9PRIME may retain appropriately minimised, evidence-backed learning.
+V.I.S.I.O.N. observes authorised visual inputs and produces provenance-bearing, uncertainty-aware observations. AFI PRIME proposes bounded typed plans. D.D. executes only actions authorised by an independent policy service. An independent verifier checks outcomes. EB9PRIME may retain only appropriately minimised, evidence-backed learning.
 
-This specification does not claim that any of these capabilities are currently running.
+This specification and prototype do not claim live access to the user's camera, screen, applications or devices.
 
 ## Documents
 
-- [Technical specification](TECHNICAL_SPEC.md) — component boundaries, data flow, contracts and lifecycle.
-- [Threat model](THREAT_MODEL.md) — trust boundaries, abuse cases and required mitigations.
-- [Production gates](PRODUCTION_GATES.md) — nine acceptance groups, release gates and go/no-go criteria.
+- [Technical specification](TECHNICAL_SPEC.md)
+- [Threat model](THREAT_MODEL.md)
+- [Production gates](PRODUCTION_GATES.md)
+- [Implementation plan](../../superpowers/plans/2026-11-19-vision-dd-production-readiness.md)
 
 ## Non-negotiable invariants
 
@@ -31,28 +32,32 @@ This specification does not claim that any of these capabilities are currently r
 9. Every action has a traceable task, policy decision, executor identity, result and verification state.
 10. Fail closed when identity, context, permission, evidence or system health is uncertain.
 
-## Current implementation status
+## Implementation status
 
 | Layer | Status |
 |---|---|
-| Architecture specification | Proposed in this branch |
-| Threat model | Proposed in this branch |
-| Acceptance criteria | Proposed in this branch |
-| V.I.S.I.O.N. runtime | Not implemented |
-| D.D. executor | Not implemented |
+| Architecture specification and threat model | Documented |
+| Deterministic policy evaluation | Implemented; unit-tested |
+| Ed25519 action-bound grant primitive | Implemented; unit-tested |
+| Local nonce replay ledger | Implemented; unit-tested; single-host prototype |
+| Policy HTTP service | Implemented; injected identity/approval adapters required |
+| Supervised browser observation adapter | Implemented; Playwright-compatible page contract; fake-page tests only |
+| Optional screenshot capture | Implemented behind separate visual consent; no redaction or persistence |
+| Browser execution | Navigation only; grant and fresh-observation gated |
+| Browser network-origin restriction | Implemented in adapter via request interception |
+| Independent readback verification primitive | Implemented; signed evidence contract only |
+| Real independent verifier provider | Not implemented |
+| Real Chromium host/launcher | Not implemented or integration-tested |
+| Production identity provider and key management | Not implemented |
+| Durable externally anchored audit evidence | Not implemented |
 | AFI PRIME runtime integration | Not implemented |
-| Independent policy enforcement | Not implemented |
-| Independent outcome verifier | Not implemented |
 | EB9PRIME governed persistence | Not implemented |
-| Device / desktop adapters | Not implemented |
-| Policy-core CI evidence | 24 automated tests passing on PR head; not a security or integration sign-off |
-| CI, security and integration evidence | Not yet produced |
+| Android runtime and OS permission integration | Not implemented |
+| Staging, monitoring, rollback and incident response | Not implemented |
 | Production deployment | Not approved |
 
-## Prototype implementation slice
-
-A dependency-free Node.js policy package now exists at `packages/vision-dd-policy/`. It contains deterministic deny-by-default evaluation, policy-version-bound approval checks, action digesting, replay-protection callback requirements and a guarded action-state transition function. Its GitHub Actions suite currently passes 24 tests. The package is explicitly a prototype: it does not issue execution grants, authenticate actors, persist nonces, control devices, verify external outcomes or provide a production enforcement boundary.
+The latest recorded policy CI run reported **65 passing tests and zero failures** at commit `090d4f089d67a8c18c407f24f05e26d076909ec2`. This is unit-test evidence for the code at that SHA, not production assurance.
 
 ## Decision
 
-This specification is a prerequisite for implementation, not a production approval. All unresolved design choices and release blockers must remain visible until supported by code, tests and independent evidence.
+The current work is an implementation prototype, not an activated system. Production remains NO-GO until the actual browser host, independent identity/approval providers, independent verifier, durable evidence controls, adversarial tests, operational controls and all nine acceptance groups pass on the exact release artifact.
