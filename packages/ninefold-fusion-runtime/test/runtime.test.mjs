@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { NinefoldFusionRuntime } from "../src/runtime.mjs";
+import { NinefoldFusionRuntime, buildWorkerEnvironment } from "../src/runtime.mjs";
 import { verifyEvidenceEvents } from "../src/evidence.mjs";
 
 async function withRuntime(options, fn) {
@@ -25,6 +25,21 @@ async function withRuntime(options, fn) {
 
 const scope = (runtime, instanceId) =>
   runtime.openScope({ actorId: instanceId, instanceId });
+
+test("child instances receive an allowlisted environment without parent secrets or Node injection flags", () => {
+  const childEnv = buildWorkerEnvironment({
+    PATH: "/usr/bin",
+    HOME: "/tmp",
+    API_TOKEN: "must-not-propagate",
+    DATABASE_URL: "must-not-propagate",
+    NODE_OPTIONS: "--require=unexpected.js",
+    NINEFOLD_PARENT_SECRET: "must-not-propagate",
+  });
+  assert.deepEqual(childEnv, { PATH: "/usr/bin", HOME: "/tmp" });
+  assert.equal("API_TOKEN" in childEnv, false);
+  assert.equal("DATABASE_URL" in childEnv, false);
+  assert.equal("NODE_OPTIONS" in childEnv, false);
+});
 
 test("starts nine process-isolated instances using one shared AFI PRIME function version", async () => {
   await withRuntime({}, async (runtime) => {
