@@ -75,7 +75,7 @@ test("audit ledger enforces its configured storage limit before append", async (
   await withTempDir(async (directory) => {
     const ledger = new FileActionAuditLedger(join(directory, "events.jsonl"), { maxLedgerBytes: 128 });
     await assert.rejects(
-      () => ledger.append({ event_type: "ACTION_PROPOSED", detail: "x".repeat(200) }),
+      () => ledger.append({ event_type: "ACTION_PROPOSED", detail: "x".repeat(50) }),
       /size limit/i,
     );
   });
