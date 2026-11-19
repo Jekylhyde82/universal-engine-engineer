@@ -1,0 +1,40 @@
+name: VISION-DD CodeQL
+
+on:
+  pull_request:
+    branches:
+      - extraction/syphon-full-gateway-checkpoints
+    paths:
+      - "packages/vision-dd-policy/**"
+      - ".github/workflows/vision-dd-codeql.yml"
+  push:
+    branches:
+      - architecture/vision-dd-production-spec
+    paths:
+      - "packages/vision-dd-policy/**"
+      - ".github/workflows/vision-dd-codeql.yml"
+  schedule:
+    - cron: "23 4 * * 1"
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze JavaScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended,security-and-quality
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
