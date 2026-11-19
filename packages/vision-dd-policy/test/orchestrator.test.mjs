@@ -164,3 +164,27 @@ test("governed action lifecycle persists every transition to the hash-chained au
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test("executor timeout followed by audit failure is never marked safe to retry", async () => {
+  let writes = 0;
+  let attempted = false;
+  const d = dependencies({
+    executor: {
+      execute: async () => {
+        attempted = true;
+        throw new Error("timeout after possible side effect");
+      },
+    },
+    appendAudit: async () => {
+      writes += 1;
+      if (writes === 5) throw new Error("audit unavailable");
+    },
+  });
+  await assert.rejects(() => runGovernedAction(d.options), (error) => {
+    assert.equal(error.code, "AUDIT_UNAVAILABLE");
+    assert.equal(error.safeToRetry, false);
+    assert.equal(error.execution, null);
+    return true;
+  });
+  assert.equal(attempted, true);
+});
