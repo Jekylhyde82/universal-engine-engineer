@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NinefoldFusionRuntime, buildWorkerEnvironment } from "../src/runtime.mjs";
@@ -73,6 +73,31 @@ test("state written in one instance is not visible in another instance", async (
     assert.deepEqual(same.value, { value: "domain-one" });
     assert.equal(other.found, false);
   });
+});
+
+test("state values are bounded before entering an instance namespace", async () => {
+  await withRuntime({}, async (runtime) => {
+    const one = await scope(runtime, "UMIC-01");
+    await assert.rejects(
+      one.writeState("oversized", "x".repeat(17_000)),
+      /no larger than 16 KiB/,
+    );
+  });
+});
+
+test("runtime evidence setup does not change the caller's parent directory permissions", async () => {
+  const root = await mkdtemp(join(tmpdir(), "ninefold-permissions-"));
+  await chmod(root, 0o750);
+  const runtime = await NinefoldFusionRuntime.create({
+    evidenceRoot: root,
+    authorizeInstanceAccess: async ({ actorId, instanceId }) => actorId === instanceId,
+  });
+  try {
+    assert.equal((await stat(root)).mode & 0o777, 0o750);
+  } finally {
+    await runtime.close();
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("each instance maintains a distinct verifiable append-only evidence stream", async () => {
