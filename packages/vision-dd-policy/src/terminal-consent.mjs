@@ -17,8 +17,10 @@ export function createTerminalConsentProvider({
 } = {}) {
   const readline = createInterface({ input, output, terminal: Boolean(output.isTTY && input.isTTY) });
   let closed = false;
+  let pendingResolve = null;
+  let promptQueue = Promise.resolve();
 
-  async function requestConsent(request) {
+  async function promptOne(request) {
     if (closed || !request || typeof request !== "object") return false;
     let heading;
     let detail;
@@ -49,9 +51,19 @@ export function createTerminalConsentProvider({
     output.write(heading + "\n" + detail + "\n");
     output.write("Type YES exactly to approve; any other response denies.\n");
     const answer = await new Promise((resolve) => {
-      readline.question("> ", (value) => resolve(value));
+      pendingResolve = resolve;
+      readline.question("> ", (value) => {
+        pendingResolve = null;
+        resolve(value);
+      });
     });
     return answer.trim() === "YES";
+  }
+
+  function requestConsent(request) {
+    const next = promptQueue.then(() => promptOne(request));
+    promptQueue = next.catch(() => false);
+    return next;
   }
 
   return Object.freeze({
@@ -59,6 +71,8 @@ export function createTerminalConsentProvider({
     close() {
       if (closed) return;
       closed = true;
+      pendingResolve?.("");
+      pendingResolve = null;
       readline.close();
     },
   });
