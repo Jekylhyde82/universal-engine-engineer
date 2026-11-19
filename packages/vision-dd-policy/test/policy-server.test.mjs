@@ -167,3 +167,26 @@ test("JSONP-like media types are not accepted as JSON", async () => {
     assert.equal(response.status, 415);
   });
 });
+
+test("policy service refuses to start without approval verification and durable nonce consumption", () => {
+  const options = baseOptions();
+  assert.throws(
+    () => createServer({ ...options, verifyApproval: undefined }),
+    /approval verification/i,
+  );
+  assert.throws(
+    () => createServer({ ...options, approvalNonceLedger: undefined }),
+    /nonce consumption/i,
+  );
+});
+
+test("policy service refuses a non-Ed25519 grant signing key at startup", () => {
+  const { privateKey: rsaPrivateKey } = generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+  });
+  const rsaPem = rsaPrivateKey.export({ type: "pkcs8", format: "pem" });
+  assert.throws(
+    () => createServer({ ...baseOptions(), privateKeyPem: rsaPem }),
+    /Ed25519/i,
+  );
+});
