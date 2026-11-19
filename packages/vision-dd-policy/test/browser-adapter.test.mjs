@@ -42,10 +42,11 @@ async function observedAdapter(page, overrides = {}) {
     publicKeyPem,
     policyVersion: "policy-7",
     grantNonceLedger: { consume: async () => true },
+    requestConsent: async () => true,
     clock: () => now,
     ...overrides,
   });
-  const observation = await adapter.observe({ userConsent: true });
+  const observation = await adapter.observe();
   return { adapter, observation };
 }
 
@@ -88,9 +89,9 @@ test("observation requires explicit user consent", async () => {
     page: fakePage(), sessionId: "browser-session-1",
     allowedOrigins: ["https://example.test"],
     publicKeyPem, policyVersion: "policy-7",
-    grantNonceLedger: { consume: async () => true }, clock: () => now,
+    grantNonceLedger: { consume: async () => true }, requestConsent: async () => false, clock: () => now,
   });
-  await assert.rejects(() => adapter.observe({ userConsent: false }), /consent/i);
+  await assert.rejects(() => adapter.observe(), /consent/i);
 });
 
 test("observation is provenance-bound, time-limited and excludes raw form values", async () => {
@@ -108,13 +109,13 @@ test("observation is provenance-bound, time-limited and excludes raw form values
 
 test("visual frame is captured only with separate explicit visual consent", async () => {
   const page = fakePage();
-  const { adapter } = await observedAdapter(page);
-  await assert.rejects(() => adapter.observe({
-    userConsent: true, includeScreenshot: true, visualConsent: false,
-  }), /visual consent/i);
-  const observation = await adapter.observe({
-    userConsent: true, includeScreenshot: true, visualConsent: true,
+  let visualAllowed = false;
+  const { adapter } = await observedAdapter(page, {
+    requestConsent: async ({ purpose }) => purpose !== "VISUAL_FRAME_CAPTURE" || visualAllowed,
   });
+  await assert.rejects(() => adapter.observe({ includeScreenshot: true }), /visual consent/i);
+  visualAllowed = true;
+  const observation = await adapter.observe({ includeScreenshot: true });
   assert.equal(observation.visual_frame.mime_type, "image/png");
   assert.equal(observation.visual_frame.data_base64, Buffer.from("test-png").toString("base64"));
 });
@@ -124,7 +125,7 @@ test("browser observation refuses an origin outside the allowlist", async () => 
   const adapter = createBrowserAdapter({
     page, sessionId: "browser-session-1", allowedOrigins: ["https://example.test"],
     publicKeyPem, policyVersion: "policy-7",
-    grantNonceLedger: { consume: async () => true }, clock: () => now,
+    grantNonceLedger: { consume: async () => true }, requestConsent: async () => true, clock: () => now,
   });
   await assert.rejects(() => adapter.observe({ userConsent: true }), /origin/i);
 });
@@ -136,7 +137,7 @@ test("navigation refuses an origin outside the allowlist", async () => {
     parameters: { url: "https://evil.test/collect" },
   });
   await assert.rejects(() => adapter.execute({
-    request, grant: makeGrant(request), userConsent: true,
+    request, grant: makeGrant(request), 
   }), /origin/i);
   assert.equal(page.calls.length, 0);
 });
