@@ -38,11 +38,57 @@ This is not a complete runtime or production security boundary.
 - The signed readback verifier is a verification primitive. A separate authenticated read-only verifier process/provider is not yet implemented.
 - No Android app, MediaProjection/accessibility service, AFI PRIME runtime integration or EB9PRIME governed persistence runtime is included.
 
+## Local supervised browser host
+
+Requires Node.js 22 or later and the pinned Playwright dependency. The host launches a fresh Chromium profile, blocks service workers, disables downloads/extensions, applies the origin allowlist, and deletes the temporary profile on close by default.
+
+The consent provider must be a trusted UI surface separate from the page being controlled. A terminal prompt provider is included for local single-user development; it requires typing `YES` and warns that screenshots are not redacted.
+
+The host is a library API, not an unattended service. It still requires a trusted policy public key and a durable grant replay ledger supplied by the caller.
+
+```js
+import { join } from "node:path";
+import { homedir } from "node:os";
+import {
+  FileNonceLedger,
+  createTerminalConsentProvider,
+  launchBrowserHost,
+} from "@ninefold/vision-dd-policy";
+
+const consent = createTerminalConsentProvider();
+const host = await launchBrowserHost({
+  profileRoot: join(homedir(), ".ninefold", "vision-dd-profiles"),
+  allowedOrigins: ["https://example.test"],
+  publicKeyPem: process.env.VISION_DD_POLICY_PUBLIC_KEY,
+  policyVersion: "policy-1",
+  grantNonceLedger: new FileNonceLedger(
+    join(homedir(), ".ninefold", "vision-dd-grants.jsonl")
+  ),
+  requestConsent: consent.requestConsent,
+  headless: false,
+});
+
+try {
+  await host.page.goto("https://example.test");
+  const observation = await host.adapter.observe();
+  // Pass the observation to an authorised perception workflow.
+  // D.D. still requires a signed grant for each navigation.
+} finally {
+  await host.close();
+  consent.close();
+}
+```
+
+The example is a local integration pattern, not a production deployment recipe. Do not put private signing keys in the browser host; the policy service retains the private key and the browser host receives only the trusted public key.
+
 ## Run tests
 
 Requires Node.js 22 or later.
 
 ```sh
+npm install
+npx playwright install chromium
+npm run check
 npm test
 ```
 
