@@ -61,14 +61,14 @@ test("grant is signed and bound to exact action, actor, app, session and policy"
   assert.equal(result.payload.action_digest, computeActionDigest(request));
 });
 
-test("grant signature tampering is rejected", () => {
+test("grant signature tampering is rejected", async () => {
   const request = action();
   const grant = createGrant({ request, decision: decision(request), privateKeyPem, now });
   const tampered = { ...grant, payload: { ...grant.payload, target_session_id: "other" } };
-  assert.equal(verifyGrant({ grant: tampered, publicKeyPem, expectedRequest: request, expectedPolicyVersion: "policy-7", now }).valid, false);
+  assert.equal((await verifyGrant({ grant: tampered, publicKeyPem, expectedRequest: request, expectedPolicyVersion: "policy-7", now })).valid, false);
 });
 
-test("grant for another action or policy is rejected", () => {
+test("grant for another action or policy is rejected", async () => {
   const request = action();
   const grant = createGrant({ request, decision: decision(request), privateKeyPem, now });
   assert.equal(verifyGrant({
@@ -81,7 +81,7 @@ test("grant for another action or policy is rejected", () => {
   }).valid, false);
 });
 
-test("expired grant is rejected", () => {
+test("expired grant is rejected", async () => {
   const request = action();
   const grant = createGrant({ request, decision: decision(request), privateKeyPem, now, ttlMs: 1000 });
   assert.equal(verifyGrant({
