@@ -377,12 +377,16 @@ class UniversalAcquisitionEngine:
             db.execute("BEGIN IMMEDIATE")
             if db.execute("SELECT 1 FROM assimilations WHERE record_id=?", (record_id,)).fetchone() is None:
                 raise UAIEError(f"unknown record: {record_id}")
+            existing = db.execute(
+                "SELECT original_idea_value FROM capability_assessments WHERE record_id=?",
+                (record_id,)).fetchone()
+            if existing is not None and existing["original_idea_value"] != original_idea_value:
+                raise UAIEError("Original Idea Value is immutable; create a new candidate/version to preserve the change.")
             db.execute("""INSERT INTO capability_assessments
                 (record_id,original_idea_value,market_value,revenue_models_json,
                  development_timeline,risk_assessment,evidence_json,verification_status,updated_at)
                 VALUES (?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(record_id) DO UPDATE SET
-                 original_idea_value=excluded.original_idea_value,
                  market_value=excluded.market_value,
                  revenue_models_json=excluded.revenue_models_json,
                  development_timeline=excluded.development_timeline,
