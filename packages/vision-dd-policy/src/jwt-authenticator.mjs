@@ -132,7 +132,8 @@ export function createJwtBearerAuthenticator({
 
   let cachedKeys = new Map();
   let cacheExpiresAt = 0;
-  let refreshPromise = null;\n  let unknownKidRefreshAt = Number.NEGATIVE_INFINITY;
+  let refreshPromise = null;
+  let unknownKidRefreshAt = Number.NEGATIVE_INFINITY;
 
   async function refreshKeys() {
     if (refreshPromise) return refreshPromise;
