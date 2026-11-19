@@ -1,9 +1,15 @@
 export const FUSION_FUNCTION_ID = "UNIFIED FUSION SYNERGY — AFI PRIME";
 export const FUSION_FUNCTION_VERSION = "0.1.0-poc";
 
+import { createHash } from "node:crypto";
+
 const ALLOWED_COMMANDS = new Set(["health", "state.write", "state.read"]);
 const MAX_STATE_ENTRIES = 1_024;
 const MAX_STATE_BYTES = 1_048_576;
+
+function createValueDigest(encoded) {
+  return createHash("sha256").update(encoded).digest("hex");
+}
 
 function validateKey(key) {
   if (typeof key !== "string" || key.length < 1 || key.length > 128) {
@@ -30,11 +36,14 @@ export function executeCanonicalFusionCommand({ command, state, instanceId, poli
 
   if (command.type === "health") {
     return {
-      instanceId,
-      fusionFunctionId: FUSION_FUNCTION_ID,
-      fusionFunctionVersion: FUSION_FUNCTION_VERSION,
-      policyVersion,
-      status: "READY",
+      result: {
+        instanceId,
+        fusionFunctionId: FUSION_FUNCTION_ID,
+        fusionFunctionVersion: FUSION_FUNCTION_VERSION,
+        policyVersion,
+        status: "READY",
+      },
+      evidenceDetails: { status: "READY" },
     };
   }
 
@@ -55,22 +64,38 @@ export function executeCanonicalFusionCommand({ command, state, instanceId, poli
       : 0;
     const nextBytes = currentBytes - previousBytes + Buffer.byteLength(encoded);
     if (nextBytes > MAX_STATE_BYTES) throw new Error("Instance state byte limit reached.");
-    state.set(command.key, JSON.parse(encoded));
+    const nextValue = JSON.parse(encoded);
+    const previousValue = hadKey ? state.get(command.key) : undefined;
     return {
-      instanceId,
-      written: true,
-      key: command.key,
-      valueBytes: Buffer.byteLength(encoded),
+      result: {
+        instanceId,
+        written: true,
+        key: command.key,
+        valueBytes: Buffer.byteLength(encoded),
+      },
+      evidenceDetails: {
+        key: command.key,
+        valueDigest: createValueDigest(encoded),
+        valueBytes: Buffer.byteLength(encoded),
+      },
+      commit: () => state.set(command.key, nextValue),
+      rollback: () => {
+        if (hadKey) state.set(command.key, previousValue);
+        else state.delete(command.key);
+      },
     };
   }
 
   if (command.type === "state.read") {
     const found = state.has(command.key);
     return {
-      instanceId,
-      found,
-      key: command.key,
-      value: found ? state.get(command.key) : null,
+      result: {
+        instanceId,
+        found,
+        key: command.key,
+        value: found ? state.get(command.key) : null,
+      },
+      evidenceDetails: { key: command.key, found },
     };
   }
 
