@@ -28,6 +28,8 @@ The source material available for this implementation confirms the counts and th
 
 Do not populate names, responsibilities, or domain assignments from inference. Recover them from owner-approved architecture records, preserve source provenance, and independently reconcile duplicates and superseded entries before marking a lineage mapped.
 
+- [99-lineage reconciliation report](LINEAGE_RECONCILIATION_REPORT.md) — historical Master Core and Engine count variants, candidate taxonomies and unresolved source-to-slot mappings.
+
 ## What this does not claim
 
 - It does not claim the 99 capabilities are implemented.
