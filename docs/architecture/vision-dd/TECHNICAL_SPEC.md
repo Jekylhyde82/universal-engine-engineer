@@ -298,12 +298,13 @@ The dependency-free Node.js package at `packages/vision-dd-policy/` now contains
 - `src/policy.mjs`: deterministic deny-by-default policy evaluation and action digests, including optional binding to a V.I.S.I.O.N. observation ID.
 - `src/action-state.mjs`: guarded role/state transitions; only the verifier role can mark an action VERIFIED.
 - `src/grant.mjs`: Ed25519 short-lived action grants bound to policy version, actor, task, action, application and session; verification consumes a grant ID through replay protection.
-- `src/nonce-ledger.mjs`: single-host append-only hash-chained nonce storage, exclusive locking, fsync, partial-tail recovery, restrictive directory/file permissions and bounded storage. It fails closed on stale locks, corruption or capacity exhaustion. The hash chain is not independent tamper protection.
+- `src/nonce-ledger.mjs`: single-host append-only hash-chained nonce storage, exclusive locking, fsync, partial-tail recovery, restrictive directory/file permissions, blank-record rejection and bounded storage. It fails closed on stale locks, corruption or capacity exhaustion. The hash chain is not independent tamper protection.
+- `src/audit-ledger.mjs`: local append-only hash-chained action evidence ledger with sequential records, exclusive locking, fsync, partial-tail recovery, restrictive permissions, corruption detection and bounded storage. External signed checkpoints, backup/restore and retention operations remain outstanding.
 - `src/policy-server.mjs`: HTTP grant service with mandatory injected identity authentication and approval signature verification. No insecure default authenticator exists.
-- `src/browser-adapter.mjs`: trusted-consent-provider-gated Playwright-compatible observation and navigation adapter, with allowlisted origins, request interception, short-lived observations, separately consented screenshot capture, stop control and one-action-at-a-time execution. It supports navigation only and returns AWAITING_VERIFICATION or UNKNOWN.
+- `src/browser-adapter.mjs`: trusted-consent-provider-gated Playwright observation and navigation adapter, with HTTP and WebSocket origin allowlists, short-lived observation binding, separately consented screenshot capture, stop control, one-action-at-a-time execution and navigation-only scope. It returns AWAITING_VERIFICATION or UNKNOWN.
 - `src/verifier.mjs`: Ed25519-signed readback verification primitive. It does not implement the independent read-only provider that must produce the evidence.
-- `src/orchestrator.mjs`: governed D.D. action lifecycle; policy, executor and verifier are separate injected authorities. Every state transition must be durably appended before the next action stage proceeds. It requires an injected audit writer; no production action-event ledger is included.
-- `src/browser-host.mjs` and `src/terminal-consent.mjs`: private per-run Chromium profile host, no raw page/context handles exposed, allowlisted initial navigation and explicit local terminal consent.
+- `src/orchestrator.mjs`: governed D.D. action lifecycle; policy, executor and verifier are separate injected authorities. Every state transition must be durably appended before the next action stage proceeds. It can use `FileActionAuditLedger`, but external audit anchoring and production retention/recovery controls are not included.
+- `src/browser-host.mjs` and `src/terminal-consent.mjs`: private per-run Chromium profile host, no raw page/context handles exposed, allowlisted initial navigation, service-worker blocking, popup closure and explicit local terminal consent.
 - `test/`: automated unit, fake-adapter and real Chromium integration tests.
 
 The latest recorded GitHub Actions run reports **69 passing tests and zero failures** at commit `75ff874873ed1784009a5ea06c076ea51546a70a`. CI installs pinned Playwright 1.65.1 and launches real Chromium against a temporary local fixture. Tests verify consent-gated observation, screenshot capture, signed navigation and blocking of an external redirect. This does not test a production browser host, external identity provider, trusted consent UI, live website or physical user device.
@@ -313,12 +314,12 @@ The latest recorded GitHub Actions run reports **69 passing tests and zero failu
 Initial platform decision: a supervised, dedicated Chromium browser session, restricted to an explicit HTTPS origin allowlist. The adapter is designed to accept a Playwright-compatible page supplied by a trusted host. Android is deferred to a separate native companion application because MediaProjection and accessibility access require explicit OS consent, signing, device/OEM testing and a separate release process.
 
 Still required before production:
-- production Chromium host/launcher, private isolated persistent profile creation and session lifecycle;
+- production OS-level network egress firewall/sandbox (Playwright HTTP/WebSocket routing does not constrain WebRTC/UDP or all non-HTTP transports);
 - production user/device identity provider and secure session binding;
 - trusted user-facing consent/approval UX and production approval signature/key management;
 - grant key provisioning, rotation, revocation and recovery;
 - independent read-only verifier process/provider and authenticated evidence transport;
-- production durable action evidence ledger with externally anchored integrity checkpoints, retention, backup and restore; the orchestrator currently requires this as an injected dependency;
+- external signed checkpoints, protected backup/restore, retention controls and a production audit query/access service for the local action ledger;
 - calibrated visual perception model/OCR and labelled evaluation dataset; current DOM semantic observation is not a validated visual-understanding model;
 - privacy redaction before any raw visual frame can be retained or transmitted; current screenshot output is not redacted and is never persisted by the adapter;
 - Android native adapter and target-device testing;
