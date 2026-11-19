@@ -14,7 +14,28 @@ LM Studio provides three relevant surfaces:
 2. **Official CLI:** `lms get` searches and downloads models. This is the supported user-facing acquisition route. The command requires an explicit model identifier and may present download choices.
 3. **Native local REST API v1:** `GET /api/v1/models` inventories models already available on a specific LM Studio installation. It is not a complete public-catalog search API.
 
-LM Studio's Hub terms restrict integrations to officially supported interfaces. UAIE therefore does **not** crawl or reverse-engineer the public website or Hub. It accepts a user-reviewed catalog candidate record (or a record exported through an officially supported interface), prepares the official CLI command for review, and then uses the documented local REST API to verify what is actually installed.
+LM Studio's Hub terms restrict integrations to officially supported interfaces. UAIE therefore does **not** crawl or reverse-engineer the public website or Hub. It uses the officially supported `lms clone` command to obtain the catalog model's `model.yaml` metadata (which does not include model weights), safely parses that open specification, and then uses the documented local REST API to verify what is actually installed. A reviewed JSON candidate remains available when a user supplies metadata directly.
+
+## Official metadata-only catalog acquisition
+
+LM Studio documents that all models in its catalog are implemented using the cross-platform `model.yaml` specification. It defines the canonical `publisher/model` identity, concrete variants and sources, architectures, compatibility formats, parameter sizes, minimum memory, context lengths, vision/reasoning/tool-use declarations and runtime defaults.
+
+The official command:
+
+```bash
+lms clone publisher/model
+```
+
+clones `model.yaml`, README and other metadata files without downloading model weights. UAIE provides `build_clone_command(candidate)` to prepare this command; it does not execute it.
+
+After cloning, import the metadata:
+
+```bash
+uaie-lmstudio-model-yaml model.yaml --db uaie.sqlite3 \\
+  --original-idea-value "Use UAIE PRIME and AFI PRIME to assimilate LM Studio model metadata."
+```
+
+This produces the UAIE assimilation record, AFI capability profile and acquisition-register entry. It preserves the original `model.yaml` metadata and maps the standard fields into the candidate profile. Model weights remain untouched.
 
 ## Implemented candidate intake
 
@@ -79,7 +100,7 @@ Only then can an operator deliberately start the official REST download:
 uaie-lmstudio-catalog candidate.json --db uaie.sqlite3 --download --approved --record-id <record-id>
 ```
 
-For a quantized Hugging Face artifact, add `--huggingface-url` with the exact artifact URL already recorded in the candidate. For a catalog identifier with quantization, use the reviewed `lms get` command proposal instead.
+For a quantized Hugging Face artifact, add `--huggingface-url` with the exact artifact URL already recorded in the candidate. For a catalog identifier with quantization, use the reviewed `lms get` command proposal instead. The model.yaml intake command supports the same `--download --approved --record-id` flags after both lifecycles are approved.
 
 Poll a returned job with:
 
@@ -173,6 +194,8 @@ This local API adapter is the post-acquisition verification step: it can confirm
 
 ## Official references
 
+- [LM Studio model.yaml specification](https://lmstudio.ai/docs/app/modelyaml) — the format used by catalog models, including variants and metadata overrides.
+- [LM Studio: Publish a model.yaml](https://lmstudio.ai/docs/app/modelyaml/publish) — confirms that `lms clone` retrieves metadata only and does not download weights.
 - [LM Studio Hub Terms of Use](https://lmstudio.ai/hub-terms) — integrations must use officially supported interfaces.
 - [LM Studio CLI: `lms get`](https://lmstudio.ai/docs/cli/local-models/get) — official model search and download workflow.
 - [LM Studio REST API: List Models](https://lmstudio.ai/docs/developer/rest/list) — official local model inventory contract.
