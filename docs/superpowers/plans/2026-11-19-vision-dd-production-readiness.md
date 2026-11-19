@@ -16,7 +16,7 @@ Implemented in the feature branch:
 - Terminal consent provider with explicit YES confirmation and terminal-output sanitization.
 - Signed independent readback verification primitive.
 - Governed action orchestrator that separates policy, executor and verifier roles and refuses to proceed when an audit append fails.
-- Local append-only hash-chained action audit ledger with locking, fsync, partial-tail recovery, canonical-record enforcement, restrictive permissions and bounded capacity.
+- Local append-only hash-chained action audit ledger with locking, fsync, partial-tail recovery, canonical-record enforcement, restrictive permissions, bounded capacity and atomic duplicate action-ID prevention.
 - Real Chromium CI integration tests plus JavaScript syntax checks and CodeQL workflow.
 
 Latest previously verified real-browser CI run: 69 passing tests, 0 failures at `75ff874873ed1784009a5ea06c076ea51546a70a`. The new host/consent changes are pending their own latest CI and CodeQL results.
