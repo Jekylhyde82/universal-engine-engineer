@@ -152,6 +152,22 @@ def _parse_model(item: Any) -> LMStudioModel:
     )
 
 
+
+def _ensure_loopback_response(response: Any, endpoint: str) -> None:
+    """Prevent urllib redirects from forwarding credentials away from the local host."""
+    final_url = response.geturl() if hasattr(response, "geturl") else endpoint
+    final = urllib.parse.urlsplit(final_url)
+    expected = urllib.parse.urlsplit(endpoint)
+    try:
+        final_port = final.port
+        expected_port = expected.port
+    except ValueError as exc:
+        raise LMStudioError("LM Studio response redirected to an invalid endpoint") from exc
+    if (final.scheme != expected.scheme or (final.hostname or "").casefold() != (expected.hostname or "").casefold()
+            or final_port != expected_port or final.username or final.password):
+        raise LMStudioError("LM Studio endpoint redirected outside its configured loopback origin")
+
+
 def list_models(
     base_url: str = DEFAULT_BASE_URL,
     api_token: str | None = None,
@@ -174,6 +190,7 @@ def list_models(
     open_request = opener or urllib.request.urlopen
     try:
         with open_request(request, timeout=timeout) as response:
+            _ensure_loopback_response(response, endpoint)
             raw = response.read(max_response_bytes + 1)
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise LMStudioError(f"could not read LM Studio model inventory: {type(exc).__name__}") from exc
@@ -299,6 +316,7 @@ def download_model(
     open_request = opener or urllib.request.urlopen
     try:
         with open_request(request, timeout=timeout) as response:
+            _ensure_loopback_response(response, endpoint)
             raw = response.read(1024 * 1024 + 1)
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise LMStudioError(f"LM Studio model download request failed: {type(exc).__name__}") from exc
