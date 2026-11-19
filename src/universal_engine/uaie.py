@@ -1,7 +1,7 @@
 """UAIE: local-first Universal Acquisition and Integration Engine prototype.
 
 This module stores source material and provenance without executing acquired content.
-It is intentionally conservative: discovery/assimilation are automatic; integration
+It is intentionally conservative: discovery/acquisition intake is automatic; integration
 and execution remain explicit, separately governed operations.
 """
 from __future__ import annotations
@@ -437,13 +437,13 @@ def _print(record: AcquisitionRecord) -> None:
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="uaie", description="Universal Assimilation and Integration Engine prototype")
+    parser = argparse.ArgumentParser(prog="uaie", description="Universal Acquisition and Integration Engine prototype")
     parser.add_argument("--db", default="uaie.sqlite3", help="SQLite database path")
     sub = parser.add_subparsers(dest="command", required=True)
-    ingest = sub.add_parser("ingest", help="assimilate a file or directory without executing it")
+    ingest = sub.add_parser("ingest", help="acquire a file or directory without executing it")
     ingest.add_argument("path")
     ingest.add_argument("--shallow", action="store_true", help="do not recurse into directories")
-    search = sub.add_parser("search", help="search assimilated records")
+    search = sub.add_parser("search", help="search acquired records")
     search.add_argument("query")
     show = sub.add_parser("show", help="show record metadata and extracted content")
     show.add_argument("record_id")
