@@ -90,8 +90,9 @@ function makeGrant(request) {
 }
 
 test("observation requires explicit user consent", async () => {
+  const page = fakePage();
   const adapter = createBrowserAdapter({
-    page: fakePage(), context: fakePage().context, sessionId: "browser-session-1",
+    page, context: page.context, sessionId: "browser-session-1",
     allowedOrigins: ["https://example.test"],
     publicKeyPem, policyVersion: "policy-7",
     grantNonceLedger: { consume: async () => true }, requestConsent: async () => false, clock: () => now,
