@@ -153,7 +153,7 @@ export class FileActionAuditLedger {
         bytes = bytes.subarray(0, recoveredLength);
       }
     } catch (error) {
-      if (error?.code === "ENOENT") return { records: 0, previousHash: ZERO_HASH, size: 0 };
+      if (error?.code === "ENOENT") return { records: 0, previousHash: ZERO_HASH, size: 0, events: [] };
       throw error;
     } finally {
       await handle?.close().catch(() => {});
@@ -166,6 +166,7 @@ export class FileActionAuditLedger {
     }
     let previousHash = ZERO_HASH;
     let sequence = 0;
+    const events = [];
     for (const line of lines) {
       let record;
       try { record = JSON.parse(line); }
@@ -176,8 +177,9 @@ export class FileActionAuditLedger {
       }
       assertRecord(record, sequence, previousHash);
       previousHash = record.hash;
+      events.push(record.event);
     }
-    return { records: sequence, previousHash, size: bytes.length };
+    return { records: sequence, previousHash, size: bytes.length, events };
   }
 
   async append(event) {
@@ -188,7 +190,23 @@ export class FileActionAuditLedger {
     }
     const safeEvent = JSON.parse(canonicalEvent);
     return this.#withLock(async () => {
-      const { records, previousHash, size } = await this.#readAndRecover();
+      const { records, previousHash, size, events } = await this.#readAndRecover();
+      if (safeEvent.event_type === "ACTION_PROPOSED") {
+        if (typeof safeEvent.action_id !== "string" || !safeEvent.action_id.trim()) {
+          throw new TypeError("ACTION_PROPOSED audit events require an action_id.");
+        }
+        const taskId = typeof safeEvent.task_id === "string" ? safeEvent.task_id : "";
+        const alreadyClaimed = events.some((existing) =>
+          existing.event_type === "ACTION_PROPOSED" &&
+          existing.action_id === safeEvent.action_id &&
+          (typeof existing.task_id === "string" ? existing.task_id : "") === taskId
+        );
+        if (alreadyClaimed) {
+          const error = new Error("Action ID is already claimed in this task.");
+          error.code = "ACTION_ID_ALREADY_CLAIMED";
+          throw error;
+        }
+      }
       const timestamp = this.clock();
       if (!Number.isSafeInteger(timestamp)) throw new TypeError("Audit ledger clock is invalid.");
       const body = {
