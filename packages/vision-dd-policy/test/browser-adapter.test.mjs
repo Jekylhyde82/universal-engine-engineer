@@ -344,3 +344,44 @@ test("stop closes both sides of an active allowlisted WebSocket", async () => {
   assert.equal(clientClosed, 1);
   assert.equal(serverClosed, 1);
 });
+
+test("allowlisted HTTP requests are fulfilled without following redirects", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let fetched = 0;
+  let fulfilled = 0;
+  await page.state.routeHandler({
+    request: () => ({ url: () => "https://example.test/script.js" }),
+    fetch: async (options) => {
+      fetched += 1;
+      assert.equal(options.maxRedirects, 0);
+      return { status: () => 200, headers: () => ({}) };
+    },
+    fulfill: async ({ response }) => {
+      fulfilled += 1;
+      assert.equal(response.status(), 200);
+    },
+    abort: async () => { throw new Error("allowed request must not be aborted"); },
+  });
+  assert.equal(fetched, 1);
+  assert.equal(fulfilled, 1);
+});
+
+test("all HTTP redirect responses are blocked before the browser follows them", async () => {
+  const page = fakePage();
+  const { adapter } = await observedAdapter(page);
+  let aborted = 0;
+  let fulfilled = 0;
+  await page.state.routeHandler({
+    request: () => ({ url: () => "https://example.test/redirect" }),
+    fetch: async (options) => {
+      assert.equal(options.maxRedirects, 0);
+      return { status: () => 302, headers: () => ({ location: "https://evil.test/next" }) };
+    },
+    fulfill: async () => { fulfilled += 1; },
+    abort: async () => { aborted += 1; },
+  });
+  assert.equal(aborted, 1);
+  assert.equal(fulfilled, 0);
+  assert.equal(adapter.getStatus().blocked_http_requests, 1);
+});
