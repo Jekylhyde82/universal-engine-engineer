@@ -354,7 +354,9 @@ export function createBrowserAdapter({
       stopped = true;
       observations.clear();
       for (const connection of activeWebSockets) {
-        void connection.client.close({ code: 1008, reason: "session stopped" }).catch(() => {});
+        void Promise.resolve()
+          .then(() => connection.client.close({ code: 1008, reason: "session stopped" }))
+          .catch(() => {});
       }
       activeWebSockets.clear();
     },
