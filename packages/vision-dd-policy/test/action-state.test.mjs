@@ -16,6 +16,17 @@ test("policy service alone can grant, and a grant reference is mandatory", () =>
   assert.throws(() => transitionActionState("POLICY_CHECK", "GRANTED", "executor", { grantReference: "grant-1" }));
 });
 
+test("system can durably cancel an action while policy evaluation is pending", () => {
+  const result = transitionActionState("POLICY_CHECK", "CANCELLED", "system", {
+    reason: "ACTION_CANCELLED_BEFORE_EXECUTION",
+  });
+  assert.equal(result.state, "CANCELLED");
+  assert.equal(isTerminalActionState(result.state), true);
+  assert.throws(() => transitionActionState("POLICY_CHECK", "CANCELLED", "executor", {
+    reason: "ACTION_CANCELLED_BEFORE_EXECUTION",
+  }));
+});
+
 test("executor cannot mark an action verified", () => {
   assert.throws(() => transitionActionState("VERIFYING", "VERIFIED", "executor", { verificationEvidence: "evidence-1" }));
 });
