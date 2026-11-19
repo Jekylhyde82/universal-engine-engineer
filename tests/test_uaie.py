@@ -146,6 +146,22 @@ class UAIETests(unittest.TestCase):
         self.assertEqual(assessment.revenue_models, ("subscription", "licensing"))
         self.assertEqual(self.engine.get_capability_assessment(record.record_id), assessment)
 
+    def test_original_idea_value_cannot_be_overwritten(self):
+        record = self.engine.ingest_text("original concept", "ideas/immutable.md")
+        self.engine.record_capability_assessment(
+            record.record_id, original_idea_value="Exact original wording",
+            market_value="Unknown", revenue_models=[],
+            development_timeline="Unknown", risk_assessment="Unassessed", evidence=[])
+        with self.assertRaises(UAIEError):
+            self.engine.record_capability_assessment(
+                record.record_id, original_idea_value="Rewritten by a later process",
+                market_value="Updated estimate", revenue_models=[],
+                development_timeline="Updated timeline",
+                risk_assessment="Updated risk review", evidence=[])
+        stored = self.engine.get_capability_assessment(record.record_id)
+        self.assertEqual(stored.original_idea_value, "Exact original wording")
+
+
     def test_capability_register_rejects_missing_original_idea_value(self):
         record = self.engine.ingest_text("candidate", "ideas/empty.md")
         with self.assertRaises(UAIEError):
