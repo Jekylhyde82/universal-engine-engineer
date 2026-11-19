@@ -18,6 +18,7 @@ UAIE v0.1 is a working, local-first acquisition and assimilation engine. It can:
 - Enforce a lifecycle: discovered/assimilated → approved → integrated, or rejected.
 - Persist its catalogue across restarts.
 - Operate using Python's standard library only.
+- Optionally inventory models from a local LM Studio instance through a separate, read-only adapter (see `docs/LM-STUDIO-INTEGRATION.md`).
 
 ## Quick start
 
@@ -52,7 +53,7 @@ This is a real executable prototype, not yet the full universal system. The firs
 
 Not yet implemented: broad web crawling, authenticated connector integrations, archive/document format extraction, OCR, audio/video understanding, source-code dependency analysis, semantic embeddings, autonomous tool acquisition, sandboxed capability execution, distributed storage, identity/authentication, multi-user authorization, external audit anchoring or production operations.
 
-The value score is an explainable keyword heuristic, not an authoritative measure of usefulness or intelligence. Binary content is preserved but not semantically decoded. Acquired content is **never executed**. No network access or external system mutation is performed by this prototype.
+The value score is an explainable keyword heuristic, not an authoritative measure of usefulness or intelligence. Binary content is preserved but not semantically decoded. Acquired content is **never executed**. The core intake engine performs no network access or external system mutation. The optional LM Studio adapter makes one bounded, read-only request to a loopback LM Studio API; it does not download models or mutate LM Studio.
 
 ## Safety model
 
@@ -66,7 +67,7 @@ The value score is an explainable keyword heuristic, not an authoritative measur
 
 ## Next engineering increments
 
-1. Add connector interface contracts and a permission-scoped web/repository acquisition adapter.
+1. Add permission-scoped web/repository and public model-catalog discovery adapters; LM Studio local model inventory is implemented separately.
 2. Add safe parsers for PDF, DOCX, XLSX, archives and source trees with decompression/resource limits.
 3. Add semantic indexing and retrieval while preserving source citations.
 4. Add compatibility/dependency analysis and isolated evaluation sandboxes.
