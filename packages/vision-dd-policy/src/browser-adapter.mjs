@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { verifyGrant } from "./grant.mjs";
+import { computeActionDigest } from "./policy.mjs";
 
 const MAX_OBSERVATIONS = 32;
 const MAX_ELEMENTS = 200;
@@ -97,6 +98,7 @@ export function createBrowserAdapter({
   publicKeyPem,
   policyVersion,
   grantNonceLedger,
+  requestConsent,
   clock = Date.now,
   observationTtlMs = 5_000,
   navigationTimeoutMs = 5_000,
@@ -105,7 +107,7 @@ export function createBrowserAdapter({
       typeof page.goto !== "function" || typeof page.route !== "function" || !Array.isArray(allowedOrigins) ||
       allowedOrigins.length === 0 || typeof sessionId !== "string" || !sessionId.trim() ||
       typeof publicKeyPem !== "string" || typeof policyVersion !== "string" ||
-      typeof clock !== "function" || !Number.isSafeInteger(observationTtlMs) ||
+      typeof requestConsent !== "function" || typeof clock !== "function" || !Number.isSafeInteger(observationTtlMs) ||
       observationTtlMs < 100 || observationTtlMs > 30_000 || !Number.isSafeInteger(navigationTimeoutMs) ||
       navigationTimeoutMs < 100 || navigationTimeoutMs > 15_000) {
     throw new TypeError("Browser adapter configuration is incomplete or invalid.");
@@ -137,17 +139,27 @@ export function createBrowserAdapter({
     }
   }
 
-  async function observe({ userConsent = false, includeScreenshot = false, visualConsent = false } = {}) {
+  async function observe({ includeScreenshot = false } = {}) {
     if (stopped) throw new Error("Browser adapter is stopped.");
     if (actionInFlight) throw new Error("Observation is unavailable while an action is executing.");
-    if (userConsent !== true) throw new Error("Explicit user consent is required for observation.");
-    if (includeScreenshot && visualConsent !== true) {
-      throw new Error("Separate explicit visual consent is required for screenshot capture.");
-    }
     await routeReady;
     const now = clock();
     if (!Number.isSafeInteger(now)) throw new Error("Clock unavailable.");
     const currentUrl = safePageUrl(page.url(), origins);
+    const observationConsent = await requestConsent({
+      purpose: "OBSERVE",
+      session_id: sessionId,
+      application_origin: currentUrl.origin,
+    });
+    if (observationConsent !== true) throw new Error("Trusted user consent was not granted for observation.");
+    if (includeScreenshot) {
+      const visualConsent = await requestConsent({
+        purpose: "VISUAL_FRAME_CAPTURE",
+        session_id: sessionId,
+        application_origin: currentUrl.origin,
+      });
+      if (visualConsent !== true) throw new Error("Separate trusted visual consent was not granted.");
+    }
     const snapshot = await page.evaluate(observationScript);
     if (!snapshot || !Array.isArray(snapshot.elements)) {
       throw new Error("Browser observation could not be acquired.");
@@ -167,7 +179,9 @@ export function createBrowserAdapter({
       input_type: element.input_type == null ? null : String(element.input_type).slice(0, 32),
       content_trust: "UNTRUSTED_PAGE_DATA",
     }));
-    const visualFrame = includeScreenshot ? await page.screenshot({ type: "png" }) : null;
+    const visualFrame = includeScreenshot
+      ? await page.screenshot({ type: "png", timeout: navigationTimeoutMs })
+      : null;
     if (visualFrame && visualFrame.length > MAX_SCREENSHOT_BYTES) {
       throw new Error("Visual frame exceeds the 5 MiB limit.");
     }
@@ -216,10 +230,9 @@ export function createBrowserAdapter({
     return observation;
   }
 
-  async function executeInternal({ request, grant, userConsent = false }) {
+  async function executeInternal({ request, grant }) {
     if (stopped) throw new Error("Browser adapter is stopped.");
     await routeReady;
-    if (userConsent !== true) throw new Error("Explicit user consent is required for execution.");
     if (!request || request.action_type !== "navigate") {
       throw new Error("Unsupported action; this adapter currently permits navigation only.");
     }
@@ -243,6 +256,15 @@ export function createBrowserAdapter({
       throw new Error("Navigation target does not match the approved application.");
     }
     if (stopped) throw new Error("Browser adapter is stopped.");
+    const actionConsent = await requestConsent({
+      purpose: "EXECUTE_ACTION",
+      session_id: sessionId,
+      application_origin: destination.origin,
+      action_id: request.action_id,
+      action_type: request.action_type,
+      action_digest: computeActionDigest(request),
+    });
+    if (actionConsent !== true) throw new Error("Trusted user consent was not granted for this action.");
 
     const grantResult = await verifyGrant({
       grant,
