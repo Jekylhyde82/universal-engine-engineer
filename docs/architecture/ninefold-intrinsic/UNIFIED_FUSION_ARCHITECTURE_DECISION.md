@@ -29,7 +29,7 @@ The architecture contains these preserved capability lineages:
 | Engine capability lineages | 81 | Preserved as individually identifiable specialist capabilities |
 | **Total preserved constituent lineages** | **99** | Integrated within one unified entity |
 
-The count of 99 refers to the preserved UMIC-domain, Master-Core and Engine lineages. It does **not** count Unified Fusion Synergy — AFI PRIME as another peer component. AFI PRIME is the fusion mechanism and unified fusion intelligence responsible for integrating them.
+The count of 99 refers to the preserved UMIC-domain, Master-Core and Engine lineages. It does **not** count Unified Fusion Synergy — AFI PRIME as another peer component. Unified Fusion Synergy — AFI PRIME is the fusion mechanism and unified fusion intelligence responsible for integrating them.
 
 ### Canonical relationship
 
@@ -87,7 +87,7 @@ Its unified responsibilities include:
 7. **Evolution assessment:** evaluate proposed new capabilities against lifecycle, security, value and compatibility requirements.
 8. **Traceability:** preserve which internal capability lineages and evidence contributed to a result.
 
-AFI PRIME does not grant itself permissions, approve its own high-risk actions, or independently certify its own results.
+Unified Fusion Synergy — AFI PRIME does not grant itself permissions, approve its own high-risk actions, or independently certify its own results.
 
 ## 5. Internal modularity, resilience and fault containment
 
@@ -136,7 +136,7 @@ No live camera, screen-sharing, Android capture or device-control capability is 
 
 ### Joint workflow
 
-1. AFI PRIME analyses the requirement and prepares a critically reviewed plan.
+1. Unified Fusion Synergy — AFI PRIME analyses the requirement and prepares a critically reviewed plan.
 2. V.I.S.I.O.N. supplies only authorised observations and labels uncertainty.
 3. D.D. executes only actions covered by explicit authority and policy.
 4. An independent verifier checks exact postconditions and evidence.
