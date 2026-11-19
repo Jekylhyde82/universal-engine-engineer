@@ -13,8 +13,11 @@ const privateKeyPem = privateKey.export({ type: "pkcs8", format: "pem" });
 function fakePage(initialUrl = "https://example.test/start") {
   let currentUrl = initialUrl;
   const calls = [];
+  const state = {};
   return {
     calls,
+    state,
+    route: async (_pattern, handler) => { state.routeHandler = handler; },
     url: () => currentUrl,
     viewportSize: () => ({ width: 1280, height: 720 }),
     evaluate: async () => ({
@@ -184,4 +187,18 @@ test("adapter stop switch prevents further execution", async () => {
     request, grant: makeGrant(request), userConsent: true,
   }), /stopped/i);
   assert.equal(page.calls.length, 0);
+});
+
+test("browser adapter blocks external origins at the network request boundary", async () => {
+  const page = fakePage();
+  await observedAdapter(page);
+  let aborted = 0;
+  let continued = 0;
+  await page.state.routeHandler({
+    request: () => ({ url: () => "https://evil.test/tracker.js" }),
+    abort: async () => { aborted += 1; },
+    continue: async () => { continued += 1; },
+  });
+  assert.equal(aborted, 1);
+  assert.equal(continued, 0);
 });
