@@ -1,6 +1,6 @@
 # V.I.S.I.O.N. + D.D. — Production Gates and Acceptance Tests
 
-**Status:** Proposed release criteria; no tests claimed as executed.  
+**Status:** Proposed release criteria; current prototype CI evidence is recorded below.  
 **Release posture:** NO-GO until all applicable gates pass with evidence.
 
 ## 1. Nine acceptance groups
@@ -118,7 +118,7 @@ For every release candidate record:
 
 **NO-GO — real-browser-tested prototype, not production ready.**
 
-This branch includes executable policy evaluation, Ed25519 scoped-grant primitives, single-host nonce and action-audit ledgers, an authenticated HTTP grant service requiring injected identity/approval providers, a consent-gated Playwright browser host/adapter, a governed action orchestrator and a signed readback verification primitive. The policy workflow on commit `73489ddbec975878ce1e795bc11c553e42884205` passed **114 tests, 0 failures, 0 skips**, including two real Chromium integration tests against a temporary local fixture. CodeQL passed on that same commit. A subsequent documentation-only commit (`6e11ec522d8120cc87e9348d9e3777a36cb9f9a2`) is undergoing its own CI; evidence from an earlier commit does not certify a later commit until its checks complete. These tests do not establish a production browser host, production identity provider, trusted consent/approval UX, independently operated verifier, physical device operation or production deployment readiness.
+This branch includes executable policy evaluation, Ed25519 scoped-grant primitives, single-host nonce and action-audit ledgers, an authenticated HTTP grant service requiring injected identity/approval providers, a consent-gated Playwright browser host/adapter, a governed action orchestrator and a signed readback verification primitive. The policy workflow on the current PR head `e1b913aaa294242aa5c936e897038d22c111829f` passed **114 tests, 0 failures, 0 skips**, including two real Chromium integration tests against a temporary local fixture. CodeQL also passed on that exact commit (workflow runs `44458441606` and `44458441678`). This evidence applies to that exact tested commit only. These tests do not establish a production browser host, production identity provider, trusted consent/approval UX, independently operated verifier, physical device operation or production deployment readiness.
 
 The following release blockers remain: production OS-level network egress isolation (including WebRTC/UDP); production identity and trusted consent/approval providers; secure key provisioning/rotation; independently operated read-only verifier; externally signed audit checkpoints, protected backup/restore and retention; calibrated visual model and privacy redaction; Android companion and device validation; AFI PRIME and EB9PRIME runtime integration; adversarial and fault-injection campaigns; monitoring, incident response, rollback and independent security approval. CodeQL is configured and has passed on the cited tested commit, but static analysis is not a penetration test or independent security approval.
 
