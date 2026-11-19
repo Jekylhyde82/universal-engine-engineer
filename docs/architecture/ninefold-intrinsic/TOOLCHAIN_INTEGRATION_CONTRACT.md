@@ -7,7 +7,7 @@
 
 ## 1. Purpose and scope
 
-This contract defines how connected engineering services may support the single unified NINEFOLD INTRINSIC entity without becoming competing authorities or bypassing its governance. One global **Unified Fusion Synergy — AFI PRIME** intrinsically fuses the nine former UMIC domains, nine Master Core capability lineages and eighty-one Engine capability lineages into one coherent intelligence architecture. It covers GitHub, Lovable, Supabase, Vercel, Figma, Canva and Gmail.
+This contract defines how connected engineering services may support the single unified NINEFOLD INTRINSIC entity without becoming competing authorities or bypassing its governance. Nine unified UMICs are formed, each integrating one Master Core lineage slot and nine Engine lineage slots through one scoped instance of the shared **Unified Fusion Synergy — AFI PRIME** function. The nine unified UMICs are then intrinsically integrated into one coherent NINEFOLD INTRINSIC entity. There is one canonical fusion-function identity and nine scoped per-UMIC fusion-core instances. It covers GitHub, Lovable, Supabase, Vercel, Figma, Canva and Gmail.
 
 A connected account or callable connector is an available tool surface, not proof that a production integration exists. Each service must be explicitly bound to a project, environment, identity, permission set and evidence record before operational use.
 
@@ -28,13 +28,13 @@ A connected account or callable connector is an available tool surface, not proo
 The following identities remain distinct inside the NINEFOLD INTRINSIC governance model:
 
 - **GENIUS ENGINEER CRITIC PRIME:** challenges assumptions, detects omissions and tests the strength of claims. Critique does not itself authorise a change.
-- **Unified Fusion Synergy — AFI PRIME:** the single intrinsic fusion function combining AFI PRIME's analysis, evaluation and critical reasoning with Fusion Synergy's specialist coordination, synthesis and integration. It integrates all nine former UMIC domains, nine Master Core capability lineages and eighty-one Engine capability lineages into one unified entity. It cannot grant its own execution authority or certify its own results. The historical AFI PRIME and Fusion Synergy contributions remain traceable, but they are not separate current architecture components.
+- **Unified Fusion Synergy — AFI PRIME:** the single intrinsic fusion function combining AFI PRIME's analysis, evaluation and critical reasoning with Fusion Synergy's specialist coordination, synthesis and integration. It is instantiated once within each of the nine UMICs, integrating that UMIC's one Master Core slot and nine Engine slots; the nine unified UMICs are then integrated into one unified entity. It cannot grant its own execution authority or certify its own results. The historical AFI PRIME and Fusion Synergy contributions remain traceable, but they are not separate current architecture components.
 - **V.I.S.I.O.N.:** analyses only explicitly authorised visual inputs; observations carry source, timestamp, scope and uncertainty. Observation is not permission.
 - **D.D.:** performs bounded, typed actions only after independent policy authorisation. It cannot widen its own permissions or convert a plan into authority.
 - **EB9PRIME:** preserves governed continuity and approved evidence with provenance, minimisation, retention and correction controls. It is not a raw-data dumping ground.
 - **UPN PRIME:** supplies the offline-first communications and local-service architecture. Public cloud services are optional upstream capabilities, not dependencies for core offline operation.
 
-All specialist capabilities remain governed within one NINEFOLD INTRINSIC identity and are integrated through Unified Fusion Synergy — AFI PRIME. Internal domains and capability lineages remain individually traceable and testable; they are not separate top-level UMIC entities. Governance, lifecycle controls and independent evidence/verification remain distinct control responsibilities. No service integration dissolves these boundaries.
+All specialist capabilities remain governed within one NINEFOLD INTRINSIC identity. Each of the nine unified UMICs uses one scoped Unified Fusion Synergy — AFI PRIME core to integrate one Master Core slot and nine Engine slots. The nine unified UMICs are then integrated into one entity. Internal domains and capability lineages remain individually traceable and testable; they are not separate top-level entities. Exact source-to-slot lineage membership remains pending reconciliation. Governance, lifecycle controls and independent evidence/verification remain distinct control responsibilities. No service integration dissolves these boundaries.
 
 ## 4. End-to-end delivery flow
 
