@@ -99,12 +99,17 @@ export class FileActionAuditLedger {
   async #acquireLock() {
     const deadline = Date.now() + this.lockTimeoutMs;
     while (true) {
+      let handle;
       try {
-        const handle = await open(this.lockPath, "wx", 0o600);
+        handle = await open(this.lockPath, "wx", 0o600);
         await handle.writeFile(JSON.stringify({ pid: process.pid, token: randomUUID() }), "utf8");
         await handle.sync();
         return handle;
       } catch (error) {
+        if (handle) {
+          await handle.close().catch(() => {});
+          await unlink(this.lockPath).catch(() => {});
+        }
         if (error?.code !== "EEXIST") throw error;
         if (Date.now() >= deadline) {
           throw new Error("Audit ledger lock timeout; refusing concurrent or stale writes.");
