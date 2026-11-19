@@ -1,6 +1,9 @@
 name: VISION-DD CodeQL
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - extraction/syphon-full-gateway-checkpoints
