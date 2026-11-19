@@ -57,7 +57,7 @@ test("grant is signed and bound to exact action, actor, app, session and policy"
     expectedPolicyVersion: "policy-7", now: now + 1,
     consumeGrantId: async () => true,
   });
-  assert.equal(result.valid, true);
+  assert.equal(result.valid, true, result.reason);
   assert.equal(result.payload.action_digest, computeActionDigest(request));
 });
 
