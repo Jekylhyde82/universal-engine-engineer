@@ -2,6 +2,8 @@ export const FUSION_FUNCTION_ID = "UNIFIED FUSION SYNERGY — AFI PRIME";
 export const FUSION_FUNCTION_VERSION = "0.1.0-poc";
 
 const ALLOWED_COMMANDS = new Set(["health", "state.write", "state.read"]);
+const MAX_STATE_ENTRIES = 1_024;
+const MAX_STATE_BYTES = 1_048_576;
 
 function validateKey(key) {
   if (typeof key !== "string" || key.length < 1 || key.length > 128) {
@@ -40,11 +42,25 @@ export function executeCanonicalFusionCommand({ command, state, instanceId, poli
 
   if (command.type === "state.write") {
     const encoded = validateJsonValue(command.value);
+    const hadKey = state.has(command.key);
+    if (!hadKey && state.size >= MAX_STATE_ENTRIES) {
+      throw new Error("Instance state entry limit reached.");
+    }
+    const currentBytes = [...state.values()].reduce(
+      (total, item) => total + Buffer.byteLength(JSON.stringify(item)),
+      0,
+    );
+    const previousBytes = hadKey
+      ? Buffer.byteLength(JSON.stringify(state.get(command.key)))
+      : 0;
+    const nextBytes = currentBytes - previousBytes + Buffer.byteLength(encoded);
+    if (nextBytes > MAX_STATE_BYTES) throw new Error("Instance state byte limit reached.");
     state.set(command.key, JSON.parse(encoded));
     return {
       instanceId,
       written: true,
       key: command.key,
+      valueBytes: Buffer.byteLength(encoded),
     };
   }
 
