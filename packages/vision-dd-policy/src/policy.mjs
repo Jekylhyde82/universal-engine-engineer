@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 const RISK_CLASSES = new Set(["R0", "R1", "R2", "R3", "R4"]);
 const REQUEST_KEYS = new Set([
   "schema_version", "task_id", "action_id", "actor_id", "target_application",
-  "target_session_id", "action_type", "parameters", "requested_at", "expires_at",
+  "target_session_id", "action_type", "parameters", "requested_at", "expires_at", "observation_id",
 ]);
 const APPROVAL_KEYS = new Set([
   "action_digest", "policy_version", "task_id", "actor_id", "target_application", "target_session_id",
@@ -73,6 +73,7 @@ export function computeActionDigest(request) {
     target_session_id: request.target_session_id,
     action_type: request.action_type,
     parameters: request.parameters,
+    observation_id: request.observation_id ?? null,
   };
   const serialized = canonicalize(payload);
   if (Buffer.byteLength(serialized, "utf8") > 32_768) {
