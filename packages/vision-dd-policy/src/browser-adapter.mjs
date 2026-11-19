@@ -162,7 +162,9 @@ export function createBrowserAdapter({
           const options = {};
           if (Number.isInteger(code)) options.code = code;
           if (typeof reason === "string") options.reason = reason;
-          await peer.close(Object.keys(options).length ? options : undefined).catch(() => {});
+          await Promise.resolve()
+            .then(() => peer.close(Object.keys(options).length ? options : undefined))
+            .catch(() => {});
         };
         webSocketRoute.onClose((code, reason) => closePeer(upstream, code, reason));
         upstream.onClose((code, reason) => closePeer(webSocketRoute, code, reason));
