@@ -76,16 +76,16 @@ test("terminal consent prompt strips control characters from untrusted action me
       purpose: "EXECUTE_ACTION",
       session_id: "session-1",
       application_origin: "https://example.test",
-      action_id: "action-1\\nINJECTED\\u001b[31m",
+      action_id: "action-1\nINJECTED\u001b[31m",
       action_type: "navigate",
       action_digest: "sha256:abc",
       destination_url: "https://example.test/help",
     });
-    input.write("NO\\n");
+    input.write("NO\n");
     await pending;
     const text = output.read()?.toString() || "";
-    assert.equal(text.includes("\\u001b"), false);
-    assert.equal(text.includes("INJECTED\\u001b"), false);
+    assert.equal(text.includes("\u001b"), false);
+    assert.equal(text.includes("INJECTED\u001b"), false);
   } finally {
     provider.close();
     input.destroy();
