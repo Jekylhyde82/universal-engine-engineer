@@ -24,7 +24,11 @@ export function createTerminalConsentProvider({
     if (closed || !request || typeof request !== "object") return false;
     let heading;
     let detail;
-    if (request.purpose === "OBSERVE") {
+    if (request.purpose === "OPEN_INITIAL_URL") {
+      heading = "Allow opening this website in the supervised Chromium session?";
+      detail = "Destination: " + safeDisplay(request.destination_url) +
+        "\\nApplication: " + safeDisplay(request.application_origin);
+    } else if (request.purpose === "OBSERVE") {
       heading = "Allow V.I.S.I.O.N. to inspect visible interface labels?";
       detail = "Application: " + safeDisplay(request.application_origin) +
         "\nSession: " + safeDisplay(request.session_id);
