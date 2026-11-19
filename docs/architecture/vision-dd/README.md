@@ -45,8 +45,13 @@ This specification does not claim that any of these capabilities are currently r
 | Independent outcome verifier | Not implemented |
 | EB9PRIME governed persistence | Not implemented |
 | Device / desktop adapters | Not implemented |
+| Policy-core CI evidence | 24 automated tests passing on PR head; not a security or integration sign-off |
 | CI, security and integration evidence | Not yet produced |
 | Production deployment | Not approved |
+
+## Prototype implementation slice
+
+A dependency-free Node.js policy package now exists at `packages/vision-dd-policy/`. It contains deterministic deny-by-default evaluation, policy-version-bound approval checks, action digesting, replay-protection callback requirements and a guarded action-state transition function. Its GitHub Actions suite currently passes 24 tests. The package is explicitly a prototype: it does not issue execution grants, authenticate actors, persist nonces, control devices, verify external outcomes or provide a production enforcement boundary.
 
 ## Decision
 
