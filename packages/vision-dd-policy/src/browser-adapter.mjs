@@ -93,6 +93,7 @@ function observationScript() {
  */
 export function createBrowserAdapter({
   page,
+  context,
   sessionId,
   allowedOrigins,
   publicKeyPem,
@@ -118,7 +119,7 @@ export function createBrowserAdapter({
   let actionInFlight = false;
   const activeWebSockets = new Set();
   const routeReady = Promise.all([
-    Promise.resolve(page.route("**/*", async (route) => {
+    Promise.resolve(context.route("**/*", async (route) => {
       if (stopped) return route.abort("blockedbyclient");
       const rawUrl = route.request().url();
       if (rawUrl === "about:blank" || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:")) {
@@ -131,7 +132,7 @@ export function createBrowserAdapter({
         return route.abort("blockedbyclient");
       }
     })),
-    Promise.resolve(page.routeWebSocket("**/*", async (webSocketRoute) => {
+    Promise.resolve(context.routeWebSocket("**/*", async (webSocketRoute) => {
       if (stopped) return webSocketRoute.close({ code: 1008, reason: "session stopped" });
       try {
         const socketUrl = new URL(webSocketRoute.url());
