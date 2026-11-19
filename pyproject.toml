@@ -10,6 +10,7 @@ dependencies = []
 [project.scripts]
 uaie = "universal_engine.uaie:main"
 uaie-lmstudio-catalog = "universal_engine.lmstudio_catalog:main"
+uaie-lmstudio-status = "universal_engine.lmstudio_catalog:status_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
