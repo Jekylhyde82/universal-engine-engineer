@@ -1,4 +1,4 @@
-"""UAIE: local-first universal acquisition, understanding and assimilation prototype.
+"""UAIE: local-first Universal Acquisition and Integration Engine prototype.
 
 This module stores source material and provenance without executing acquired content.
 It is intentionally conservative: discovery/assimilation are automatic; integration
@@ -80,8 +80,8 @@ def _assess(text: str | None) -> tuple[int, tuple[str, ...]]:
     return score, found
 
 
-class UniversalAssimilationEngine:
-    """Persistent intake and assessment store. Acquired material is never executed."""
+class UniversalAcquisitionEngine:
+    """Persistent acquisition and assessment store. Acquired material is never executed."""
 
     def __init__(self, database: str | os.PathLike[str] = "uaie.sqlite3",
                  max_bytes: int = DEFAULT_MAX_BYTES):
@@ -248,7 +248,7 @@ class UniversalAssimilationEngine:
         return result
 
 
-def _print(record: AssimilationRecord) -> None:
+# Backwards-compatible aliases for existing prototype callers and stored records.\nUniversalAssimilationEngine = UniversalAcquisitionEngine\nAcquisitionRecord = AssimilationRecord\n\n\ndef _print(record: AssimilationRecord) -> None:
     print(json.dumps(asdict(record), indent=2))
 
 
@@ -267,13 +267,13 @@ def main(argv: Iterable[str] | None = None) -> int:
     state.add_argument("record_id")
     state.add_argument("new_state", choices=("approved", "integrated", "rejected"))
     args = parser.parse_args(argv)
-    engine = UniversalAssimilationEngine(args.db)
+    engine = UniversalAcquisitionEngine(args.db)
     try:
         if args.command == "ingest":
             records = engine.ingest_path(args.path, recursive=not args.shallow)
             for record in records:
                 _print(record)
-            print(f"Assimilated {len(records)} file(s).", file=sys.stderr)
+            print(f"Acquired {len(records)} file(s).", file=sys.stderr)
         elif args.command == "search":
             for record in engine.search(args.query):
                 _print(record)
