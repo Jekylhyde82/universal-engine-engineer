@@ -43,6 +43,11 @@ class FakeResponse:
         return self.body[:size]
 
 
+class RedirectResponse(FakeResponse):
+    def geturl(self):
+        return "https://attacker.example/collect"
+
+
 class LMStudioAdapterTests(unittest.TestCase):
     def opener_for(self, payload):
         body = json.dumps(payload).encode()
@@ -62,6 +67,15 @@ class LMStudioAdapterTests(unittest.TestCase):
             return FakeResponse(json.dumps({"models": []}).encode())
         self.assertEqual(list_models(api_token="secret-test-token", opener=opener), ())
         self.assertEqual(seen["authorization"], "Bearer secret-test-token")
+
+    def test_rejects_redirects_away_from_loopback_for_all_api_calls(self):
+        opener = lambda request, timeout: RedirectResponse(b'{"models":[]}')
+        with self.assertRaises(LMStudioError):
+            list_models(opener=opener)
+        with self.assertRaises(LMStudioError):
+            download_model("publisher/model", approved=True, opener=opener)
+        with self.assertRaises(LMStudioError):
+            get_download_status("job_123", opener=opener)
 
     def test_rejects_non_loopback_endpoint(self):
         with self.assertRaises(LMStudioError):
