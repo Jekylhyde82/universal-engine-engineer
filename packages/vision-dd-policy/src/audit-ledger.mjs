@@ -166,6 +166,9 @@ export class FileActionAuditLedger {
       try { record = JSON.parse(line); }
       catch { throw new Error("Audit ledger contains malformed JSON."); }
       sequence += 1;
+      if (JSON.stringify(record) !== line) {
+        throw new Error("Audit ledger record encoding is non-canonical.");
+      }
       assertRecord(record, sequence, previousHash);
       previousHash = record.hash;
     }
