@@ -1,6 +1,6 @@
 import { fork } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdir } from "node:fs/promises";
+import { chmod, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -33,8 +33,11 @@ export class NinefoldFusionRuntime {
       throw new TypeError("A shared policyVersion is required.");
     }
     await mkdir(evidenceRoot, { recursive: true, mode: 0o700 });
+    const runEvidenceRoot = join(evidenceRoot, "run-" + randomUUID());
+    await mkdir(runEvidenceRoot, { recursive: false, mode: 0o700 });
+    await chmod(runEvidenceRoot, 0o700);
     const runtime = new NinefoldFusionRuntime({
-      evidenceRoot,
+      evidenceRoot: runEvidenceRoot,
       policyVersion,
       authorizeInstanceAccess,
       authorizeCrossInstance,
