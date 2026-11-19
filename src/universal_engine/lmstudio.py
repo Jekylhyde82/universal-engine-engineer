@@ -39,6 +39,9 @@ class LMStudioModel:
     max_context_length: int | None
     format: str | None
     capabilities: dict[str, Any] | None
+    reasoning: dict[str, Any] | None
+    decision_type: str | None
+    has_vision_adapter: bool | None
     description: str | None
     variants: tuple[str, ...]
     selected_variant: str | None
@@ -100,12 +103,19 @@ def _parse_model(item: Any) -> LMStudioModel:
         raise LMStudioError(f"model {key!r} has unsupported type {model_type!r}")
     quantization = item.get("quantization")
     capabilities = item.get("capabilities")
+    reasoning = item.get("reasoning")
+    decision_type = item.get("decision_type")
+    has_vision_adapter = item.get("has_vision_adapter")
     loaded = item.get("loaded_instances", [])
     variants = item.get("variants", [])
     if quantization is not None and not isinstance(quantization, dict):
         raise LMStudioError(f"model {key!r} quantization must be an object or null")
     if capabilities is not None and not isinstance(capabilities, dict):
         raise LMStudioError(f"model {key!r} capabilities must be an object or null")
+    if reasoning is not None and not isinstance(reasoning, dict):
+        raise LMStudioError(f"model {key!r} reasoning must be an object or null")
+    if has_vision_adapter is not None and not isinstance(has_vision_adapter, bool):
+        raise LMStudioError(f"model {key!r} has_vision_adapter must be a boolean or null")
     if not isinstance(loaded, list) or any(not isinstance(x, dict) for x in loaded):
         raise LMStudioError(f"model {key!r} loaded_instances must be an array of objects")
     if not isinstance(variants, list) or any(not isinstance(x, str) for x in variants):
@@ -122,6 +132,9 @@ def _parse_model(item: Any) -> LMStudioModel:
         max_context_length=_optional_positive_int(item.get("max_context_length"), "max_context_length"),
         format=_optional_string(item.get("format"), "format"),
         capabilities=dict(capabilities) if capabilities is not None else None,
+        reasoning=dict(reasoning) if reasoning is not None else None,
+        decision_type=_optional_string(decision_type, "decision_type"),
+        has_vision_adapter=has_vision_adapter,
         description=_optional_string(item.get("description"), "description"),
         variants=tuple(variants),
         selected_variant=_optional_string(item.get("selected_variant"), "selected_variant"),
@@ -171,21 +184,36 @@ def list_models(
     return models
 
 
+@dataclass(frozen=True, slots=True)
+class CatalogAssimilationResult:
+    model_records: tuple[Any, ...]
+    afi_profile_records: tuple[Any, ...]
+
+
 def assimilate_catalog(
     engine: Any,
     base_url: str = DEFAULT_BASE_URL,
     api_token: str | None = None,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     opener: Callable[..., Any] | None = None,
-) -> tuple[Any, ...]:
-    """Persist validated inventory metadata through UAIE; never fetch model weights."""
+    afi_adapter: Any | None = None,
+) -> CatalogAssimilationResult:
+    """Persist LM Studio metadata and AFI PRIME capability profiles through UAIE."""
+    from .afi import AFIPrimeFusionAdapter
+
     endpoint = _validated_endpoint(base_url)
     models = list_models(endpoint, api_token=api_token, timeout=timeout, opener=opener)
-    records = []
+    afi = afi_adapter or AFIPrimeFusionAdapter()
+    model_records = []
+    afi_records = []
     for model in models:
-        source = f"{endpoint}/api/v1/models#{urllib.parse.quote(model.key, safe='/')}"
-        records.append(engine.ingest_object(asdict(model), source=source))
-    return tuple(records)
+        quoted_key = urllib.parse.quote(model.key, safe='/')
+        source = f"{endpoint}/api/v1/models#{quoted_key}"
+        model_records.append(engine.ingest_object(asdict(model), source=source))
+        profile = afi.fuse_model(model)
+        afi_source = f"afi-prime://lm-studio-model-catalog/{quoted_key}"
+        afi_records.append(engine.ingest_object(afi.to_record(profile), source=afi_source))
+    return CatalogAssimilationResult(tuple(model_records), tuple(afi_records))
 
 
 def main(argv: Iterable[str] | None = None) -> int:
