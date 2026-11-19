@@ -213,7 +213,7 @@ test("nonce ledger rejects blank complete records instead of silently skipping t
     const ledger = new FileNonceLedger(path);
     await ledger.consume("nonce-1");
     const bytes = await readFile(path, "utf8");
-    await writeFile(path, bytes.replace("\n", "\n\n"));
+    await writeFile(path, bytes.replaceAll("\n", "\n\n"));
     await assert.rejects(() => ledger.consume("nonce-2"), /blank record/i);
   });
 });
