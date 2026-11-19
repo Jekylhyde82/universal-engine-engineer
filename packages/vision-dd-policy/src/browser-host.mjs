@@ -73,8 +73,12 @@ export async function launchBrowserHost({
     const pages = context.pages();
     const page = pages[0] || await context.newPage();
     for (const extraPage of pages.slice(1)) await extraPage.close();
+    let blockedPopupCount = pages.length - 1;
     context.on("page", (newPage) => {
-      if (newPage !== page) void newPage.close().catch(() => {});
+      if (newPage !== page) {
+        blockedPopupCount += 1;
+        void newPage.close().catch(() => {});
+      }
     });
     const sessionId = randomUUID();
     const adapter = createBrowserAdapter({
@@ -102,6 +106,7 @@ export async function launchBrowserHost({
         return Object.freeze({
           page_count: context.pages().length,
           service_worker_count: context.serviceWorkers().length,
+          blocked_popup_count: blockedPopupCount,
           stopped: adapter.stopped,
         });
       },
