@@ -26,6 +26,12 @@ This endpoint reports models available on the user's LM Studio installation, inc
 
 ## AFI PRIME relationship
 
+The adapter invokes `AFIPrimeFusionAdapter` for each validated inventory item. AFI extracts only explicit facts present in LM Studio metadata (model family, declared vision/tool-use capabilities, reasoning configuration exposure, loaded state, quantization, size and context). It persists a separate AFI profile linked by the same model key and a distinct `afi-prime://` provenance source.
+
+AFI profiles are explicitly marked `PUBLISHER_REPORTED_METADATA` and `METADATA_ONLY_NOT_BENCHMARKED`. Performance verification and integration approval are always false at this stage. This is a real data-contract fusion and capability-extraction slice, not a claim that an AFI reasoning runtime or model benchmark suite is complete.
+
+## AFI PRIME relationship
+
 AFI PRIME is the specialist intelligence and fusion capability within NINEFOLD INTRINSIC. This adapter supplies it with validated model inventory records through UAIE's governed acquisition path. This increment does not invent or claim an AFI runtime API. Model scoring, comparative evaluation, compatibility decisions and fusion approval remain separate governed work until their interfaces and independent evidence are implemented.
 
 ## Lifecycle
