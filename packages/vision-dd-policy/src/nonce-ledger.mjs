@@ -52,7 +52,7 @@ export class FileNonceLedger {
     const directory = dirname(this.path);
     await mkdir(directory, { recursive: true, mode: 0o700 });
     const info = await lstat(directory);
-    if (!info.isDirectory() || info.isSymbolicLink() || (info.mode & 0o077) !== 0) {
+    if (!info.isDirectory() || info.isSymbolicLink() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
       throw new Error("Nonce ledger directory must be a private 0700 directory.");
     }
   }
@@ -79,7 +79,7 @@ export class FileNonceLedger {
     let bytes;
     try {
       const info = await lstat(this.path);
-      if (!info.isFile() || info.isSymbolicLink() || (info.mode & 0o077) !== 0) {
+      if (!info.isFile() || info.isSymbolicLink() || (process.platform !== "win32" && (info.mode & 0o077) !== 0)) {
         throw new Error("Nonce ledger must be a private 0600 regular file, not a symlink.");
       }
       if (info.size > this.maxLedgerBytes) throw new Error("Nonce ledger size limit exceeded; refusing to disable replay protection.");
