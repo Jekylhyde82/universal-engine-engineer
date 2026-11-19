@@ -173,7 +173,9 @@ export async function runGovernedAction({
   try {
     execution = await executor.execute({ request, grant, signal });
   } catch {
-    await record("FAILED", "executor", { reason: "EXECUTOR_EXCEPTION" });
+    // An exception or timeout cannot prove that the executor caused no side
+    // effect. Preserve uncertainty and require explicit reconciliation.
+    await record("UNKNOWN", "system", { reason: "EXECUTOR_EXCEPTION_OUTCOME_UNKNOWN" });
     return Object.freeze({ state, execution, verification, history });
   }
 
