@@ -7,12 +7,6 @@ on:
     paths:
       - "packages/vision-dd-policy/**"
       - ".github/workflows/vision-dd-codeql.yml"
-  push:
-    branches:
-      - architecture/vision-dd-production-spec
-    paths:
-      - "packages/vision-dd-policy/**"
-      - ".github/workflows/vision-dd-codeql.yml"
   schedule:
     - cron: "23 4 * * 1"
 
