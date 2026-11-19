@@ -55,6 +55,18 @@ export async function runGovernedAction({
         error.safeToRetry = false;
         error.lastKnownState = state;
         error.execution = execution;
+        try {
+          await appendAudit({
+            event_type: "ACTION_DUPLICATE_REJECTED",
+            task_id: request.task_id,
+            action_id: request.action_id,
+            actor_id: request.actor_id,
+            reason: "ACTION_ID_ALREADY_CLAIMED",
+            occurred_at: new Date(clock()).toISOString(),
+          });
+        } catch {
+          // Preserve the original duplicate-claim refusal; never execute.
+        }
         throw error;
       }
       throw auditError(error, state, execution, executionAttempted);
