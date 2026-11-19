@@ -249,7 +249,7 @@ class UniversalAcquisitionEngine:
         ).fetchone()
         previous_hash = previous["event_hash"] if previous else "0" * 64
         sequence = db.execute(
-            "SELECT COALESCE(MAX(sequence), 0) + 1 FROM audit_events"
+            "SELECT COALESCE((SELECT seq FROM sqlite_sequence WHERE name='audit_events'), 0) + 1"
         ).fetchone()[0]
         created_at = _now()
         payload_json = json.dumps(payload, ensure_ascii=False, sort_keys=True,
