@@ -12,6 +12,20 @@ from universal_engine.lmstudio_catalog import (
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
 
+class FakeResponse:
+    def __init__(self, body):
+        self.body = body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def read(self, size=-1):
+        return self.body[:size]
+
+
 CANDIDATE = {
     "model_id": "liquid/lfm3-vl-2b",
     "original_idea_value": "Use UAIE PRIME and AFI PRIME to assimilate LM Studio model-catalog capabilities.",
