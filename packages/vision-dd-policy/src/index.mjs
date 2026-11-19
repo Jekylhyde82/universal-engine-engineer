@@ -7,3 +7,4 @@ export { createBrowserAdapter } from "./browser-adapter.mjs";
 export { launchBrowserHost } from "./browser-host.mjs";
 export { createTerminalConsentProvider } from "./terminal-consent.mjs";
 export { signReadback, verifyNavigationReadback } from "./verifier.mjs";
+export { runGovernedAction } from "./orchestrator.mjs";
