@@ -127,6 +127,16 @@ class UniversalAcquisitionEngine:
                   ('discovered','assimilated','approved','integrated','rejected')),
                 created_at TEXT NOT NULL
             )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS audit_events (
+                sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                record_id TEXT NOT NULL,
+                actor TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                previous_hash TEXT NOT NULL,
+                event_hash TEXT NOT NULL UNIQUE,
+                created_at TEXT NOT NULL
+            )""")
             db.execute("""CREATE TABLE IF NOT EXISTS acquisition_sources (
                 record_id TEXT NOT NULL,
                 source TEXT NOT NULL,
@@ -181,6 +191,10 @@ class UniversalAcquisitionEngine:
             db.execute("""INSERT OR IGNORE INTO acquisition_sources
                 (record_id,source,media_type,observed_at) VALUES (?,?,?,?)""",
                 (row["record_id"], source, guessed, now))
+            self._append_audit_event(db,
+                "acquired" if cursor.rowcount else "duplicate_source_observed",
+                row["record_id"], {"content_hash": digest, "source": source,
+                                   "media_type": guessed, "state": row["state"]})
         # INSERT OR IGNORE makes concurrent duplicate intake idempotent under SQLite's
         # unique constraint instead of leaking an IntegrityError to the caller.
         return self._row_to_record(row, duplicate=cursor.rowcount == 0)
@@ -225,6 +239,54 @@ class UniversalAcquisitionEngine:
             byte_size=row["byte_size"], value_score=row["value_score"],
             signals=tuple(json.loads(row["signals_json"])), state=row["state"],
             created_at=row["created_at"], duplicate=duplicate)
+
+    @staticmethod
+    def _append_audit_event(db: sqlite3.Connection, event_type: str,
+                            record_id: str, payload: dict[str, Any],
+                            actor: str = "local-unverified") -> None:
+        previous = db.execute(
+            "SELECT event_hash FROM audit_events ORDER BY sequence DESC LIMIT 1"
+        ).fetchone()
+        previous_hash = previous["event_hash"] if previous else "0" * 64
+        sequence = db.execute(
+            "SELECT COALESCE(MAX(sequence), 0) + 1 FROM audit_events"
+        ).fetchone()[0]
+        created_at = _now()
+        payload_json = json.dumps(payload, ensure_ascii=False, sort_keys=True,
+                                  separators=(",", ":"), allow_nan=False)
+        material = json.dumps({
+            "sequence": sequence, "event_type": event_type, "record_id": record_id,
+            "actor": actor, "payload": payload_json, "previous_hash": previous_hash,
+            "created_at": created_at,
+        }, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        event_hash = hashlib.sha256(material.encode("utf-8")).hexdigest()
+        db.execute("""INSERT INTO audit_events
+            (sequence,event_type,record_id,actor,payload_json,previous_hash,event_hash,created_at)
+            VALUES (?,?,?,?,?,?,?,?)""",
+            (sequence,event_type,record_id,actor,payload_json,previous_hash,event_hash,created_at))
+
+    def verify_audit_chain(self) -> dict[str, Any]:
+        """Verify the local append-only hash chain; this is not external tamper-proofing."""
+        with self._connect() as db:
+            rows = db.execute("SELECT * FROM audit_events ORDER BY sequence").fetchall()
+        previous_hash = "0" * 64
+        for expected_sequence, row in enumerate(rows, start=1):
+            if row["sequence"] != expected_sequence or row["previous_hash"] != previous_hash:
+                return {"valid": False, "event_count": len(rows),
+                        "failure_sequence": row["sequence"], "final_hash": previous_hash}
+            material = json.dumps({
+                "sequence": row["sequence"], "event_type": row["event_type"],
+                "record_id": row["record_id"], "actor": row["actor"],
+                "payload": row["payload_json"], "previous_hash": row["previous_hash"],
+                "created_at": row["created_at"],
+            }, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            expected_hash = hashlib.sha256(material.encode("utf-8")).hexdigest()
+            if row["event_hash"] != expected_hash:
+                return {"valid": False, "event_count": len(rows),
+                        "failure_sequence": row["sequence"], "final_hash": previous_hash}
+            previous_hash = row["event_hash"]
+        return {"valid": True, "event_count": len(rows), "failure_sequence": None,
+                "final_hash": previous_hash}
 
     def get_sources(self, record_id: str) -> list[dict[str, str]]:
         """Return every observed source for a content record, not only its first source."""
@@ -279,6 +341,8 @@ class UniversalAcquisitionEngine:
             if state not in transitions[current_state]:
                 raise UAIEError(f"invalid transition: {current_state} -> {state}")
             db.execute("UPDATE assimilations SET state=? WHERE record_id=?", (state, record_id))
+            self._append_audit_event(db, "lifecycle_transition", record_id,
+                                     {"from": current_state, "to": state})
             updated = db.execute("SELECT * FROM assimilations WHERE record_id=?", (record_id,)).fetchone()
         return self._row_to_record(updated)
 
@@ -330,6 +394,8 @@ class UniversalAcquisitionEngine:
                  json.dumps(list(revenue_models), ensure_ascii=False),
                  development_timeline, risk_assessment,
                  json.dumps(list(evidence), ensure_ascii=False), verification_status, now))
+            self._append_audit_event(db, "capability_assessment_updated", record_id,
+                {"verification_status": verification_status, "evidence_count": len(evidence)})
         return self.get_capability_assessment(record_id)
 
     def get_capability_assessment(self, record_id: str) -> CapabilityAssessment:
