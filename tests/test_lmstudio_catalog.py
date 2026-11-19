@@ -84,6 +84,8 @@ class CatalogTests(unittest.TestCase):
             self.assertIn("tool_use_listed_in_catalog", profile["extracted_text"])
             self.assertIn("PUBLISHER_REPORTED_CATALOG_METADATA", profile["extracted_text"])
             self.assertIn("METADATA_ONLY_NOT_BENCHMARKED", profile["extracted_text"])
+            self.assertIn("LFM Open License v1.0", profile["extracted_text"])
+            self.assertIn("1 GB", profile["extracted_text"])
 
 
 if __name__ == "__main__":
