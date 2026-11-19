@@ -104,7 +104,7 @@ export function createBrowserAdapter({
   navigationTimeoutMs = 5_000,
 }) {
   if (!page || typeof page.url !== "function" || typeof page.evaluate !== "function" ||
-      typeof page.goto !== "function" || typeof page.route !== "function" || !Array.isArray(allowedOrigins) ||
+      typeof page.goto !== "function" || typeof page.route !== "function" || typeof page.routeWebSocket !== "function" || !Array.isArray(allowedOrigins) ||
       allowedOrigins.length === 0 || typeof sessionId !== "string" || !sessionId.trim() ||
       typeof publicKeyPem !== "string" || typeof policyVersion !== "string" ||
       typeof requestConsent !== "function" || typeof clock !== "function" || !Number.isSafeInteger(observationTtlMs) ||
@@ -116,19 +116,44 @@ export function createBrowserAdapter({
   const observations = new Map();
   let stopped = false;
   let actionInFlight = false;
-  const routeReady = Promise.resolve(page.route("**/*", async (route) => {
-    if (stopped) return route.abort("blockedbyclient");
-    const rawUrl = route.request().url();
-    if (rawUrl === "about:blank" || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:")) {
-      return route.continue();
-    }
-    try {
-      safePageUrl(rawUrl, origins);
-      return route.continue();
-    } catch {
-      return route.abort("blockedbyclient");
-    }
-  }));
+  const activeWebSockets = new Set();
+  const routeReady = Promise.all([
+    Promise.resolve(page.route("**/*", async (route) => {
+      if (stopped) return route.abort("blockedbyclient");
+      const rawUrl = route.request().url();
+      if (rawUrl === "about:blank" || rawUrl.startsWith("data:") || rawUrl.startsWith("blob:")) {
+        return route.continue();
+      }
+      try {
+        safePageUrl(rawUrl, origins);
+        return route.continue();
+      } catch {
+        return route.abort("blockedbyclient");
+      }
+    })),
+    Promise.resolve(page.routeWebSocket("**/*", async (webSocketRoute) => {
+      if (stopped) return webSocketRoute.close({ code: 1008, reason: "session stopped" });
+      try {
+        const socketUrl = new URL(webSocketRoute.url());
+        if (socketUrl.username || socketUrl.password ||
+            !["wss:", "ws:"].includes(socketUrl.protocol)) {
+          return webSocketRoute.close({ code: 1008, reason: "WebSocket origin not allowlisted" });
+        }
+        socketUrl.protocol = socketUrl.protocol === "wss:" ? "https:" : "http:";
+        socketUrl.pathname = "/";
+        socketUrl.search = "";
+        socketUrl.hash = "";
+        safePageUrl(socketUrl.href, origins);
+        const upstream = webSocketRoute.connectToServer();
+        const connection = { client: webSocketRoute, upstream };
+        activeWebSockets.add(connection);
+        webSocketRoute.onClose(() => activeWebSockets.delete(connection));
+        upstream.onClose(() => activeWebSockets.delete(connection));
+      } catch {
+        return webSocketRoute.close({ code: 1008, reason: "WebSocket origin not allowlisted" });
+      }
+    })),
+  ]);
 
   function purgeObservations(now) {
     for (const [id, item] of observations) {
@@ -325,7 +350,14 @@ export function createBrowserAdapter({
   return Object.freeze({
     observe,
     execute,
-    stop() { stopped = true; observations.clear(); },
+    stop() {
+      stopped = true;
+      observations.clear();
+      for (const connection of activeWebSockets) {
+        void connection.client.close({ code: 1008, reason: "session stopped" }).catch(() => {});
+      }
+      activeWebSockets.clear();
+    },
     get stopped() { return stopped; },
   });
 }
