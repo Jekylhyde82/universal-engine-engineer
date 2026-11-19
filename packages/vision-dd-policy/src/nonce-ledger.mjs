@@ -33,10 +33,11 @@ function validateRecord(record, expectedPreviousHash) {
  * tamper-proof; production audit checkpoints must be externally anchored.
  */
 export class FileNonceLedger {
-  constructor(path, { lockTimeoutMs = 2_000, retryMs = 10, clock = Date.now } = {}) {
+  constructor(path, { lockTimeoutMs = 2_000, retryMs = 10, clock = Date.now, maxLedgerBytes = 64 * 1024 * 1024 } = {}) {
     if (typeof path !== "string" || !path.trim()) throw new TypeError("Ledger path is required.");
     if (!Number.isSafeInteger(lockTimeoutMs) || lockTimeoutMs < 1 ||
-        !Number.isSafeInteger(retryMs) || retryMs < 1 || typeof clock !== "function") {
+        !Number.isSafeInteger(retryMs) || retryMs < 1 || typeof clock !== "function" ||
+        !Number.isSafeInteger(maxLedgerBytes) || maxLedgerBytes < 128) {
       throw new TypeError("Invalid ledger options.");
     }
     this.path = resolve(path);
@@ -44,14 +45,15 @@ export class FileNonceLedger {
     this.lockTimeoutMs = lockTimeoutMs;
     this.retryMs = retryMs;
     this.clock = clock;
+    this.maxLedgerBytes = maxLedgerBytes;
   }
 
   async #ensurePrivateDirectory() {
     const directory = dirname(this.path);
     await mkdir(directory, { recursive: true, mode: 0o700 });
     const info = await lstat(directory);
-    if (!info.isDirectory() || info.isSymbolicLink()) {
-      throw new Error("Nonce ledger directory must be a real directory.");
+    if (!info.isDirectory() || info.isSymbolicLink() || (info.mode & 0o077) !== 0) {
+      throw new Error("Nonce ledger directory must be a private 0700 directory.");
     }
   }
 
@@ -77,12 +79,13 @@ export class FileNonceLedger {
     let bytes;
     try {
       const info = await lstat(this.path);
-      if (!info.isFile() || info.isSymbolicLink()) {
-        throw new Error("Nonce ledger must be a regular file, not a symlink.");
+      if (!info.isFile() || info.isSymbolicLink() || (info.mode & 0o077) !== 0) {
+        throw new Error("Nonce ledger must be a private 0600 regular file, not a symlink.");
       }
+      if (info.size > this.maxLedgerBytes) throw new Error("Nonce ledger size limit exceeded; refusing to disable replay protection.");
       bytes = await readFile(this.path);
     } catch (error) {
-      if (error?.code === "ENOENT") return { records: [], previousHash: ZERO_HASH };
+      if (error?.code === "ENOENT") return { records: [], previousHash: ZERO_HASH, size: 0 };
       throw error;
     }
 
@@ -113,7 +116,7 @@ export class FileNonceLedger {
       records.push(record);
       previousHash = record.hash;
     }
-    return { records, previousHash };
+    return { records, previousHash, size: bytes.length };
   }
 
   async consume(nonce) {
@@ -123,7 +126,7 @@ export class FileNonceLedger {
     await this.#ensurePrivateDirectory();
     const lock = await this.#acquireLock();
     try {
-      const { records, previousHash } = await this.#readAndRecover();
+      const { records, previousHash, size } = await this.#readAndRecover();
       if (records.some((record) => record.nonce === nonce)) return false;
       const timestamp = this.clock();
       if (!Number.isSafeInteger(timestamp)) throw new Error("Ledger clock is invalid.");
