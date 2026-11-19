@@ -7,6 +7,16 @@ import { fileURLToPath } from "node:url";
 const WORKER_PATH = fileURLToPath(new URL("./instance-worker.mjs", import.meta.url));
 const INSTANCE_IDS = Array.from({ length: 9 }, (_, index) => "UMIC-" + String(index + 1).padStart(2, "0"));
 
+const CHILD_ENV_ALLOWLIST = ["PATH", "HOME", "TMPDIR", "TEMP", "SystemRoot", "WINDIR", "LANG", "LC_ALL"];
+
+export function buildWorkerEnvironment(source = process.env) {
+  return Object.fromEntries(
+    CHILD_ENV_ALLOWLIST
+      .filter((key) => typeof source[key] === "string")
+      .map((key) => [key, source[key]]),
+  );
+}
+
 export class NinefoldFusionRuntime {
   static async create({
     evidenceRoot,
@@ -54,7 +64,7 @@ export class NinefoldFusionRuntime {
     const evidencePath = join(this.options.evidenceRoot, "EVIDENCE-" + instanceId + ".jsonl");
     const child = fork(WORKER_PATH, [], {
       env: {
-        ...process.env,
+        ...buildWorkerEnvironment(),
         NINEFOLD_INSTANCE_ID: instanceId,
         NINEFOLD_EVIDENCE_PATH: evidencePath,
         NINEFOLD_POLICY_VERSION: this.options.policyVersion,
