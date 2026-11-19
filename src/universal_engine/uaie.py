@@ -307,6 +307,10 @@ class UniversalAcquisitionIntegrationEngine:
         for field, value in text_fields.items():
             if not isinstance(value, str) or not value.strip() or len(value) > 4000:
                 raise UAIEError(f"{field} must be a non-empty string of at most 4000 characters")
+        if isinstance(revenue_models, (str, bytes)):
+            raise UAIEError("revenue_models must be an iterable of model descriptions, not a string")
+        if not isinstance(record_id, str) or not record_id.strip():
+            raise UAIEError("record_id is required")
         models = tuple(revenue_models)
         if len(models) > 20 or any(not isinstance(x, str) or not x.strip() or len(x) > 256 for x in models):
             raise UAIEError("revenue_models must contain at most 20 non-empty strings of at most 256 characters")
