@@ -262,6 +262,7 @@ export function createBrowserAdapter({
       application_origin: destination.origin,
       action_id: request.action_id,
       action_type: request.action_type,
+      destination_url: publicUrl(destination),
       action_digest: computeActionDigest(request),
     });
     if (actionConsent !== true) throw new Error("Trusted user consent was not granted for this action.");
