@@ -84,6 +84,7 @@ export async function launchBrowserHost({
     const sessionId = randomUUID();
     const adapter = createBrowserAdapter({
       page,
+      context,
       sessionId,
       allowedOrigins,
       publicKeyPem,
