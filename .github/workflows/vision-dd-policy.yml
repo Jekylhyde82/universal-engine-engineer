@@ -1,0 +1,32 @@
+name: VISION-DD policy core
+
+on:
+  pull_request:
+    paths:
+      - "packages/vision-dd-policy/**"
+      - ".github/workflows/vision-dd-policy.yml"
+      - "docs/architecture/vision-dd/**"
+  push:
+    branches:
+      - "architecture/vision-dd-production-spec"
+    paths:
+      - "packages/vision-dd-policy/**"
+      - ".github/workflows/vision-dd-policy.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  policy-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run deterministic policy tests
+        working-directory: packages/vision-dd-policy
+        run: npm test
