@@ -25,6 +25,7 @@ function fakePage(initialUrl = "https://example.test/start") {
     url: () => currentUrl,
     viewportSize: () => ({ width: 1280, height: 720 }),
     evaluate: async () => ({
+      url: currentUrl,
       title: "Test page",
       elements: [{ role: "link", label: "Help", x: 10, y: 20, width: 40, height: 20, disabled: false }],
     }),
@@ -279,4 +280,36 @@ test("browser adapter forwards WebSockets only to an allowlisted secure origin",
     onClose: () => {},
   });
   assert.equal(connected, 1);
+});
+
+test("observation fails closed if the page changes during capture", async () => {
+  const page = fakePage();
+  const originalEvaluate = page.evaluate;
+  page.evaluate = async (...args) => {
+    const snapshot = await originalEvaluate(...args);
+    await page.goto("https://example.test/changed");
+    return snapshot;
+  };
+  const adapter = createBrowserAdapter({
+    page, context: page.context, sessionId: "browser-session-1",
+    allowedOrigins: ["https://example.test"], publicKeyPem,
+    policyVersion: "policy-7", grantNonceLedger: { consume: async () => true },
+    requestConsent: async () => true, clock: () => now,
+  });
+  await assert.rejects(() => adapter.observe(), /stale or page context changed/i);
+});
+
+test("observation fails closed if the page changes while consent is pending", async () => {
+  const page = fakePage();
+  const adapter = createBrowserAdapter({
+    page, context: page.context, sessionId: "browser-session-1",
+    allowedOrigins: ["https://example.test"], publicKeyPem,
+    policyVersion: "policy-7", grantNonceLedger: { consume: async () => true },
+    requestConsent: async () => {
+      await page.goto("https://example.test/changed");
+      return true;
+    },
+    clock: () => now,
+  });
+  await assert.rejects(() => adapter.observe(), /changed while consent was pending/i);
 });
