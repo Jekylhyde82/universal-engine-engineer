@@ -84,8 +84,9 @@ class CatalogCandidateTests(unittest.TestCase):
                 candidate_from_mapping(candidate)
 
     def test_rejects_secret_material_in_metadata(self):
-        with self.assertRaises(LMStudioCatalogError):
-            candidate_from_mapping({**CANDIDATE, "metadata": {"nested": {"api_token": "do-not-store"}}})
+        for metadata in ({"nested": {"api_token": "do-not-store"}}, {"clientSecret": "do-not-store"}):
+            with self.subTest(metadata=metadata), self.assertRaises(LMStudioCatalogError):
+                candidate_from_mapping({**CANDIDATE, "metadata": metadata})
 
     def test_rejects_oversized_or_non_json_metadata(self):
         for metadata in ({"payload": "x" * (256 * 1024)}, {"value": float("nan")}):
