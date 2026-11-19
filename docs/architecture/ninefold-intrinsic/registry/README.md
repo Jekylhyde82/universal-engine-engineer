@@ -16,6 +16,12 @@ The machine-readable registry reserves exactly:
 
 The register definitions are Major Division (target 9), System (target 90), Architecture (target 184), Responsibility Layer (target 18), Intelligence, Capability, Lifecycle, Evidence & Verification, and Cross-reference & Traceability.
 
+## Nine scoped instance boundaries
+
+The registry now reserves distinct execution-context IDs, state namespaces, evidence-stream IDs and fault-domain IDs for each of the nine scoped AFI PRIME instances. These identifiers express required boundaries; they do **not** prove that separate runtime processes, stores, streams or fault-isolation mechanisms exist.
+
+All nine instances share one versioned canonical AFI PRIME function identity and one governance model. They must not share mutable runtime state or implicitly inherit permissions. Cross-instance communication requires an explicit governed contract. The registry marks each implementation status as not implemented until runtime evidence and independent tests exist.
+
 ## Important: placeholders are not invented identities
 
 The source material available for this implementation confirms the counts and the one-entity fusion decision, but does not supply the approved canonical names, responsibility definitions or exact lineage-to-domain mappings for all 99 constituent lineages. The registry therefore uses neutral stable IDs and explicitly null names/mappings. These IDs reserve slots; they are not proposed subsystem names.
