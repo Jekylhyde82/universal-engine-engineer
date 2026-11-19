@@ -252,6 +252,9 @@ export function createBrowserAdapter({
       throw new Error("Visual observation is stale or bound to another application/session.");
     }
     const destination = safePageUrl(request.parameters.url, origins);
+    if (destination.search || destination.hash) {
+      throw new Error("Navigation with query or fragment parameters is disabled in v1.");
+    }
     if (destination.origin !== request.target_application) {
       throw new Error("Navigation target does not match the approved application.");
     }
