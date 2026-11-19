@@ -23,7 +23,7 @@ Dependency-free Node.js reference package for deterministic policy evaluation, s
 
 ## Validation evidence
 
-The latest recorded policy workflow reported **69 tests passed, 0 failed** at commit `75ff874873ed1784009a5ea06c076ea51546a70a`. This includes two real Chromium integration tests against a temporary local fixture. The browser integration suite verifies a signed allowlisted navigation and blocks a redirect to an unapproved origin.
+The latest policy workflow on the current branch ran **114 tests: 114 passed, 0 failed, 0 skipped**. The run included two real Chromium integration tests against a temporary local fixture. The exact tested commit is recorded by the GitHub Actions run linked from the pull request; this evidence applies only to that commit. The browser integration suite verifies a signed allowlisted navigation and blocks a redirect to an unapproved origin.
 
 ## Important limitations
 
