@@ -79,7 +79,7 @@ def _validate_catalog_url(value: Any) -> str:
     if (parsed.scheme != "https" or parsed.hostname != "lmstudio.ai"
             or parsed.username or parsed.password or port not in (None, 443)
             or parsed.query or parsed.fragment
-            or not re.fullmatch(r"/models/[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*", parsed.path)):
+            or not re.fullmatch(r"/models/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)?", parsed.path)):
         raise LMStudioCatalogError("catalog_url must be a clean HTTPS LM Studio model detail URL")
     return urllib.parse.urlunsplit(("https", "lmstudio.ai", parsed.path, "", ""))
 
@@ -263,7 +263,7 @@ def candidate_from_model_yaml(
         catalog_url = f"https://lmstudio.ai/models/{model_id}"
     memory_text = None
     if memory_bytes is not None:
-        memory_text = f"{memory_bytes / (1024 ** 3):.2f} GB"
+        memory_text = f"{memory_bytes / 1_000_000_000:.2f} GB"
     license_text = value.get("license") or overrides.get("license")
     description = overrides.get("description") or value.get("description")
     candidate_mapping = {
