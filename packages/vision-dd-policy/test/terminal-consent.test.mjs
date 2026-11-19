@@ -5,6 +5,7 @@ import { createTerminalConsentProvider } from "../src/terminal-consent.mjs";
 
 async function ask(provider, input, request) {
   const pending = provider.requestConsent(request);
+  await new Promise((resolve) => setImmediate(resolve));
   input.write("YES\n");
   return pending;
 }
@@ -24,6 +25,7 @@ test("terminal consent provider requires an explicit exact YES response", async 
       action_type: "navigate", action_digest: "sha256:abc",
       destination_url: "https://example.test/help",
     });
+    await new Promise((resolve) => setImmediate(resolve));
     input.write("yes\n");
     assert.equal(await denied, false);
   } finally {
