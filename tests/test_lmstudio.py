@@ -91,10 +91,11 @@ class LMStudioAdapterTests(unittest.TestCase):
             engine = UniversalAssimilationEngine(Path(tmp) / "uaie.sqlite3")
             def opener(request, timeout):
                 return FakeResponse(json.dumps({"models": [MODEL]}).encode())
-            records = assimilate_catalog(engine, api_token=None, timeout=3)
-            # The default network opener is not used in this test; exercise the
-            # lower-level validated model-to-UAIE flow without network access.
-            self.assertEqual(records, ())
+            records = assimilate_catalog(engine, api_token=None, timeout=3, opener=opener)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].state, "assimilated")
+            self.assertEqual(engine.export_record(records[0].record_id)["source"],
+                             "http://127.0.0.1:1234/api/v1/models#publisher/example-7b")
 
     def test_catalog_metadata_can_be_stored_as_provenance_record(self):
         with tempfile.TemporaryDirectory() as tmp:
