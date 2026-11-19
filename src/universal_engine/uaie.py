@@ -441,9 +441,25 @@ def main(argv: Iterable[str] | None = None) -> int:
     search.add_argument("query")
     show = sub.add_parser("show", help="show record metadata and extracted content")
     show.add_argument("record_id")
-    state = sub.add_parser("state", help="approve, integrate, or reject a record")
+    state = sub.add_parser("state", help="approve, integrate, or reject an assimilation record")
     state.add_argument("record_id")
     state.add_argument("new_state", choices=("approved", "integrated", "rejected"))
+    acquisition = sub.add_parser("acquisition", help="inspect and govern the intrinsic acquisition register")
+    acquisition_sub = acquisition.add_subparsers(dest="acquisition_action", required=True)
+    acquisition_show = acquisition_sub.add_parser("show", help="show an acquisition register entry")
+    acquisition_show.add_argument("record_id")
+    acquisition_status = acquisition_sub.add_parser("status", help="advance the acquisition register lifecycle")
+    acquisition_status.add_argument("record_id")
+    acquisition_status.add_argument("new_status", choices=("proposed", "under_evaluation", "approved", "integrated", "rejected", "retired"))
+    acquisition_assess = acquisition_sub.add_parser("assess", help="update an acquisition assessment before approval")
+    acquisition_assess.add_argument("record_id")
+    acquisition_assess.add_argument("--potential-market-value")
+    acquisition_assess.add_argument("--revenue-model", action="append")
+    acquisition_assess.add_argument("--development-timeline")
+    acquisition_assess.add_argument("--development-cost")
+    acquisition_assess.add_argument("--integration-cost")
+    acquisition_assess.add_argument("--risk-assessment")
+    acquisition_assess.add_argument("--evidence-verification-status")
     args = parser.parse_args(argv)
     engine = UniversalAssimilationEngine(args.db)
     try:
@@ -459,6 +475,23 @@ def main(argv: Iterable[str] | None = None) -> int:
             print(json.dumps(engine.export_record(args.record_id), indent=2, ensure_ascii=False))
         elif args.command == "state":
             _print(engine.set_state(args.record_id, args.new_state))
+        elif args.command == "acquisition":
+            if args.acquisition_action == "show":
+                print(json.dumps(asdict(engine.get_acquisition(args.record_id)), indent=2, ensure_ascii=False))
+            elif args.acquisition_action == "status":
+                print(json.dumps(asdict(engine.set_acquisition_lifecycle(args.record_id, args.new_status)), indent=2, ensure_ascii=False))
+            elif args.acquisition_action == "assess":
+                updates = {
+                    "potential_market_value": args.potential_market_value,
+                    "revenue_models": args.revenue_model,
+                    "development_timeline": args.development_timeline,
+                    "development_cost": args.development_cost,
+                    "integration_cost": args.integration_cost,
+                    "risk_assessment": args.risk_assessment,
+                    "evidence_verification_status": args.evidence_verification_status,
+                }
+                updates = {key: value for key, value in updates.items() if value is not None}
+                print(json.dumps(asdict(engine.update_acquisition_assessment(args.record_id, **updates)), indent=2, ensure_ascii=False))
         return 0
     except (UAIEError, OSError) as exc:
         print(f"UAIE error: {exc}", file=sys.stderr)
