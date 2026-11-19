@@ -92,3 +92,17 @@ test("terminal consent prompt strips control characters from untrusted action me
     output.destroy();
   }
 });
+
+test("closing the consent provider denies any pending prompt", async () => {
+  const input = new PassThrough();
+  const output = new PassThrough();
+  const provider = createTerminalConsentProvider({ input, output });
+  const pending = provider.requestConsent({
+    purpose: "OBSERVE", session_id: "session-1",
+    application_origin: "https://example.test",
+  });
+  provider.close();
+  assert.equal(await pending, false);
+  input.destroy();
+  output.destroy();
+});
