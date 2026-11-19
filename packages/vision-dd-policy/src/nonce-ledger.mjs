@@ -136,9 +136,13 @@ export class FileNonceLedger {
         previous_hash: previousHash,
         hash: digest(nonce, timestamp, previousHash),
       };
+      const line = JSON.stringify(record) + "\n";
+      if (size + Buffer.byteLength(line, "utf8") > this.maxLedgerBytes) {
+        throw new Error("Nonce ledger size limit reached; refusing to bypass replay protection.");
+      }
       const handle = await open(this.path, "a", 0o600);
       try {
-        await handle.writeFile(JSON.stringify(record) + "\n", "utf8");
+        await handle.writeFile(line, "utf8");
         await handle.sync();
       } finally {
         await handle.close();
