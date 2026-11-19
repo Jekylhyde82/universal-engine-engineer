@@ -11,6 +11,7 @@ from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
 CANDIDATE = {
     "model_id": "liquid/lfm3-vl-2b",
+    "original_idea_value": "Use UAIE PRIME and AFI PRIME to assimilate LM Studio model-catalog capabilities.",
     "display_name": "LFM3",
     "catalog_url": "https://lmstudio.ai/models/lfm3",
     "publisher": "Liquid AI",
@@ -57,6 +58,12 @@ class CatalogCandidateTests(unittest.TestCase):
             with self.subTest(url=url), self.assertRaises(LMStudioCatalogError):
                 candidate_from_mapping({**CANDIDATE, "catalog_url": url})
 
+    def test_original_idea_value_is_mandatory(self):
+        candidate = dict(CANDIDATE)
+        candidate.pop("original_idea_value")
+        with self.assertRaises(LMStudioCatalogError):
+            candidate_from_mapping(candidate)
+
     def test_rejects_invalid_model_id_and_quantization(self):
         for candidate in (
             {**CANDIDATE, "model_id": "not-a-qualified-id"},
@@ -91,6 +98,9 @@ class CatalogCandidateTests(unittest.TestCase):
             self.assertIn("METADATA_ONLY_NOT_BENCHMARKED", profile["extracted_text"])
             self.assertIn("LFM Open License v1.0", profile["extracted_text"])
             self.assertIn("1 GB", profile["extracted_text"])
+            candidate_data = engine.export_record(catalog_record.record_id)
+            self.assertIn("original_idea_value", candidate_data["extracted_text"])
+            self.assertIn("NOT_ASSESSED", candidate_data["extracted_text"])
 
 
 if __name__ == "__main__":
