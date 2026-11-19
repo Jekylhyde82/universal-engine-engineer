@@ -1,0 +1,14 @@
+{
+  "name": "@ninefold/fusion-runtime-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Process-isolated proof-of-capability for nine scoped instances of one shared AFI PRIME fusion function.",
+  "scripts": {
+    "test": "node --test",
+    "check": "for file in src/*.mjs test/*.mjs; do node --check \"$file\"; done"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
