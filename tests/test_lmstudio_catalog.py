@@ -3,86 +3,91 @@ import unittest
 from pathlib import Path
 
 from universal_engine.lmstudio_catalog import (
-    LMStudioCatalogError, assimilate_public_catalog, discover_catalog,
+    LMStudioCatalogError, assimilate_catalog_candidate,
+    build_download_command, candidate_from_mapping,
 )
 from universal_engine.uaie import UniversalAcquisitionIntegrationEngine
 
 
-CATALOG_HTML = """
-<html><body>
-<a href="/models/lfm3"><h2>LFM3 2B</h2>
-<span>Tool use Reasoning Vision</span>
-<p>LFM3 is a vision-language model for on-device understanding.</p>
-<span>Local — Available to download 4.8K downloads 18 stars Updated 23 days ago</span>
-</a>
-</body></html>
-"""
-DETAIL_HTML = """
-<html><body>
-<h1>LFM3</h1>
-<p>LFM3-VL-2B is a vision-language model for on-device image and video understanding with a 128K-token context window.</p>
-<a href="https://huggingface.co/liquid-ai/lfm3-vl-2b">liquid/lfm3-vl-2b</a>
-<h2>Memory Requirements</h2><p>To run the smallest LFM3, you need at least 1 GB of RAM.</p>
-<h2>Capabilities</h2><p>LFM3 models support tool use, vision input, and reasoning. They are available in gguf.</p>
-<h2>License</h2><p>LFM Open License v1.0</p>
-</body></html>
-"""
+CANDIDATE = {
+    "model_id": "liquid/lfm3-vl-2b",
+    "display_name": "LFM3",
+    "catalog_url": "https://lmstudio.ai/models/lfm3",
+    "publisher": "Liquid AI",
+    "parameter_sizes": ["1.92B", "2B"],
+    "max_context": "128K",
+    "minimum_memory": "1 GB",
+    "availability": ["local"],
+    "capabilities": {"tool_use": True, "reasoning": True, "vision": True},
+    "license_text": "LFM Open License v1.0",
+    "description": "Vision-language model for on-device understanding.",
+    "artifact_links": [
+        {"text": "LFM3-VL-2B", "url": "https://huggingface.co/liquid-ai/lfm3-vl-2b"}
+    ],
+    "metadata": {"catalog_source": "LM Studio", "notes": "User-reviewed catalog details"},
+}
 
 
-class CatalogTests(unittest.TestCase):
-    def fetcher(self, url, timeout, max_bytes):
-        if url == "https://lmstudio.ai/models":
-            return CATALOG_HTML
-        if url == "https://lmstudio.ai/models/lfm3":
-            return DETAIL_HTML
-        raise AssertionError(f"unexpected URL: {url}")
+class CatalogCandidateTests(unittest.TestCase):
+    def test_validates_user_supplied_catalog_candidate(self):
+        candidate = candidate_from_mapping(CANDIDATE)
+        self.assertEqual(candidate.model_id, "liquid/lfm3-vl-2b")
+        self.assertEqual(candidate.capabilities["vision"], True)
+        self.assertEqual(candidate.license_text, "LFM Open License v1.0")
 
-    def test_discovers_public_catalog_and_extracts_metadata(self):
-        entries = discover_catalog(fetcher=self.fetcher)
-        self.assertEqual(len(entries), 1)
-        entry = entries[0]
-        self.assertEqual(entry.key, "lfm3")
-        self.assertEqual(entry.display_name, "LFM3")
-        self.assertIn("tool_use", entry.capability_tags)
-        self.assertIn("vision", entry.capability_tags)
-        self.assertIn("reasoning", entry.capability_tags)
-        self.assertEqual(entry.minimum_memory, "1 GB")
-        self.assertEqual(entry.max_context, "128K")
-        self.assertEqual(entry.license_text, "LFM Open License v1.0")
-        self.assertEqual(entry.download_count, "4.8K")
-        self.assertTrue(any("huggingface.co" in item["url"] for item in entry.artifact_links))
+    def test_builds_official_cli_command_without_executing_it(self):
+        candidate = candidate_from_mapping({**CANDIDATE, "quantization": "Q4_K_M"})
+        self.assertEqual(build_download_command(candidate), ("lms", "get", "liquid/lfm3-vl-2b@Q4_K_M"))
+
+    def test_download_command_without_quantization(self):
+        candidate = candidate_from_mapping(CANDIDATE)
+        self.assertEqual(build_download_command(candidate), ("lms", "get", "liquid/lfm3-vl-2b"))
 
     def test_rejects_non_lmstudio_catalog_origin(self):
         with self.assertRaises(LMStudioCatalogError):
-            discover_catalog("https://example.com/models", fetcher=self.fetcher)
+            candidate_from_mapping({**CANDIDATE, "catalog_url": "https://example.com/models/lfm3"})
 
-    def test_rejects_query_string_and_credentials(self):
-        for url in ("https://lmstudio.ai/models?x=1", "https://user:pass@lmstudio.ai/models"):
+    def test_rejects_query_credentials_and_wrong_path(self):
+        bad_urls = (
+            "https://user:pass@lmstudio.ai/models/lfm3",
+            "https://lmstudio.ai/models/lfm3?x=1",
+            "https://lmstudio.ai/other/lfm3",
+        )
+        for url in bad_urls:
             with self.subTest(url=url), self.assertRaises(LMStudioCatalogError):
-                discover_catalog(url, fetcher=self.fetcher)
+                candidate_from_mapping({**CANDIDATE, "catalog_url": url})
 
-    def test_fails_closed_when_catalog_markup_has_no_model_links(self):
-        with self.assertRaises(LMStudioCatalogError):
-            discover_catalog(fetcher=lambda url, timeout, size: "<html><h1>Changed</h1></html>")
+    def test_rejects_invalid_model_id_and_quantization(self):
+        for candidate in (
+            {**CANDIDATE, "model_id": "not-a-qualified-id"},
+            {**CANDIDATE, "quantization": "Q4_K_M;rm -rf"},
+        ):
+            with self.subTest(candidate=candidate), self.assertRaises(LMStudioCatalogError):
+                candidate_from_mapping(candidate)
 
-    def test_enforces_model_count_limit(self):
-        with self.assertRaises(LMStudioCatalogError):
-            discover_catalog(max_models=1, fetcher=lambda url, timeout, size:
-                CATALOG_HTML.replace('href="/models/lfm3"', 'href="/models/lfm3"')
-                + '<a href="/models/other">Other</a>')
+    def test_rejects_unapproved_capabilities_and_artifact_origins(self):
+        for candidate in (
+            {**CANDIDATE, "capabilities": {"tool_use": "yes"}},
+            {**CANDIDATE, "artifact_links": [{"url": "https://example.com/file"}]},
+        ):
+            with self.subTest(candidate=candidate), self.assertRaises(LMStudioCatalogError):
+                candidate_from_mapping(candidate)
 
-    def test_assimilates_public_catalog_and_fuses_afi_profile(self):
+    def test_rejects_oversized_or_non_json_metadata(self):
+        for metadata in ({"payload": "x" * (256 * 1024)}, {"value": float("nan")}):
+            with self.subTest(metadata_type=type(metadata["payload"] if "payload" in metadata else metadata["value"])), self.assertRaises(LMStudioCatalogError):
+                candidate_from_mapping({**CANDIDATE, "metadata": metadata})
+
+    def test_assimilates_candidate_and_fuses_afi_profile(self):
         with tempfile.TemporaryDirectory() as tmp:
             engine = UniversalAcquisitionIntegrationEngine(Path(tmp) / "uaie.sqlite3")
-            catalog_records, afi_records = assimilate_public_catalog(
-                engine, fetcher=self.fetcher)
-            self.assertEqual(len(catalog_records), 1)
-            self.assertEqual(len(afi_records), 1)
-            self.assertEqual(catalog_records[0].state, "assimilated")
-            profile = engine.export_record(afi_records[0].record_id)
-            self.assertEqual(profile["source"], "afi-prime://lm-studio-public-catalog/lfm3")
+            candidate = candidate_from_mapping(CANDIDATE)
+            catalog_record, afi_record = assimilate_catalog_candidate(engine, candidate)
+            self.assertEqual(catalog_record.state, "assimilated")
+            profile = engine.export_record(afi_record.record_id)
+            self.assertEqual(profile["source"], "afi-prime://lm-studio-model-catalog/liquid/lfm3-vl-2b")
             self.assertIn("tool_use_listed_in_catalog", profile["extracted_text"])
-            self.assertIn("PUBLISHER_REPORTED_CATALOG_METADATA", profile["extracted_text"])
+            self.assertIn("USER_SUPPLIED_CATALOG_METADATA", profile["extracted_text"])
             self.assertIn("METADATA_ONLY_NOT_BENCHMARKED", profile["extracted_text"])
             self.assertIn("LFM Open License v1.0", profile["extracted_text"])
             self.assertIn("1 GB", profile["extracted_text"])
