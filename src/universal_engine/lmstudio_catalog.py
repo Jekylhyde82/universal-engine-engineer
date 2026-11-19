@@ -451,6 +451,68 @@ def main(argv: Any = None) -> int:
     return 0
 
 
+
+def model_yaml_main(argv: Any = None) -> int:
+    """Import a metadata-only model.yaml produced by the official lms clone command."""
+    parser = argparse.ArgumentParser(description="Assimilate official LM Studio model.yaml metadata")
+    parser.add_argument("model_yaml_file")
+    parser.add_argument("--db", default="uaie.sqlite3")
+    parser.add_argument("--original-idea-value", required=True)
+    parser.add_argument("--catalog-url")
+    parser.add_argument("--download", action="store_true")
+    parser.add_argument("--approved", action="store_true")
+    parser.add_argument("--record-id")
+    parser.add_argument("--base-url", default="http://127.0.0.1:1234")
+    parser.add_argument("--token-env", default="LM_API_TOKEN")
+    parser.add_argument("--huggingface-url")
+    args = parser.parse_args(argv)
+    try:
+        if args.download and not args.approved:
+            raise LMStudioCatalogError("--download requires explicit --approved")
+        if args.approved and not args.download:
+            raise LMStudioCatalogError("--approved is valid only with --download")
+        if args.download and not args.record_id:
+            raise LMStudioCatalogError("--download requires --record-id")
+        from .uaie import UniversalAcquisitionIntegrationEngine
+        engine = UniversalAcquisitionIntegrationEngine(args.db)
+        path = Path(args.model_yaml_file).expanduser()
+        if path.is_symlink() or not path.is_file():
+            raise LMStudioCatalogError("model.yaml path must be a regular non-symlink file")
+        if path.stat().st_size > 256 * 1024:
+            raise LMStudioCatalogError("model.yaml exceeds the 256 KiB limit")
+        parsed = yaml.safe_load(path.read_text(encoding="utf-8"))
+        candidate = candidate_from_model_yaml(
+            parsed, original_idea_value=args.original_idea_value, catalog_url=args.catalog_url)
+        catalog_record, afi_record, register_entry = assimilate_catalog_candidate(engine, candidate)
+        if args.download:
+            job = download_catalog_candidate(
+                engine, candidate, args.record_id, approved=True,
+                base_url=args.base_url, api_token=os.environ.get(args.token_env),
+                huggingface_model_url=args.huggingface_url)
+            output = {
+                "catalog_record_id": catalog_record.record_id,
+                "afi_profile_record_id": afi_record.record_id,
+                "acquisition_id": register_entry.acquisition_id,
+                "download_job": asdict(job),
+                "download_started": job.status in {"downloading", "paused"},
+            }
+        else:
+            output = {
+                "catalog_record_id": catalog_record.record_id,
+                "afi_profile_record_id": afi_record.record_id,
+                "acquisition_id": register_entry.acquisition_id,
+                "lifecycle_status": register_entry.lifecycle_status,
+                "model_id": candidate.model_id,
+                "download_command_proposal": build_download_command(candidate),
+                "weights_downloaded": False,
+            }
+    except (OSError, UnicodeDecodeError, yaml.YAMLError, LMStudioCatalogError, ValueError) as exc:
+        print(f"UAIE model.yaml intake error: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(output, indent=2, ensure_ascii=False))
+    return 0
+
+
 def status_main(argv: Any = None) -> int:
     """Poll a download job through the official local LM Studio REST API."""
     parser = argparse.ArgumentParser(description="Check an LM Studio model download job")
