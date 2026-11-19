@@ -1,6 +1,6 @@
 # V.I.S.I.O.N. / D.D. Policy and Supervised Browser Prototype
 
-Dependency-free Node.js reference package for deterministic policy evaluation, signed execution grants, local replay protection, a policy HTTP service, supervised browser observation/navigation and signed readback verification.
+Node.js reference package for deterministic policy evaluation, signed execution grants, local replay protection, a policy HTTP service, supervised browser observation/navigation and signed readback verification. The core policy modules use Node.js built-ins; the supervised browser host uses the pinned Playwright dependency.
 
 ## Status
 
