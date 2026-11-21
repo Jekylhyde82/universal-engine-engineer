@@ -97,8 +97,11 @@ class MessageStore:
             rows=self.db.execute("SELECT body FROM outbox WHERE delivered_at IS NULL AND next_attempt<=? ORDER BY created_at LIMIT ?",(time.time(),limit)).fetchall()
         return [json.loads(row[0]) for row in rows]
 
-    async def failed_attempt(self,message_id,error,delay):
+    async def failed_attempt(self,message_id,error,base_delay,max_delay):
         async with self.lock:
+            row=self.db.execute("SELECT attempts FROM outbox WHERE message_id=? AND delivered_at IS NULL",(message_id,)).fetchone()
+            if row is None: return
+            delay=min(base_delay*(2**min(row[0],16)),max_delay)
             self.db.execute("UPDATE outbox SET attempts=attempts+1,last_error=?,next_attempt=? WHERE message_id=? AND delivered_at IS NULL",(str(error)[:1000],time.time()+delay,message_id)); self.db.commit()
 
     async def mark_delivered(self,message_id):
@@ -186,9 +189,7 @@ class EUPNNode:
             try: await self._deliver(msg,route[0],route[1])
             except asyncio.CancelledError: raise
             except Exception as exc:
-                attempts=1
-                delay=min(self.config.retry_interval*(2**min(attempts,16)),self.config.retry_max_interval)
-                await self.store.failed_attempt(msg["id"],exc,delay)
+                await self.store.failed_attempt(msg["id"],exc,self.config.retry_interval,self.config.retry_max_interval)
                 LOG.warning("Deferred delivery %s to %s: %s",msg["id"],msg["to"],exc)
 
     async def _retry_loop(self):
