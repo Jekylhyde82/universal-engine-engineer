@@ -71,7 +71,7 @@ class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
             for node_id in ("node-a", "node-b"):
                 key, csr, cert = root/f"{node_id}.key", root/f"{node_id}.csr", root/f"{node_id}.crt"
                 ext = root/f"{node_id}.ext"
-                ext.write_text("subjectAltName=DNS:localhost,URI:spiffe://eupn/"+node_id+"\\nextendedKeyUsage=serverAuth,clientAuth\\n")
+                ext.write_text("subjectAltName=DNS:localhost,URI:spiffe://eupn/"+node_id+"\nextendedKeyUsage=serverAuth,clientAuth\n")
                 run("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
                     "-keyout", str(key), "-out", str(csr), "-subj", f"/CN={node_id}")
                 run("openssl", "x509", "-req", "-in", str(csr), "-CA", str(root/"ca.crt"),
