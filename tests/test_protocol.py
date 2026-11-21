@@ -96,4 +96,5 @@ class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
             finally:
                 await sender.close()
                 await receiver.close()
-\nif __name__ == "__main__": unittest.main()
+
+if __name__ == "__main__": unittest.main()
