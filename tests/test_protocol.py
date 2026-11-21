@@ -67,7 +67,10 @@ class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
                 subprocess.run(args, check=True, capture_output=True, text=True)
             run("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
                 "-keyout", str(root/"ca.key"), "-out", str(root/"ca.crt"),
-                "-subj", "/CN=EUPN Test CA", "-days", "2")
+                "-subj", "/CN=EUPN Test CA", "-days", "2",
+                "-addext", "basicConstraints=critical,CA:TRUE",
+                "-addext", "keyUsage=critical,keyCertSign,cRLSign",
+                "-addext", "subjectKeyIdentifier=hash")
             for node_id in ("node-a", "node-b"):
                 key, csr, cert = root/f"{node_id}.key", root/f"{node_id}.csr", root/f"{node_id}.crt"
                 ext = root/f"{node_id}.ext"
