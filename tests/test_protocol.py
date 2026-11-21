@@ -2,8 +2,10 @@ import asyncio
 import json
 import tempfile
 import unittest
+import subprocess
+import socket
 from pathlib import Path
-from eupn.node import MessageStore, ProtocolError, encode_frame, read_frame, peer_identity
+from eupn.node import EUPNNode, NodeConfig, MessageStore, ProtocolError, encode_frame, read_frame, peer_identity
 
 class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
     async def test_round_trip(self):
@@ -57,4 +59,41 @@ class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(await store.pending(), [])
             await store.close()
 
-if __name__ == "__main__": unittest.main()
+
+    async def test_real_two_node_mutual_tls_delivery(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            def run(*args):
+                subprocess.run(args, check=True, capture_output=True, text=True)
+            run("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+                "-keyout", str(root/"ca.key"), "-out", str(root/"ca.crt"),
+                "-subj", "/CN=EUPN Test CA", "-days", "2")
+            for node_id in ("node-a", "node-b"):
+                key, csr, cert = root/f"{node_id}.key", root/f"{node_id}.csr", root/f"{node_id}.crt"
+                ext = root/f"{node_id}.ext"
+                ext.write_text("subjectAltName=DNS:localhost,URI:spiffe://eupn/"+node_id+"\\nextendedKeyUsage=serverAuth,clientAuth\\n")
+                run("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
+                    "-keyout", str(key), "-out", str(csr), "-subj", f"/CN={node_id}")
+                run("openssl", "x509", "-req", "-in", str(csr), "-CA", str(root/"ca.crt"),
+                    "-CAkey", str(root/"ca.key"), "-CAcreateserial", "-out", str(cert),
+                    "-days", "2", "-extfile", str(ext))
+            with socket.socket() as sock:
+                sock.bind(("127.0.0.1", 0)); port = sock.getsockname()[1]
+            common = dict(host="127.0.0.1", port=port, trusted_ca=root/"ca.crt")
+            receiver = EUPNNode(NodeConfig("node-b", database=root/"b.db",
+                certificate=root/"node-b.crt", private_key=root/"node-b.key",
+                allowed_peers=frozenset({"node-a"}), **common))
+            sender = EUPNNode(NodeConfig("node-a", database=root/"a.db",
+                certificate=root/"node-a.crt", private_key=root/"node-a.key",
+                allowed_peers=frozenset({"node-b"}), **common))
+            try:
+                await receiver.start()
+                ack = await sender.send("localhost", port, "node-b", "integration.test", {"proof": True})
+                self.assertTrue(ack["accepted"])
+                self.assertEqual(ack["by"], "node-b")
+                row = receiver.store.db.execute("SELECT sender,recipient,message_type FROM inbox").fetchone()
+                self.assertEqual(row, ("node-a", "node-b", "integration.test"))
+            finally:
+                await sender.close()
+                await receiver.close()
+\nif __name__ == "__main__": unittest.main()
