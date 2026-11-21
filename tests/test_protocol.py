@@ -47,7 +47,7 @@ class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
             msg = {"id":"m2","from":"node-a","to":"node-b","type":"event","sent_at":123.0,"payload":{"n":9}}
             store = MessageStore(path)
             await store.queue(msg)
-            await store.failed_attempt("m2", "connection refused", 60)
+            await store.failed_attempt("m2", "connection refused", 60, 300)
             self.assertEqual(await store.pending(), [])
             await store.close()
             store = MessageStore(path)
