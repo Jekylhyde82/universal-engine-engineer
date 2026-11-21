@@ -80,22 +80,34 @@ class EUPNProtocolTests(unittest.IsolatedAsyncioTestCase):
                 run("openssl", "x509", "-req", "-in", str(csr), "-CA", str(root/"ca.crt"),
                     "-CAkey", str(root/"ca.key"), "-CAcreateserial", "-out", str(cert),
                     "-days", "2", "-extfile", str(ext))
-            with socket.socket() as sock:
-                sock.bind(("127.0.0.1", 0)); port = sock.getsockname()[1]
-            common = dict(host="127.0.0.1", port=port, trusted_ca=root/"ca.crt")
-            receiver = EUPNNode(NodeConfig("node-b", database=root/"b.db",
-                certificate=root/"node-b.crt", private_key=root/"node-b.key",
-                allowed_peers=frozenset({"node-a"}), **common))
-            sender = EUPNNode(NodeConfig("node-a", database=root/"a.db",
-                certificate=root/"node-a.crt", private_key=root/"node-a.key",
-                allowed_peers=frozenset({"node-b"}), **common))
+            def free_port():
+                with socket.socket() as sock:
+                    sock.bind(("127.0.0.1", 0)); return sock.getsockname()[1]
+            receiver_port, sender_port = free_port(), free_port()
+            receiver = EUPNNode(NodeConfig("node-b", "127.0.0.1", receiver_port,
+                root/"b.db", root/"node-b.crt", root/"node-b.key", root/"ca.crt",
+                frozenset({"node-a"})))
+            sender = EUPNNode(NodeConfig("node-a", "127.0.0.1", sender_port,
+                root/"a.db", root/"node-a.crt", root/"node-a.key", root/"ca.crt",
+                frozenset({"node-b"}), peer_routes={"node-b": ("localhost", receiver_port)},
+                retry_interval=0.1))
             try:
+                await sender.start()
+                msg = {"id":"retry-proof","from":"node-a","to":"node-b",
+                       "type":"integration.retry","sent_at":123.0,"payload":{"proof":True}}
+                await sender.store.queue(msg)
+                await sender.retry_once()  # receiver is offline: message remains queued
+                self.assertEqual(sender.store.db.execute(
+                    "SELECT attempts FROM outbox WHERE message_id='retry-proof'").fetchone()[0], 1)
                 await receiver.start()
-                ack = await sender.send("localhost", port, "node-b", "integration.test", {"proof": True})
-                self.assertTrue(ack["accepted"])
-                self.assertEqual(ack["by"], "node-b")
-                row = receiver.store.db.execute("SELECT sender,recipient,message_type FROM inbox").fetchone()
-                self.assertEqual(row, ("node-a", "node-b", "integration.test"))
+                sender.store.db.execute("UPDATE outbox SET next_attempt=0 WHERE message_id='retry-proof'")
+                sender.store.db.commit()
+                await sender.retry_once()  # receiver online: queued message is delivered
+                row = receiver.store.db.execute(
+                    "SELECT sender,recipient,message_type FROM inbox WHERE message_id='retry-proof'").fetchone()
+                self.assertEqual(row, ("node-a", "node-b", "integration.retry"))
+                self.assertIsNotNone(sender.store.db.execute(
+                    "SELECT delivered_at FROM outbox WHERE message_id='retry-proof'").fetchone()[0])
             finally:
                 await sender.close()
                 await receiver.close()
