@@ -167,6 +167,10 @@ class EUPNNode:
         context=client_tls_context(self.config.certificate,self.config.private_key,self.config.trusted_ca)
         reader,writer=await asyncio.open_connection(host,port,ssl=context,server_hostname=host,ssl_handshake_timeout=10,limit=self.config.max_frame+4)
         try:
+            tls=writer.get_extra_info("ssl_object")
+            remote_id=peer_identity(tls.getpeercert() if tls else None)
+            if remote_id != msg["to"]:
+                raise PeerRejected("remote certificate SAN identity does not match intended recipient")
             writer.write(encode_frame(msg,self.config.max_frame)); await writer.drain()
             async with asyncio.timeout(self.config.read_timeout): ack=await read_frame(reader,self.config.max_frame)
             if ack.get("type")!="ack" or ack.get("id")!=msg["id"] or ack.get("accepted") is not True or ack.get("by")!=msg["to"]: raise ProtocolError("missing, mismatched or unauthenticated application ACK")
