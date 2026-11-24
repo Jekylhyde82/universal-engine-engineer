@@ -198,3 +198,13 @@ Added:
 ### CI failure and correction — 2026-11-25
 
 The first CI execution of the envelope/world-model integration batch exposed two stale test constructor calls after the world model was strengthened to require an evidence-ledger path. The failing job log identified both errors precisely. Both test call sites have now been corrected to provide the ledger path. The schema tests and all other runtime tests passed in that failed run; the corrected integration batch is awaiting a fresh CI execution. The failed run is retained in the history and is not represented as a pass.
+
+
+## Evidence runtime and checkpoint increment — 2026-11-25
+
+- WP-B now has a standard-library SQLite evidence-ledger prototype with SHA-256 payload digests, canonical record hashes, append-only mutation guards, hash-chain verification and sequence-continuity checks.
+- WP-B/WP-C now include an observation-envelope adapter and a typed evidence-linked world-assertion prototype. Conflicting assertions remain separately represented.
+- An externally retained checkpoint mechanism now records the ledger sequence and hash and verifies that the ledger still contains that exact prefix. This detects truncation before the checkpointed sequence when the checkpoint is retained separately.
+- Checkpoints are **not signed or authenticated** in this increment. The destination must be independently access-controlled and retained. If an attacker can replace both the database and checkpoint, this mechanism alone does not establish authenticity.
+- GitHub Actions run [45483552676](https://github.com/Jekyllhyde82/universal-engine-engineer/actions/runs/45483552676) passed both the schema-contract and evidence-ledger runtime steps on commit `059d14f45ac6100511b46d192de6d7c2e7dac8dc`.
+- The runtime remains a prototype. Authenticated verifier identities, signed checkpoints, secure key management, concurrency/rollback testing, Android acquisition, OCR, production AFI PRIME orchestration and target-device benchmarks remain outstanding.
