@@ -148,5 +148,38 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "lifecycle_state": {
+            "enum": [
+              "approved",
+              "integrated"
+            ]
+          }
+        },
+        "required": [
+          "lifecycle_state"
+        ]
+      },
+      "then": {
+        "required": [
+          "artifact_digest",
+          "provenance"
+        ],
+        "properties": {
+          "provenance": {
+            "required": [
+              "source_uri",
+              "source_revision",
+              "licence",
+              "review_record"
+            ]
+          }
+        }
+      }
+    }
+  ]
 }
