@@ -79,6 +79,8 @@ class AFIPrimeFusionTests(unittest.TestCase):
         self.assertEqual([item.provider_id for item in result.outcomes], ["brainstorm", "critic"])
         self.assertEqual(result.outcomes[0].result.output["finding"], "three alternatives")
         self.assertEqual(result.outcomes[1].result.output["finding"], "one risk")
+        self.assertTrue(all(len(item.request_sha256) == 64 for item in result.outcomes))
+        self.assertTrue(all(len(item.result_sha256) == 64 for item in result.outcomes))
         self.assertEqual((brainstorm.calls, critic.calls), (1, 1))
 
     def test_denied_specialist_is_not_called_and_successful_peer_is_preserved(self):
