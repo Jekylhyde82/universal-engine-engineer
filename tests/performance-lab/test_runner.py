@@ -145,7 +145,9 @@ def test_run_preflights_late_schema_invalid_record_before_writing(tmp_path):
         for condition in conditions:
             payload[test_id][condition + "_configuration"] = {"model": "test"}
             payload[test_id][condition] = [
-                {"output": "one"}, {"output": "two"}, {"output": "three"}
+                {"output": "one", **_synthetic_evidence_fields()},
+                {"output": "two", **_synthetic_evidence_fields()},
+                {"output": "three", **_synthetic_evidence_fields()},
             ]
     # Fail at the final PL-005 arm/repetition, after every earlier arm is valid.
     payload["PL-005"]["fused"][2]["scores"] = {"invented_dimension": 4}
