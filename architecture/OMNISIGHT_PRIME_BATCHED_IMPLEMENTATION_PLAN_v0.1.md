@@ -32,3 +32,28 @@ A user-authorised Android screen capture produces a frame; OpenCV prepares a der
 ## Release gate
 
 No deployment or operational claim until target-device tests, privacy/security review, licence review, failure handling, rollback and independent verification are documented and approved.
+
+
+## Additional work package — security and privacy
+
+| Work package | Deliverable | Dependency | Exit evidence |
+|---|---|---|---|
+| WP-I Security/privacy | Threat model, consent and permission design, untrusted-input isolation, storage/retention controls, supply-chain assurance | Initial design can proceed independently; implementation gates apply to WP-B through WP-G | Threat review, abuse-case tests, privacy lifecycle evidence and independent security acceptance |
+
+WP-I design baseline is recorded in `architecture/OMNISIGHT_PRIME_SECURITY_PRIVACY_THREAT_MODEL_v0.1.md`. It is proposed for review and does not represent implemented controls.
+
+## Execution status snapshot — 2026-11-25
+
+| Work package | Current state | Evidence / remaining gate |
+|---|---|---|
+| WP-A Contracts | PARTIALLY DELIVERED | Capability-manifest and observation-envelope Draft 2020-12 schemas, test suite and CI workflow committed. CI has not produced a verified run; schema tests are therefore NOT YET VERIFIED. |
+| WP-B Evidence Fabric | NOT STARTED | Record model, storage, digest chain, retention and tamper tests remain. |
+| WP-C World Model | NOT STARTED | Typed entity/assertion model, temporal relations and contradiction handling remain. |
+| WP-D Android acquisition | NOT STARTED | Consent-gated MediaProjection implementation and device verification remain. |
+| WP-E OCR/image adapters | NOT STARTED | Adapter implementation and labelled accuracy/geometry benchmark remain. |
+| WP-F AFI orchestration | DESIGN INTERFACE PENDING | Must bind to the repository's canonical AFI PRIME and existing nine-instance runtime; do not create a competing fusion authority. |
+| WP-G Independent verification | DESIGN INTERFACE PENDING | Must preserve separation from producers and return UNKNOWN when evidence is absent or unverifiable. |
+| WP-H Device/performance | NOT STARTED | Target-device measurement required; no performance assumptions are accepted as results. |
+| WP-I Security/privacy | DESIGN BASELINE DELIVERED | Threat model v0.1 committed; review and all implementation/abuse-case gates remain. |
+
+The current branch is a design-and-contract increment, not a runnable OMNISIGHT runtime. Keep the PR in draft until contract CI has run on the exact head, architecture and security reviews are complete, and implementation changes are separately tested.
