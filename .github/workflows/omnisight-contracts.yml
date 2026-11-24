@@ -9,6 +9,7 @@ on:
       - "architecture/vision-dd-production-spec"
     paths:
       - "schemas/omnisight/**"
+      - "runtime/omnisight_evidence/**"
       - ".github/workflows/omnisight-contracts.yml"
 
 permissions:
