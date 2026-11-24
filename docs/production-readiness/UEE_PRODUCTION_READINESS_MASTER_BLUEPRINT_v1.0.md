@@ -172,8 +172,8 @@ Dependency relationships: #16 → #18 → (#20, #23, #29, #31); #23 → #24 → 
 
 | PR | Work | Base branch | Current evidence/disposition |
 |---|---|---|---|
-| #25 | V.I.S.I.O.N. + D.D. production architecture and prototype | #3 branch | Exact observed head has successful policy, CodeQL and nine-instance runtime workflows. 132 policy tests and 8 runtime isolation tests are reported for the implementation line. Prototype only; release decision NO-GO. |
-| #28 | Separate read-only V.I.S.I.O.N. evidence verifier | #25 branch | Exact observed head has a successful policy workflow. Adds 8 HTTP-level verifier tests; provider remains injected and must be independently operated. No production verifier deployment. |
+| #25 | V.I.S.I.O.N. + D.D. production architecture and prototype | #3 branch | Exact observed head has successful policy, CodeQL and nine-instance runtime workflows. Run logs show 132 policy tests and 13 runtime tests passed. Prototype only; release decision NO-GO. |
+| #28 | Separate read-only V.I.S.I.O.N. evidence verifier | #25 branch | Exact observed head has a successful policy workflow. Run logs show 140 policy tests passed (including the 8 new HTTP verifier tests) and 13 runtime tests passed. Provider remains injected and must be independently operated. No production verifier deployment. |
 
 Dependency relationship: #3 → #25 → #28.
 
@@ -202,7 +202,7 @@ Both are draft PRs and must remain unmerged until their code review, security re
 
 ### H. Evidence interpretation
 
-Successful CI runs were confirmed on the observed branch heads for PR #11, #12, #13, #16, #20, #25, #27, #28, #32 and #33. For PR #32, the logged suite ran 11 tests. For PR #33, the logged Python 3.11 job ran 8 tests; the workflow matrix also completed successfully on Python 3.12 and 3.13. PR #25's exact observed head had successful policy, CodeQL and nine-instance runtime workflows; PR #28's exact observed head had a successful policy workflow.
+Successful CI runs were confirmed on the observed branch heads for PR #11, #12, #13, #16, #20, #25, #27, #28, #32 and #33. For PR #32, the logged suite ran 11 tests. For PR #33, the logged Python 3.11 job ran 8 tests; the workflow matrix also completed successfully on Python 3.12 and 3.13. PR #25's exact observed head logged 132 policy tests and 13 runtime tests passing, plus successful CodeQL. PR #28's exact observed head logged 140 policy tests and 13 runtime tests passing; the 140 policy tests include the eight added verifier HTTP tests.
 
 No exact-head workflow run was found in this inspection for PR #18, #23, #29, #30 or #31. PR #14 and #15 are documentation/specification branches without a claimed implementation test. A CI pass proves only the tests and commit actually run. CodeQL workflow success does not establish an empty or reviewed alert inventory. A debug APK artifact is not a production-signed release. A prototype is not a deployment.
 
