@@ -181,6 +181,15 @@ def command_run(args) -> int:
                 if not isinstance(result, dict):
                     print(f"{test_id}/{condition}/{index}: repetition must be an object", file=sys.stderr)
                     return 2
+                required_evidence = ("trial_execution", "assessor", "adversarial_review", "assessment")
+                missing_evidence = [field for field in required_evidence if field not in result]
+                if missing_evidence:
+                    print(
+                        f"{test_id}/{condition}/{index}: missing required provenance fields: "
+                        + ", ".join(missing_evidence),
+                        file=sys.stderr,
+                    )
+                    return 2
                 output = result.get("output", "")
                 if not isinstance(output, str) or not output.strip():
                     print(f"{test_id}/{condition}/{index}: non-empty output required", file=sys.stderr)
@@ -223,6 +232,8 @@ def command_run(args) -> int:
                     "commit_sha": result.get("commit_sha", ""),
                     "notes": result.get("notes", "")
                 }
+                for evidence_field in ("trial_execution", "assessor", "adversarial_review", "assessment"):
+                    record[evidence_field] = result[evidence_field]
                 problems = validate_record(record, schema)
                 if problems:
                     print(f"{test_id}/{condition}/{index}: " + "; ".join(problems), file=sys.stderr)
