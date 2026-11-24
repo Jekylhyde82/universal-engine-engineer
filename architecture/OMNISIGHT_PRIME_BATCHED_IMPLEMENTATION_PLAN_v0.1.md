@@ -46,7 +46,7 @@ WP-I design baseline is recorded in `architecture/OMNISIGHT_PRIME_SECURITY_PRIVA
 
 | Work package | Current state | Evidence / remaining gate |
 |---|---|---|
-| WP-A Contracts | PARTIALLY DELIVERED | Capability-manifest and observation-envelope Draft 2020-12 schemas, test suite and CI workflow committed. CI has not produced a verified run; schema tests are therefore NOT YET VERIFIED. |
+| WP-A Contracts | CONTRACT BASELINE VERIFIED | Capability-manifest and observation-envelope Draft 2020-12 schemas; GitHub Actions run 45480218880 passed all 15 schema/contract tests on the PR merge ref containing head 921c40fa0de2dab63afceaf1b40eb32122c661b1. Runtime compatibility and downstream contract integration remain. |
 | WP-B Evidence Fabric | NOT STARTED | Record model, storage, digest chain, retention and tamper tests remain. |
 | WP-C World Model | NOT STARTED | Typed entity/assertion model, temporal relations and contradiction handling remain. |
 | WP-D Android acquisition | NOT STARTED | Consent-gated MediaProjection implementation and device verification remain. |
@@ -57,3 +57,11 @@ WP-I design baseline is recorded in `architecture/OMNISIGHT_PRIME_SECURITY_PRIVA
 | WP-I Security/privacy | DESIGN BASELINE DELIVERED | Threat model v0.1 committed; review and all implementation/abuse-case gates remain. |
 
 The current branch is a design-and-contract increment, not a runnable OMNISIGHT runtime. Keep the PR in draft until contract CI has run on the exact head, architecture and security reviews are complete, and implementation changes are separately tested.
+
+
+### WP-A verification evidence
+
+- GitHub Actions run [45480218880](https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/45480218880): SUCCESS.
+- 15 tests passed, 0 failed, using Python 3.12.16 and `jsonschema[format]==4.23.0`.
+- PR head under test: `921c40fa0de2dab63afceaf1b40eb32122c661b1`; CI checked out merge ref `9a7f1adff742f2c262b2344c8b740a97b842b80d`.
+- This closes the initial schema-definition and fixture-validation gate only. It does not establish runtime, security, device, model-quality or production acceptance.
