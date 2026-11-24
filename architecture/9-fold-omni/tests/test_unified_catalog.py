@@ -23,7 +23,7 @@ class UnifiedCapabilityCatalogTests(unittest.TestCase):
     def test_external_candidates_deduplicated_by_repository(self):
         repos = [item['repository'].rstrip('/').lower() for item in self.data['external_candidates']]
         self.assertEqual(len(repos), len(set(repos)))
-        self.assertGreaterEqual(len(repos), 25)
+        self.assertEqual(len(repos), 30)
 
     def test_candidate_provenance_and_disposition_retained(self):
         for item in self.data['external_candidates']:
