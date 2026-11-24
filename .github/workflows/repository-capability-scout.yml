@@ -2,6 +2,8 @@ name: Repository Capability Scout checks
 
 on:
   pull_request:
+    branches:
+      - "architecture/vision-dd-production-spec"
     paths:
       - "tools/repository-capability-scout/**"
       - "tests/repository-capability-scout.test.mjs"
@@ -9,6 +11,7 @@ on:
   push:
     branches:
       - "production/repository-capability-scout-hardening-v0.2"
+      - "architecture/omnisight-ninefold-intrinsic-v0.1"
 
 permissions:
   contents: read
