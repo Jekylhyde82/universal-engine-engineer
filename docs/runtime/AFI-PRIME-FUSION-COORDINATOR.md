@@ -19,6 +19,7 @@ It does not create a second fusion authority. It is an implementation component 
 5. Independent invocations execute concurrently, bounded by the configured max_workers value (default 9).
 6. One provider exception is captured as a failed specialist outcome; healthy peers can still complete.
 7. The result envelope preserves outcomes in caller-supplied order. It reports succeeded, partial, denied or failed without collapsing specialist findings into an unsupported consensus.
+8. An optional SQLite fusion evidence sink can atomically record one hash-chained, digest-only event per specialist outcome.
 
 ## Minimal usage
 
@@ -29,6 +30,7 @@ The public API is AFIPrimeFusionCoordinator, ProviderRequest and SpecialistInvoc
 3. Construct AFIPrimeFusionCoordinator(registry, policy_engine, max_workers=9).
 4. Call coordinator.fuse([...], principal_id=authenticated_principal_id) with explicit SpecialistInvocation objects.
 5. Inspect each returned outcome independently; do not treat the aggregate status as a correctness certificate.
+6. When durable evidence is required, configure SQLiteFusionEvidenceLedger as the coordinator's evidence_sink. It stores request/result hashes and execution metadata, not raw prompt or output content.
 
 A typical invocation contains a provider ID and a ProviderRequest with a unique UUID correlation ID, the registered capability ID, an operation and a JSON-compatible payload. The names in this example are illustrative; they do not imply production provider registrations.
 
@@ -40,13 +42,15 @@ A typical invocation contains a provider ID and a ProviderRequest with a unique 
 - It does not grant providers access to each other or to another instance's state.
 - It does not synthesize semantic consensus, erase disagreement, certify correctness or replace an independent verifier.
 - It does not automatically retry failed calls.
+- If the configured evidence sink fails after specialist execution, FusionEvidencePersistenceError is raised with the completed FusionResult attached. Providers have already run; do not blindly retry the whole fusion batch.
 - Provider exceptions are represented by a generic failure class and exception type; raw exception text and stack traces are not exposed in the result.
 - The request deadline is checked by the dispatch boundary before provider execution. It does not forcibly interrupt a provider that is already running.
 - Concurrent execution uses in-process threads. It is not a process, container, VM or operating-system security boundary. Provider adapters must be safe for the configured concurrency level.
 - The separate nine-process runtime proof demonstrates scoped process/state/evidence behaviour; it is not this Python coordinator and is not a production sandbox.
+- The SQLite fusion ledger is local and hash-chained, not immutable against a privileged database owner. Production requires external anchoring, access controls, backup and restore procedures.
 
 ## Tests
 
-tests/test_fusion.py covers multi-specialist dispatch, preservation of separate findings, per-specialist denial, preflight rejection without side effects, provider-failure isolation, duplicate correlation rejection and default-deny behaviour.
+tests/test_fusion.py covers multi-specialist dispatch, preservation of separate findings, per-specialist denial, preflight rejection without side effects, provider-failure isolation, duplicate correlation rejection and default-deny behaviour. tests/test_fusion_evidence.py covers digest-only recording, tamper detection, persistence across reopen, duplicate rejection, coordinator-to-ledger integration and evidence-write failure reporting.
 
 **Proof discipline:** passing these tests demonstrates only the tested coordination contract. It does not establish model quality, semantic reasoning, production security, operational readiness or independent verification.
