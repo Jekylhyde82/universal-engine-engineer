@@ -49,6 +49,19 @@ class UnifiedCapabilityCatalogTests(unittest.TestCase):
         for item in self.data['intrinsic_capabilities'] + self.data['visual_capability_domains']:
             self.assertIsNone(item['lineage_mapping'])
 
+    def test_afi_prime_implementation_components_remain_inside_one_fusion_authority(self):
+        items = {item["id"]: item for item in self.data["intrinsic_capabilities"]}
+        coordinator = items["INT-AFI-PRIME-COORDINATOR"]
+        evidence = items["INT-AFI-PRIME-FUSION-EVIDENCE"]
+        self.assertIsNone(coordinator["lineage_mapping"])
+        self.assertIsNone(evidence["lineage_mapping"])
+        self.assertEqual(coordinator["lifecycle_state"], "under_evaluation")
+        self.assertEqual(evidence["lifecycle_state"], "under_evaluation")
+        self.assertIn("not_merged", coordinator["maturity"])
+        self.assertIn("not_merged", evidence["maturity"])
+        self.assertEqual(self.data["governance"]["additional_fusion_authorities"], 0)
+        self.assertEqual(self.data["governance"]["additional_umic_instances"], 0)
+
     def test_closed_unmerged_variants_remain_distinct(self):
         prs = {item['number']: item for item in self.data['repository_work_portfolio']}
         self.assertEqual(prs[21]['state'], 'closed_unmerged')
