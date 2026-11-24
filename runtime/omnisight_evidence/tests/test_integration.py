@@ -40,7 +40,7 @@ class EnvelopeAndWorldModelTests(unittest.TestCase):
         self.assertEqual(envelope["epistemic_status"], "interpreted")
 
     def test_world_assertion_requires_evidence_reference(self):
-        model = WorldModel(self.root / "world.sqlite3")
+        model = WorldModel(self.root / "world.sqlite3", self.root / "evidence.sqlite3")
         assertion = model.add_assertion(
             subject_id="entity:button-1", predicate="has_label",
             object_value="Save", epistemic_status="interpreted",
@@ -57,6 +57,13 @@ class EnvelopeAndWorldModelTests(unittest.TestCase):
                 object_value="Save", epistemic_status="verified",
                 evidence_record_id=self.record.record_id,
             )
+
+    def test_world_model_rejects_unknown_evidence_record(self):
+        model = WorldModel(self.root / "world.sqlite3", self.root / "evidence.sqlite3")
+        with self.assertRaisesRegex(ValueError, "does not exist"):
+            model.add_assertion(subject_id="entity:1", predicate="label",
+                object_value="unknown", epistemic_status="observed",
+                evidence_record_id="missing-record")
 
     def test_world_model_preserves_conflicting_assertions(self):
         model = WorldModel(self.root / "world.sqlite3")
