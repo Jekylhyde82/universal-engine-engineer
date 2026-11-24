@@ -598,18 +598,26 @@ No PR should be merged solely because its CI passes. Merge requires code review,
 
 ## 15. Current readiness determination
 
-**Overall status: NOT PRODUCTION-READY.**
+**Overall status: NOT PRODUCTION-READY — RELEASE DECISION NO-GO.**
 
-Reason:
-- The default branch is only a minimal README baseline.
-- Two substantive implementations are on separate draft PR branches.
-- The STARWIRE PR explicitly identifies an unresolved DNS-rebinding risk and production controls.
-- The EUPN PR has a reported passing multi-version CI run and two-node test, but explicitly lacks production deployment and several security/operational controls.
-- The full current 90-System and 184-entry Architecture Registers have not been recovered.
-- Independent security and production verification have not been evidenced.
-- No live production deployment has been established by this inspection.
+The repository contains substantial prototype and engineering work across multiple open PR branches, but the default branch remains a minimal starter README and the substantive work has not been reconciled into one reviewed, releasable baseline.
 
-This determination does not dismiss the progress represented by the two prototypes. It prevents prototype progress from being misrepresented as production readiness.
+Evidence and blockers:
+- Open PRs #1–#34 remain unmerged; many are stacked. A branch dependency graph is documented in Section 2.4. No blanket merge is authorised.
+- PR #16 has a successful exact-head Python CI run and implements a useful provider-neutral runtime foundation. It still lacks production identity/authentication, distributed authorisation, external audit anchoring, full evaluation harnesses, upstream integration validation and operations.
+- PR #18 is the local-first UAIE vertical slice, but no matching exact-head CI run was found. Its historical 76-test claim is not accepted as current-head evidence.
+- PR #20 has a successful exact-head debug-APK workflow, but no production signing, physical OPPO A6/Android 16 acceptance, remote sync or authentication.
+- PR #25 and #28 have successful exact-head policy/runtime/CodeQL workflows as applicable. They remain V.I.S.I.O.N./D.D. prototypes; production identity, trusted approval, hardened isolation, independently operated evidence, visual calibration/redaction, Android companion, operational controls and independent penetration testing remain outstanding.
+- PR #32 passed 11 tests on Python 3.12; DNS rebinding/egress enforcement, robots/source-terms enforcement, source-payload evidence integrity, operational controls and independent security review remain open.
+- PR #33 passed its 8-test Python 3.11 job and the Python 3.12/3.13 matrix; certificate lifecycle, application-level authorisation, resource limits, backup/recovery and operations remain open.
+- PR #11, #12, #13 and #27 have successful observed-head CI runs, but those results prove harness or static smoke-test behaviour only. They do not prove authentic benchmark outcomes, browser end-to-end acceptance or independent security approval.
+- PR #14 and #15 are specification/research work; the recurring upstream audit has not been evidenced as having run.
+- Exact-head CI was not found for PR #18, #23, #29, #30 or #31 during this inspection.
+- The complete authoritative 90-System and 184-Architecture Registers remain unrecovered; 18 Responsibility Layer records also require authoritative reconciliation.
+- The connected Supabase inventory contains no project explicitly identified as the UEE/UAIE production environment. Production infrastructure remains unassigned; no new billable resource or unrelated project has been used.
+- No independently verified production deployment, signed release artefact, operational monitoring, incident response, tested disaster recovery or authorised release decision has been evidenced.
+
+This is not a judgement that the prototype work is worthless. It is a precise boundary between prototype progress, tested code and production acceptance.
 
 ## 16. Definition of completion
 
