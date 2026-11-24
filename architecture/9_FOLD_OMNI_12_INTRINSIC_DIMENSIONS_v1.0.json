@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "register_id": "UEE-9FO-DIM-012",
+  "title": "NINEFOLD INTRINSIC — Twelve Intrinsic Dimensions",
+  "count": 12,
+  "dimensions": [
+    {
+      "id": "DIM-01",
+      "name": "OMNI",
+      "responsibility": "Universal scope, cross-domain coherence and whole-system awareness.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-02",
+      "name": "GENESIS",
+      "responsibility": "Origin, creation, bootstrapping, initialisation and provenance of new entities and systems.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-03",
+      "name": "NEXUS",
+      "responsibility": "Connectivity, relationships, interfaces, dependency topology and coordinated interoperability.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-04",
+      "name": "CHRONOS",
+      "responsibility": "Temporal reasoning: history, sequencing, forecasting, temporal patterns and time-aware analysis.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-05",
+      "name": "TEMPORAL",
+      "responsibility": "Temporal operations: scheduling, deadlines, state transitions, continuity and time-bound execution governance.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-06",
+      "name": "QUANTUM",
+      "responsibility": "Fine-grained state, uncertainty, probabilistic reasoning, alternatives and high-resolution analysis; no unsupported quantum-computing claims.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-07",
+      "name": "EVOLUTION",
+      "responsibility": "Adaptation, learning, controlled improvement, lifecycle progression and reversible change.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-08",
+      "name": "ALPHA",
+      "responsibility": "Foundational initiation, baseline capability, first-principles reasoning and controlled genesis of capability.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-09",
+      "name": "OMEGA",
+      "responsibility": "Completion criteria, integrity, lifecycle closure, value assurance and end-to-end outcome validation.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-10",
+      "name": "META",
+      "responsibility": "Self-description, abstraction, architecture reasoning, model-of-models and reflective system analysis.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-11",
+      "name": "COSMIC",
+      "responsibility": "Large-scale context, cross-environment integration, distributed scope and multi-system coordination.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "DIM-12",
+      "name": "AFI PRIME",
+      "responsibility": "Unified specialist orchestration and evidence-preserving fusion across nine governed UMIC-scoped instances; one canonical fusion function.",
+      "kind": "intrinsic_architectural_dimension",
+      "lifecycle_state": "proposed",
+      "activation": "not_claimed"
+    }
+  ],
+  "clarifications": [
+    "CHRONOS is temporal reasoning; TEMPORAL is time-dependent operational governance.",
+    "AFI PRIME remains one canonical fusion function instantiated in nine governed UMIC contexts.",
+    "Dimensions are responsibility scopes, not additional UMICs, lineage slots, runtime processes or fusion authorities."
+  ]
+}
