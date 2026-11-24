@@ -1,9 +1,9 @@
 name: Python Core
 on:
   push:
-    branches: ["main", "runtime/**"]
+    branches: ["main", "runtime/**", "architecture/omnisight-ninefold-intrinsic-v0.1"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "architecture/vision-dd-production-spec"]
 permissions:
   contents: read
 jobs:
