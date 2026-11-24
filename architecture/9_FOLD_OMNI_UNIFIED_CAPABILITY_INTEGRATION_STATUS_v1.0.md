@@ -46,7 +46,7 @@ The complete branch names, base relationships and source URLs are recorded in th
 
 ## Verification evidence observed
 
-- PR 35 exact head `0f4a75950d9beada2bccb6af6fc9afd3f9420684`: all six current-head PR workflows passed — Python Core `45497045250` (**164 tests**, including AFI PRIME coordination and digest-only evidence persistence, plus 11 STARWIRE tests and 21 Performance Lab tests), OMNISIGHT PRIME contract validation `45497045197` (schema, provider-neutral runtime, STARWIRE, Performance Lab, unified capability catalogue and evidence-ledger runtime), Performance Lab validation `45497045091`, Repository Capability Scout `45497045050`, V.I.S.I.O.N./D.D. policy core `45497045131`, and NINEFOLD AFI PRIME runtime proof `45497044992` (registry validation, syntax checks and 13 nine-instance isolation/fault-containment tests).
+- PR 35 exact head `b7311066906fd9836d9e2ca26626dce09551e02d`: all six current-head PR workflows passed — Python Core `45497229777` (**164 tests**, including AFI PRIME coordination and digest-only evidence persistence, plus 11 STARWIRE tests and 21 Performance Lab tests), OMNISIGHT PRIME contract validation `45497229793`, Performance Lab validation `45497229769`, Repository Capability Scout `45497229695`, V.I.S.I.O.N./D.D. policy core `45497229910`, and NINEFOLD AFI PRIME runtime proof `45497229791` (registry validation, syntax checks and 13 nine-instance isolation/fault-containment tests).
 - PR 16 source commit `b203fe639b154d7337e37be450a5f62ca16cced6`: Python Core workflow `44291437259` passed.
 - PR 27 source commit `ca87a08e020d71ea7e191a645542d67ea113c7c2`: Repository Capability Scout checks `44460118557` passed.
 - PR 32 source commit `53809085703e9f0d96b20f848334d8aec96c3e09`: STARWIRE CI `44619132868` passed.
