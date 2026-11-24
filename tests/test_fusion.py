@@ -1,8 +1,11 @@
 import unittest
 from uuid import uuid4
 
-from universal_engine.contracts import ProviderRequest, ProviderResult, ResultStatus, ContractViolation
-from universal_engine.fusion import AFIPrimeFusionCoordinator, FusionStatus, FUSION_FUNCTION_ID, SpecialistInvocation
+from universal_engine import (
+    AFIPrimeFusionCoordinator, ContractViolation, FusionStatus,
+    ProviderRequest, ProviderResult, ResultStatus, SpecialistInvocation,
+)
+from universal_engine.fusion import FUSION_FUNCTION_ID
 from universal_engine.lifecycle import LifecycleState
 from universal_engine.policy import PolicyEngine, PolicyRule
 from universal_engine.providers.registry import ProviderKind, ProviderRegistry
