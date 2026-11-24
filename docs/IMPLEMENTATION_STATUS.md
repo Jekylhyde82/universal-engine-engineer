@@ -180,3 +180,16 @@ The CI workflow now includes the runtime test suite and its pull-request path fi
 **Verification state:** Runtime tests are committed but no CI run for this runtime increment has yet been observed. Do not claim runtime tests passed until a successful run for the updated branch is inspected.
 
 **Scope boundary:** This is an executable evidence-ledger prototype, not full VEF integration. It does not capture screen/camera data, store raw media, implement OCR, authenticate verifier identity, provide external anti-truncation checkpoints, encrypt storage, or provide Android integration. A `verification_ref` is currently a reference string, not cryptographic proof that an independent verifier acted.
+
+
+### Evidence-to-envelope and world-model integration batch — 2026-11-25
+
+Added:
+- `runtime/omnisight_evidence/envelope.py`: maps persisted evidence records to the published observation-envelope v0.1.0 shape, retaining source digest, producer/version, evidence reference and epistemic status. It does not upgrade interpretations to verified.
+- `runtime/omnisight_evidence/world_model.py`: typed SQLite assertions with observed/interpreted/inferred/verified states, conflict preservation, and mandatory evidence references. Each assertion checks the referenced VEF ledger integrity and record existence before insertion.
+- Integration tests for envelope mapping, non-escalation of epistemic status, verified-assertion reference requirements, unknown evidence rejection and conflicting assertions.
+- A direct JSON Schema validation test for the runtime envelope adapter using the published Draft 2020-12 schema.
+
+**Verification state:** CI run #35 passed the prior evidence-ledger batch. The envelope/world-model integration batch is committed after that run; a successful CI run for this newer head has not yet been observed. Do not mark this batch verified until its CI result is checked.
+
+**Remaining limitations:** The world model is a typed assertion store, not yet a full entity-resolution, temporal graph or causal model. Verifier identity is not cryptographically authenticated. Android capture, OCR, production AFI orchestration and target-device benchmarks remain unimplemented.
