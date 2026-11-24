@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-engine-engineer.invalid/schemas/omnisight/observation-envelope.schema.json",
+  "title": "OMNISIGHT PRIME Observation Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "observation_id",
+    "correlation_id",
+    "source",
+    "region",
+    "content_type",
+    "result",
+    "producer",
+    "epistemic_status",
+    "evidence_refs",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "captured_at",
+        "media_digest"
+      ],
+      "properties": {
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "captured_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "media_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "session_ref": {
+          "type": "string"
+        },
+        "provenance_ref": {
+          "type": "string"
+        }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coordinate_frame",
+        "shape",
+        "coordinates"
+      ],
+      "properties": {
+        "coordinate_frame": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shape": {
+          "enum": [
+            "rectangle",
+            "polygon",
+            "point",
+            "full_frame",
+            "unknown"
+          ]
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "units": {
+          "type": "string"
+        }
+      }
+    },
+    "content_type": {
+      "enum": [
+        "text",
+        "object",
+        "icon",
+        "control",
+        "document",
+        "diagram",
+        "chart",
+        "scene",
+        "motion",
+        "spatial",
+        "other"
+      ]
+    },
+    "result": {
+      "type": [
+        "object",
+        "array",
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ]
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capability_id",
+        "semantic_version"
+      ],
+      "properties": {
+        "capability_id": {
+          "type": "string"
+        },
+        "semantic_version": {
+          "type": "string"
+        }
+      }
+    },
+    "epistemic_status": {
+      "enum": [
+        "observed",
+        "interpreted",
+        "inferred",
+        "verified"
+      ]
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "calibration_ref": {
+          "type": "string"
+        },
+        "meaning": {
+          "type": "string"
+        }
+      }
+    },
+    "evidence_refs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "epistemic_status": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "epistemic_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "verification_ref"
+        ]
+      }
+    }
+  ]
+}

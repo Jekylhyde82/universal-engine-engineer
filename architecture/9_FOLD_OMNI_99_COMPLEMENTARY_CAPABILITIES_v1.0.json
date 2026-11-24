@@ -1,0 +1,1175 @@
+{
+  "schema_version": "1.0.0",
+  "register_id": "UEE-9FO-UCC-099",
+  "title": "9 FOLD OMNI — 99 Complementary Universal Engine Capabilities",
+  "status": "PROPOSED_ARCHITECTURE_SET",
+  "origin": "New, explicitly versioned reconstruction. The exact historical 99-name draft was not recoverable; this file does not claim verbatim recovery.",
+  "design_intent": "Provide end-to-end complementary coverage for the Universal Engine / Engineer across cognition, discovery, foresight, engineering, perception, execution, assurance, memory and evolution.",
+  "division_count": 9,
+  "capabilities_per_division": 11,
+  "total_capabilities": 99,
+  "divisions": [
+    {
+      "id": "UCC-DIV-01",
+      "name": "Universal Intelligence & Cognition",
+      "capability_ids": [
+        "UCC-01-01",
+        "UCC-01-02",
+        "UCC-01-03",
+        "UCC-01-04",
+        "UCC-01-05",
+        "UCC-01-06",
+        "UCC-01-07",
+        "UCC-01-08",
+        "UCC-01-09",
+        "UCC-01-10",
+        "UCC-01-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-02",
+      "name": "Discovery & Knowledge Acquisition",
+      "capability_ids": [
+        "UCC-02-01",
+        "UCC-02-02",
+        "UCC-02-03",
+        "UCC-02-04",
+        "UCC-02-05",
+        "UCC-02-06",
+        "UCC-02-07",
+        "UCC-02-08",
+        "UCC-02-09",
+        "UCC-02-10",
+        "UCC-02-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-03",
+      "name": "Prediction, Simulation & Foresight",
+      "capability_ids": [
+        "UCC-03-01",
+        "UCC-03-02",
+        "UCC-03-03",
+        "UCC-03-04",
+        "UCC-03-05",
+        "UCC-03-06",
+        "UCC-03-07",
+        "UCC-03-08",
+        "UCC-03-09",
+        "UCC-03-10",
+        "UCC-03-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-04",
+      "name": "Engineering & Creation",
+      "capability_ids": [
+        "UCC-04-01",
+        "UCC-04-02",
+        "UCC-04-03",
+        "UCC-04-04",
+        "UCC-04-05",
+        "UCC-04-06",
+        "UCC-04-07",
+        "UCC-04-08",
+        "UCC-04-09",
+        "UCC-04-10",
+        "UCC-04-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-05",
+      "name": "Universal Perception & Situational Awareness",
+      "capability_ids": [
+        "UCC-05-01",
+        "UCC-05-02",
+        "UCC-05-03",
+        "UCC-05-04",
+        "UCC-05-05",
+        "UCC-05-06",
+        "UCC-05-07",
+        "UCC-05-08",
+        "UCC-05-09",
+        "UCC-05-10",
+        "UCC-05-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-06",
+      "name": "Autonomy, Coordination & Execution",
+      "capability_ids": [
+        "UCC-06-01",
+        "UCC-06-02",
+        "UCC-06-03",
+        "UCC-06-04",
+        "UCC-06-05",
+        "UCC-06-06",
+        "UCC-06-07",
+        "UCC-06-08",
+        "UCC-06-09",
+        "UCC-06-10",
+        "UCC-06-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-07",
+      "name": "Security, Integrity & Assurance",
+      "capability_ids": [
+        "UCC-07-01",
+        "UCC-07-02",
+        "UCC-07-03",
+        "UCC-07-04",
+        "UCC-07-05",
+        "UCC-07-06",
+        "UCC-07-07",
+        "UCC-07-08",
+        "UCC-07-09",
+        "UCC-07-10",
+        "UCC-07-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-08",
+      "name": "Memory, Continuity & Knowledge Organisation",
+      "capability_ids": [
+        "UCC-08-01",
+        "UCC-08-02",
+        "UCC-08-03",
+        "UCC-08-04",
+        "UCC-08-05",
+        "UCC-08-06",
+        "UCC-08-07",
+        "UCC-08-08",
+        "UCC-08-09",
+        "UCC-08-10",
+        "UCC-08-11"
+      ]
+    },
+    {
+      "id": "UCC-DIV-09",
+      "name": "Evolution, Adaptation & Universal Expansion",
+      "capability_ids": [
+        "UCC-09-01",
+        "UCC-09-02",
+        "UCC-09-03",
+        "UCC-09-04",
+        "UCC-09-05",
+        "UCC-09-06",
+        "UCC-09-07",
+        "UCC-09-08",
+        "UCC-09-09",
+        "UCC-09-10",
+        "UCC-09-11"
+      ]
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "UCC-01-01",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Multi-Perspective Reasoning",
+      "responsibility": "Reason across specialist perspectives while preserving distinct findings and provenance.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-02",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "First-Principles Analysis",
+      "responsibility": "Decompose problems into explicit assumptions, constraints and testable fundamentals.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-03",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Abductive Hypothesis Generation",
+      "responsibility": "Generate plausible explanations and label them as hypotheses until tested.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-04",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Deductive Consistency Checking",
+      "responsibility": "Check whether conclusions follow from stated premises and rules.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-05",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Inductive Pattern Learning",
+      "responsibility": "Infer candidate patterns from evidence while tracking sample limits and uncertainty.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-06",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Causal Model Reasoning",
+      "responsibility": "Distinguish correlation, mechanism and causal evidence; represent confounders.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-07",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Contradiction Preservation",
+      "responsibility": "Detect and preserve material disagreement rather than forcing false consensus.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-08",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Uncertainty Calibration",
+      "responsibility": "Express confidence in proportion to evidence quality and uncertainty.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-09",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Contextual Knowledge Synthesis",
+      "responsibility": "Combine relevant knowledge while preserving provenance and scope boundaries.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-10",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Decision-Tree Construction",
+      "responsibility": "Represent alternatives, dependencies, consequences and decision points.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-01-11",
+      "division_id": "UCC-DIV-01",
+      "division": "Universal Intelligence & Cognition",
+      "name": "Intelligence Quality Control",
+      "responsibility": "Check reasoning for omissions, unsupported leaps, ambiguity and inconsistency.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-01",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Open-Source Capability Discovery",
+      "responsibility": "Discover candidate tools, methods, systems, research and repositories across relevant domains.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-02",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Research Question Decomposition",
+      "responsibility": "Translate broad goals into answerable research questions and evidence requirements.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-03",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Source Provenance Tracking",
+      "responsibility": "Record source origin, author, version, date, retrieval context and integrity.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-04",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Claim-to-Evidence Linking",
+      "responsibility": "Connect material claims to evidence that supports or challenges them.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-05",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Cross-Source Corroboration",
+      "responsibility": "Compare independent sources and identify copied, dependent or conflicting evidence.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-06",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Knowledge Gap Detection",
+      "responsibility": "Identify missing information, untested assumptions and capability coverage gaps.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-07",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Technology Maturity Assessment",
+      "responsibility": "Distinguish research, prototype, maintained product and production-proven technology.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-08",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Licence and Rights Intelligence",
+      "responsibility": "Track licences, attribution, usage terms, provenance and unresolved rights questions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-09",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Dependency and Supply-Chain Discovery",
+      "responsibility": "Identify direct and transitive dependencies, maintainers, releases and supply-chain risks.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-10",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Change and Deprecation Intelligence",
+      "responsibility": "Detect upstream releases, API changes, security advisories and end-of-life signals.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-02-11",
+      "division_id": "UCC-DIV-02",
+      "division": "Discovery & Knowledge Acquisition",
+      "name": "Knowledge Ingestion Validation",
+      "responsibility": "Validate format, completeness, integrity, freshness and trust before indexing or reuse.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-01",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Scenario Generation",
+      "responsibility": "Construct plausible futures from explicit drivers, assumptions and boundary conditions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-02",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Probabilistic Forecasting",
+      "responsibility": "Produce calibrated probability estimates with horizons and uncertainty ranges.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-03",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Counterfactual Analysis",
+      "responsibility": "Explore how outcomes may differ under alternative actions or conditions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-04",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "System Dynamics Modelling",
+      "responsibility": "Represent stocks, flows, feedback loops, delays and nonlinear interactions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-05",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Dependency Impact Simulation",
+      "responsibility": "Estimate downstream effects of changing components, interfaces or assumptions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-06",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Failure Mode Prediction",
+      "responsibility": "Identify plausible failure paths, precursors, severity and detectability.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-07",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Resource Demand Forecasting",
+      "responsibility": "Estimate compute, memory, storage, network, time and financial requirements.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-08",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Capacity and Bottleneck Forecasting",
+      "responsibility": "Anticipate throughput limits and saturation under projected workloads.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-09",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Adversarial Scenario Testing",
+      "responsibility": "Model misuse, hostile inputs, compromised dependencies and contested conditions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-10",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Temporal Trend Analysis",
+      "responsibility": "Detect time-based changes, cycles, drift and leading indicators.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-03-11",
+      "division_id": "UCC-DIV-03",
+      "division": "Prediction, Simulation & Foresight",
+      "name": "Forecast Backtesting",
+      "responsibility": "Compare predictions with observed outcomes and record calibration error.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-01",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Requirements Formalisation",
+      "responsibility": "Convert intent into traceable functional, non-functional and acceptance requirements.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-02",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Architecture Synthesis",
+      "responsibility": "Generate coherent architectures with explicit components, boundaries and trade-offs.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-03",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Interface and Contract Engineering",
+      "responsibility": "Define typed interfaces, schemas, invariants, compatibility and error semantics.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-04",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Modular Component Generation",
+      "responsibility": "Create independently testable components with clear responsibilities and dependency boundaries.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-05",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Automated Implementation Planning",
+      "responsibility": "Break approved engineering work into sequenced, verifiable tasks.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-06",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Code Generation and Patching",
+      "responsibility": "Produce reviewable code changes with bounded write scope and traceable diffs.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-07",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Build and Reproducibility Engineering",
+      "responsibility": "Create repeatable builds with pinned inputs, provenance and reproducible outputs.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-08",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Test Strategy Generation",
+      "responsibility": "Design unit, integration, contract, property, regression and acceptance tests.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-09",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Migration and Compatibility Engineering",
+      "responsibility": "Plan versioned migrations, rollback paths and compatibility.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-10",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Documentation and Specification Generation",
+      "responsibility": "Maintain architecture, operations, API and decision documentation against implementation.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-04-11",
+      "division_id": "UCC-DIV-04",
+      "division": "Engineering & Creation",
+      "name": "Engineering Debt Management",
+      "responsibility": "Detect, rank and resolve structural debt without hiding deferred risks.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-01",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Multimodal Input Interpretation",
+      "responsibility": "Interpret supported text, image, audio, video and structured inputs with modality-specific limits.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-02",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Visual Scene Understanding",
+      "responsibility": "Identify visible entities, actions, layout and relationships from authorised visual evidence.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-03",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Spatial and Geometric Reasoning",
+      "responsibility": "Reason about positions, dimensions, orientation, coordinate frames and spatial relationships.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-04",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Screen and Interface Awareness",
+      "responsibility": "Interpret authorised application screens, controls, navigation state and visible changes.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-05",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Document and Diagram Understanding",
+      "responsibility": "Extract structure and relationships from documents, schematics, charts and diagrams.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-06",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Environmental Context Modelling",
+      "responsibility": "Represent operating context, constraints, resources and changing conditions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-07",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Entity and Object Tracking",
+      "responsibility": "Maintain evidence-linked identities across observations while managing ambiguity.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-08",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Event and Change Detection",
+      "responsibility": "Detect meaningful changes between observations and preserve before/after evidence.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-09",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Sensor Fusion and Alignment",
+      "responsibility": "Align compatible sensor streams with timestamps, calibration and source reliability.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-10",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Observability and Telemetry Interpretation",
+      "responsibility": "Interpret logs, metrics, traces and health signals as operational evidence.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-05-11",
+      "division_id": "UCC-DIV-05",
+      "division": "Universal Perception & Situational Awareness",
+      "name": "Perception Confidence and Blind-Spot Reporting",
+      "responsibility": "Expose occlusion, missing views, uncertain recognition and unsupported inferences.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-01",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Goal and Intent Decomposition",
+      "responsibility": "Translate authorised goals into measurable objectives, constraints and sub-tasks.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-02",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Dynamic Task Orchestration",
+      "responsibility": "Coordinate dependent tasks and specialists while preserving ownership and traceability.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-03",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Bounded Parallel Execution",
+      "responsibility": "Parallelise independent work within resource, dependency and isolation limits.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-04",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Dependency-Aware Scheduling",
+      "responsibility": "Schedule work by prerequisites, critical paths, deadlines and resource availability.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-05",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Designated-Driver Control",
+      "responsibility": "Route operational direction through the authorised Designated Driver role without granting approval powers.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-06",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Human-Approval Interlocks",
+      "responsibility": "Pause consequential actions until required human approval is recorded.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-07",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Transaction and Side-Effect Control",
+      "responsibility": "Use preflight, idempotency, commit boundaries and compensating actions for external effects.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-08",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Fault Isolation and Recovery",
+      "responsibility": "Contain component failures, preserve unaffected work and recover through explicit policies.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-09",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Deadline and Timeout Governance",
+      "responsibility": "Apply bounded execution windows, cancellation and explicit unknown outcomes on timeout.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-10",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Workflow Continuity and Checkpointing",
+      "responsibility": "Resume interrupted workflows from validated, versioned checkpoints.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-06-11",
+      "division_id": "UCC-DIV-06",
+      "division": "Autonomy, Coordination & Execution",
+      "name": "Execution Audit and Outcome Reporting",
+      "responsibility": "Report actions, results, failures, costs and unresolved work against the objective.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-01",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Zero-Trust Identity and Access",
+      "responsibility": "Authenticate actors and enforce least-privilege permissions at each boundary.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-02",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Policy-as-Code Enforcement",
+      "responsibility": "Apply versioned, testable policy decisions outside model-generated instructions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-03",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Sandbox and Execution Isolation",
+      "responsibility": "Constrain untrusted code, tools, processes, filesystems and network access.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-04",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Threat Modelling and Attack-Surface Analysis",
+      "responsibility": "Identify assets, trust boundaries, threats, attack paths and mitigations.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-05",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Prompt-Injection and Untrusted-Data Defence",
+      "responsibility": "Treat retrieved content and tool output as data, not governing instructions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-06",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Secrets and Credential Protection",
+      "responsibility": "Minimise secret exposure, use scoped credentials and prevent secret persistence in logs.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-07",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Data Privacy and Retention Control",
+      "responsibility": "Apply purpose limitation, consent, minimisation, retention and deletion policies.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-08",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Integrity and Tamper Evidence",
+      "responsibility": "Use cryptographic digests and authenticated records where trust requirements justify them.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-09",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Independent Verification",
+      "responsibility": "Require an evaluator independent of the component and claim being assessed.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-10",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Red-Team and Abuse-Case Evaluation",
+      "responsibility": "Challenge security, reliability and policy boundaries with documented adversarial tests.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-07-11",
+      "division_id": "UCC-DIV-07",
+      "division": "Security, Integrity & Assurance",
+      "name": "Incident Response and Recovery",
+      "responsibility": "Detect, contain, investigate and recover from security or integrity incidents.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-01",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Canonical Knowledge Registry",
+      "responsibility": "Maintain authoritative, versioned records with stable identities and defined ownership.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-02",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Episodic Work History",
+      "responsibility": "Preserve dated actions, decisions, outcomes and context for later reconstruction.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-03",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Semantic Knowledge Graph",
+      "responsibility": "Represent entities, concepts and relationships with provenance and confidence.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-04",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Procedural Memory",
+      "responsibility": "Store validated procedures, preconditions, expected outcomes and failure handling.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-05",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Context Retrieval and Relevance Ranking",
+      "responsibility": "Retrieve sufficient context with relevance and provenance signals.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-06",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Memory Conflict Reconciliation",
+      "responsibility": "Detect contradictory records, preserve history and resolve only through governed decisions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-07",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Versioning and Change History",
+      "responsibility": "Track revisions, supersession, authorship and reasons for change.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-08",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Cross-Session Continuity",
+      "responsibility": "Carry forward approved working context without fabricating missing details.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-09",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Knowledge Retention and Expiry",
+      "responsibility": "Apply retention classes, freshness checks and controlled expiry.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-10",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Decision and Rationale Ledger",
+      "responsibility": "Record decisions, alternatives, evidence, approver and review conditions.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-08-11",
+      "division_id": "UCC-DIV-08",
+      "division": "Memory, Continuity & Knowledge Organisation",
+      "name": "Portable Export and Restore",
+      "responsibility": "Support documented, integrity-checked export, migration, backup and restoration.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-01",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Capability Gap-to-Roadmap Evolution",
+      "responsibility": "Convert verified gaps into prioritised, measurable capability proposals.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-02",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Self-Assessment and Calibration",
+      "responsibility": "Evaluate system performance and uncertainty against independent benchmarks.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-03",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Controlled Learning and Improvement",
+      "responsibility": "Improve from validated feedback while preventing unreviewed behavioural drift.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-04",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Adaptive Resource Optimisation",
+      "responsibility": "Tune allocation and execution strategy against measured workload and resource constraints.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-05",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Architecture Refactoring Intelligence",
+      "responsibility": "Identify structural improvements and assess migration, compatibility and regression risks.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-06",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Emerging-Technology Evaluation",
+      "responsibility": "Assess new methods and technologies through reproducible comparative trials.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-07",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Cross-Domain Capability Transfer",
+      "responsibility": "Reuse validated methods across domains while rechecking assumptions and applicability.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-08",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Versioned Experiment Management",
+      "responsibility": "Run bounded experiments with hypotheses, controls, baselines and recorded results.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-09",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Rollback and Reversibility Engineering",
+      "responsibility": "Ensure changes can be reverted or safely compensated where feasible.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-10",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Evolution Governance and Lifecycle",
+      "responsibility": "Enforce discovery, proposal, evaluation, approval, integration, rejection and retirement states.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    },
+    {
+      "id": "UCC-09-11",
+      "division_id": "UCC-DIV-09",
+      "division": "Evolution, Adaptation & Universal Expansion",
+      "name": "Open-Ended Extensibility",
+      "responsibility": "Provide governed extension points for future dimensions and capabilities without a fixed evolutionary ceiling.",
+      "lifecycle_state": "proposed",
+      "maturity": "architecture_proposal_not_implemented_or_verified",
+      "activation": "not_claimed"
+    }
+  ],
+  "integration_rules": [
+    "This 99-capability register is distinct from the 99 lineage slots. Do not map capabilities onto lineage placeholders automatically.",
+    "The 99 lineage slots remain unresolved until approved canonical identities, roles, provenance and mappings exist.",
+    "Existing systems including STARWIRE, SYPHON, OMNISIGHT PRIME, CHRONOS VELOCITY PRIME, UPN and EUPN retain independent identities; this register adds complementary responsibilities rather than absorbing or renaming them.",
+    "OMNIVELOCITY PRIME and HYPERVELOCITY PRIME are cross-cutting performance capabilities, not dimensions, divisions, UMICs or fusion authorities.",
+    "STARWIRE discovers and preserves candidate sources; discovery is not approval or integration.",
+    "AFI PRIME coordinates specialists while preserving separate outcomes. It cannot grant itself permissions, approve its own high-impact actions or independently certify its results.",
+    "No capability activates by being listed. Lifecycle: Discovered → Proposed → Under Evaluation → Approved → Integrated / Rejected / Retired.",
+    "Before activation each capability needs an owner, interfaces, dependencies, threat model, resource profile, acceptance tests, evidence and independent verification."
+  ],
+  "acceptance_criteria": [
+    "Exactly nine divisions, each with eleven unique capability records.",
+    "Each capability has a stable ID, responsibility, lifecycle and activation status.",
+    "No additional UMIC, lineage slot or fusion authority is created.",
+    "Cross-capability dependencies, overlap, conflicts and resource costs are evaluated before implementation.",
+    "Implementation and verification claims are tied to repository evidence and passing tests."
+  ]
+}

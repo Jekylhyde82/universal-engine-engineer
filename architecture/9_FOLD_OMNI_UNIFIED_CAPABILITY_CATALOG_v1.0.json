@@ -1,0 +1,2040 @@
+{
+  "schema_version": "1.0.0",
+  "document_id": "UEE-9FO-UCAT-001",
+  "title": "9 FOLD OMNI Unified Capability and Integration Inventory",
+  "canonical_architecture": "NINEFOLD INTRINSIC — OMNI AFI PRIME",
+  "canonical_fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
+  "inventory_status": "SOURCE_BACKED_INVENTORY_WITH_PROPOSED_12_DIMENSIONS_AND_99_COMPLEMENTARY_CAPABILITIES",
+  "source_registers": [
+    {
+      "register": "Universal Capability Acquisition Register",
+      "branch": "research/upstream-change-audit-v1",
+      "pull_request": 14,
+      "path": "docs/capabilities/universal-capability-acquisition-register.json",
+      "record_count": 30
+    },
+    {
+      "register": "Nine Technology Stack Source Register",
+      "branch": "integration/nine-capability-stack-v1",
+      "pull_request": 15,
+      "path": "docs/integrations/NINE-SOURCE-REGISTER.json",
+      "record_count": 9
+    },
+    {
+      "register": "Six Technology Source Register",
+      "branch": "integration/six-ai-capability-sources",
+      "pull_request": 8,
+      "path": "docs/integrations/SOURCE_REGISTER.json",
+      "record_count": 6
+    }
+  ],
+  "external_candidate_summary": {
+    "uac_source_records": 30,
+    "duplicate_reference_records": 2,
+    "canonical_unique_candidates": 30,
+    "nine_stack_sources": 9,
+    "six_stack_sources": 6,
+    "all_candidates_installed_or_approved": false
+  },
+  "external_candidates": [
+    {
+      "id": "UCA-AGENT-001",
+      "name": "DeepAgents",
+      "repository": "https://github.com/langchain-ai/deepagents",
+      "category": "agent_harness_and_planning",
+      "capabilities": [
+        "task planning",
+        "sub-agent delegation",
+        "tool use",
+        "filesystem-oriented workflows",
+        "long-running task patterns"
+      ],
+      "intended_role": "Higher-level agent harness candidate; evaluate above a lower-level orchestration runtime.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_WITH_LANGGRAPH_NOT_AS_A_REPLACEMENT_FOR_ALL_ORCHESTRATION",
+      "risks": [
+        "Tool permissions and sandboxing must be enforced outside the model.",
+        "Validate current API maturity and dependency footprint."
+      ],
+      "sources": [
+        "https://github.com/langchain-ai/deepagents"
+      ],
+      "source_register_ids": [
+        "UCA-AGENT-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-ORCH-001",
+      "name": "LangGraph",
+      "repository": "https://github.com/langchain-ai/langgraph",
+      "category": "agent_orchestration",
+      "capabilities": [
+        "stateful graphs",
+        "checkpointing",
+        "durable workflows",
+        "human-in-the-loop control"
+      ],
+      "intended_role": "Candidate orchestration substrate for long-running, inspectable agent workflows.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Avoid coupling domain logic directly to framework-specific state types.",
+        "Test persistence, recovery, and upgrade compatibility."
+      ],
+      "sources": [
+        "https://github.com/langchain-ai/langgraph"
+      ],
+      "source_register_ids": [
+        "UCA-ORCH-001"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "langgraph",
+          "proposed_role": "Stateful workflow orchestration, durable execution, checkpointing and approval interrupts",
+          "integration_mode": "optional-workflow-adapter",
+          "status": "candidate",
+          "required_evidence": [
+            "exact commit and package pin",
+            "checkpoint/recovery tests",
+            "interrupt/approval tests",
+            "idempotency and cancellation tests"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-ORCH-002",
+      "name": "Microsoft Agent Framework",
+      "repository": "https://github.com/microsoft/agent-framework",
+      "category": "agent_orchestration",
+      "capabilities": [
+        "multi-agent orchestration",
+        "Python and .NET support",
+        "middleware",
+        "human approval patterns"
+      ],
+      "intended_role": "Alternative orchestration candidate; compare against LangGraph before selecting a primary runtime.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFERRED_FOR_COMPARATIVE_BENCHMARK",
+      "risks": [
+        "Potential overlap with LangGraph.",
+        "Confirm maturity, API stability, and cross-language operational costs."
+      ],
+      "sources": [
+        "https://github.com/microsoft/agent-framework"
+      ],
+      "source_register_ids": [
+        "UCA-ORCH-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-CODE-001",
+      "name": "OpenHands",
+      "repository": "https://github.com/All-Hands-AI/OpenHands",
+      "category": "software_engineering_agent",
+      "capabilities": [
+        "codebase inspection",
+        "software task execution",
+        "developer workflows",
+        "agent execution environment"
+      ],
+      "intended_role": "Candidate software-engineering agent platform; evaluate SDK and execution boundaries separately.",
+      "licence": {
+        "reported": "MIT for software-agent-sdk; verify each OpenHands repository/package independently",
+        "verification": "COMPONENT_LEVEL_REVIEW_REQUIRED"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_SDK_AND_AGENT_SERVER_FIRST",
+      "risks": [
+        "Untrusted code execution requires strong isolation.",
+        "Do not infer one repository's licence applies to the whole OpenHands ecosystem."
+      ],
+      "sources": [
+        "https://github.com/All-Hands-AI/OpenHands",
+        "https://github.com/OpenHands/software-agent-sdk",
+        "https://github.com/OpenHands/automation"
+      ],
+      "source_register_ids": [
+        "UCA-CODE-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-CODE-002",
+      "name": "Aider",
+      "repository": "https://github.com/Aider-AI/aider",
+      "category": "software_engineering_agent",
+      "capabilities": [
+        "repository-aware code editing",
+        "Git workflows",
+        "test and command execution"
+      ],
+      "intended_role": "Candidate coding workflow/tool; compare for controlled patch generation and repository operations.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Limit repository write scope and shell execution.",
+        "Test supported model providers and context limitations."
+      ],
+      "sources": [
+        "https://github.com/Aider-AI/aider"
+      ],
+      "source_register_ids": [
+        "UCA-CODE-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-CODE-003",
+      "name": "SWE-agent",
+      "repository": "https://github.com/SWE-agent/SWE-agent",
+      "category": "software_engineering_agent",
+      "capabilities": [
+        "issue-driven code investigation",
+        "automated repair workflows",
+        "benchmark-oriented software tasks"
+      ],
+      "intended_role": "Research and benchmark candidate for issue-to-patch workflows.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P3",
+      "initial_disposition": "DEFERRED",
+      "risks": [
+        "Verify current project status, licence, and reproducibility before further evaluation."
+      ],
+      "sources": [
+        "https://github.com/SWE-agent/SWE-agent"
+      ],
+      "source_register_ids": [
+        "UCA-CODE-003"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "swe-agent",
+          "proposed_role": "Research and benchmark comparator for autonomous issue-solving",
+          "integration_mode": "evaluation-only-agent-adapter",
+          "status": "deferred-as-primary-executor",
+          "required_evidence": [
+            "benchmark against mini-SWE-agent and OpenHands/Goose",
+            "sandbox review",
+            "patch quality",
+            "test pass rate",
+            "reproducibility",
+            "resource/cost profile"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-BROWSER-001",
+      "name": "Browser Use",
+      "repository": "https://github.com/browser-use/browser-use",
+      "category": "browser_automation",
+      "capabilities": [
+        "natural-language browser task execution",
+        "navigation",
+        "web interaction",
+        "structured extraction"
+      ],
+      "intended_role": "Candidate high-level browser agent behind a restricted browser automation gateway.",
+      "licence": {
+        "reported": "MIT for open-source library; hosted services are separate",
+        "verification": "RECHECK_CODE_AND_SERVICE_BOUNDARIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_WITH_LOCAL_OR_CONTROLLED_BROWSER",
+      "risks": [
+        "Browser sessions may expose authenticated accounts and sensitive data.",
+        "Cloud browser, CAPTCHA, proxy, and hosted API features may be paid services."
+      ],
+      "sources": [
+        "https://github.com/browser-use/browser-use",
+        "https://github.com/browser-use/browser-use/blob/main/LICENSE"
+      ],
+      "source_register_ids": [
+        "UCA-BROWSER-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-BROWSER-002",
+      "name": "Playwright MCP",
+      "repository": "https://github.com/microsoft/playwright-mcp",
+      "category": "browser_automation_and_mcp",
+      "capabilities": [
+        "structured browser interaction",
+        "browser control via MCP",
+        "Playwright-based automation"
+      ],
+      "intended_role": "Candidate deterministic browser-control adapter and tool interface.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "MCP tool exposure must be allowlisted.",
+        "Separate browser profile, filesystem, downloads, and network permissions."
+      ],
+      "sources": [
+        "https://github.com/microsoft/playwright-mcp",
+        "https://github.com/microsoft/playwright-mcp/blob/main/LICENSE"
+      ],
+      "source_register_ids": [
+        "UCA-BROWSER-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-BROWSER-003",
+      "name": "Stagehand",
+      "repository": "https://github.com/browserbase/stagehand",
+      "category": "browser_automation",
+      "capabilities": [
+        "browser interaction",
+        "structured extraction",
+        "natural-language plus code-based browser actions"
+      ],
+      "intended_role": "Alternative browser SDK; benchmark against Browser Use and Playwright MCP.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "COMPARATIVE_EVALUATION",
+      "risks": [
+        "Potential overlap with other browser layers.",
+        "Review hosted Browserbase dependencies and service terms separately."
+      ],
+      "sources": [
+        "https://github.com/browserbase/stagehand",
+        "https://github.com/browserbase/stagehand/blob/main/LICENSE"
+      ],
+      "source_register_ids": [
+        "UCA-BROWSER-003"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-BROWSER-004",
+      "name": "Skyvern",
+      "repository": "https://github.com/Skyvern-AI/skyvern",
+      "category": "browser_automation",
+      "capabilities": [
+        "visual browser automation",
+        "web portal workflows"
+      ],
+      "intended_role": "Alternative candidate for visually variable enterprise portals.",
+      "licence": {
+        "reported": "AGPL-3.0 in research; verify exact current repository and component terms",
+        "verification": "LEGAL_REVIEW_REQUIRED"
+      },
+      "priority": "P3",
+      "initial_disposition": "DEFER_PENDING_LICENCE_REVIEW",
+      "risks": [
+        "AGPL obligations may affect distribution and network deployment.",
+        "Review self-hosted versus hosted feature boundaries."
+      ],
+      "sources": [
+        "https://github.com/Skyvern-AI/skyvern"
+      ],
+      "source_register_ids": [
+        "UCA-BROWSER-004"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-WORKFLOW-001",
+      "name": "Kestra",
+      "repository": "https://github.com/kestra-io/kestra",
+      "category": "workflow_orchestration",
+      "capabilities": [
+        "event-driven workflows",
+        "scheduled execution",
+        "retries",
+        "parallel tasks",
+        "workflow observability"
+      ],
+      "intended_role": "Candidate durable automation substrate; evaluate deployment and worker model.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_CURRENT_EDITION_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Determine which enterprise features require commercial terms.",
+        "Assess operational footprint and durable state requirements."
+      ],
+      "sources": [
+        "https://github.com/kestra-io/kestra"
+      ],
+      "source_register_ids": [
+        "UCA-WORKFLOW-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-WORKFLOW-002",
+      "name": "Activepieces",
+      "repository": "https://github.com/activepieces/activepieces",
+      "category": "workflow_automation_and_integrations",
+      "capabilities": [
+        "visual workflows",
+        "service connectors",
+        "MCP integrations",
+        "community pieces"
+      ],
+      "intended_role": "Candidate connector ecosystem and user-facing workflow builder.",
+      "licence": {
+        "reported": "MIT Community Edition; enterprise/cloud features separately commercially licensed",
+        "verification": "PATH_AND_FEATURE_LEVEL_REVIEW_REQUIRED"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_COMMUNITY_EDITION_SCOPE",
+      "risks": [
+        "Commercially licensed enterprise paths exist in repository.",
+        "Audit each piece, credentials scope, and external service terms."
+      ],
+      "sources": [
+        "https://github.com/activepieces/activepieces",
+        "https://www.activepieces.com/docs/about/license"
+      ],
+      "source_register_ids": [
+        "UCA-WORKFLOW-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-WORKFLOW-003",
+      "name": "Temporal",
+      "repository": "https://github.com/temporalio/temporal",
+      "category": "durable_execution",
+      "capabilities": [
+        "durable workflows",
+        "retries",
+        "recovery",
+        "long-running process orchestration"
+      ],
+      "intended_role": "Alternative durable execution engine for critical long-running automation.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "COMPARE_WITH_KESTRA",
+      "risks": [
+        "May overlap with Kestra for orchestration; compare workflow semantics and operational burden."
+      ],
+      "sources": [
+        "https://github.com/temporalio/temporal"
+      ],
+      "source_register_ids": [
+        "UCA-WORKFLOW-003"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-MEMORY-001",
+      "name": "Cognee",
+      "repository": "https://github.com/topoteretes/cognee",
+      "category": "agent_memory_and_knowledge_graph",
+      "capabilities": [
+        "knowledge graph construction",
+        "document and data ingestion",
+        "retrieval",
+        "persistent knowledge"
+      ],
+      "intended_role": "Candidate memory and knowledge layer; keep storage provider replaceable.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Benchmark extraction quality and retrieval grounding.",
+        "Review data retention, deletion, and embedding model requirements."
+      ],
+      "sources": [
+        "https://github.com/topoteretes/cognee"
+      ],
+      "source_register_ids": [
+        "UCA-MEMORY-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-MEMORY-002",
+      "name": "Mem0",
+      "repository": "https://github.com/mem0ai/mem0",
+      "category": "agent_memory",
+      "capabilities": [
+        "persistent user and agent memory",
+        "memory extraction and retrieval"
+      ],
+      "intended_role": "Alternative focused memory service/library.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFERRED_FOR_LICENCE_AND_ARCHITECTURE_REVIEW",
+      "risks": [
+        "Verify repository versus hosted product boundaries and current licence."
+      ],
+      "sources": [
+        "https://github.com/mem0ai/mem0"
+      ],
+      "source_register_ids": [
+        "UCA-MEMORY-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-MEMORY-003",
+      "name": "Letta",
+      "repository": "https://github.com/letta-ai/letta",
+      "category": "stateful_agents_and_memory",
+      "capabilities": [
+        "persistent agent state",
+        "memory management",
+        "stateful agent runtime"
+      ],
+      "intended_role": "Alternative agent-memory architecture; compare with Cognee and Mem0.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFERRED_FOR_LICENCE_AND_ARCHITECTURE_REVIEW",
+      "risks": [
+        "Potential overlap with agent harness and memory responsibilities."
+      ],
+      "sources": [
+        "https://github.com/letta-ai/letta"
+      ],
+      "source_register_ids": [
+        "UCA-MEMORY-003"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-MEMORY-004",
+      "name": "Graphiti",
+      "repository": "https://github.com/getzep/graphiti",
+      "category": "temporal_knowledge_graph",
+      "capabilities": [
+        "temporal knowledge graph",
+        "time-aware entity relationships",
+        "agent context retrieval"
+      ],
+      "intended_role": "Candidate temporal graph component; compare as a Cognee complement or alternative.",
+      "licence": {
+        "reported": "NOT_CONFIRMED",
+        "verification": "MANDATORY_BEFORE_USE"
+      },
+      "priority": "P3",
+      "initial_disposition": "DEFERRED_FOR_LICENCE_AND_FIT_REVIEW",
+      "risks": [
+        "Confirm current ownership, maintenance, licence and database requirements."
+      ],
+      "sources": [
+        "https://github.com/getzep/graphiti"
+      ],
+      "source_register_ids": [
+        "UCA-MEMORY-004"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-GOV-001",
+      "name": "Open Policy Agent",
+      "repository": "https://github.com/open-policy-agent/opa",
+      "category": "policy_enforcement",
+      "capabilities": [
+        "policy evaluation",
+        "authorization decisions",
+        "policy-as-code"
+      ],
+      "intended_role": "External policy decision point for agent and tool actions.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_AS_GOVERNANCE_FOUNDATION",
+      "risks": [
+        "OPA decisions must be enforced by the actual execution gateway.",
+        "Define fail-closed behavior and policy test coverage."
+      ],
+      "sources": [
+        "https://github.com/open-policy-agent/opa"
+      ],
+      "source_register_ids": [
+        "UCA-GOV-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-GOV-002",
+      "name": "OpenFGA",
+      "repository": "https://github.com/openfga/openfga",
+      "category": "authorization",
+      "capabilities": [
+        "relationship-based authorization",
+        "fine-grained access control"
+      ],
+      "intended_role": "Candidate identity and resource authorization layer.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_IF_FINE_GRAINED_AUTHORIZATION_REQUIRED",
+      "risks": [
+        "Avoid duplicating OPA policy responsibilities; define PDP/PIP boundaries."
+      ],
+      "sources": [
+        "https://github.com/openfga/openfga"
+      ],
+      "source_register_ids": [
+        "UCA-GOV-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-SANDBOX-001",
+      "name": "gVisor",
+      "repository": "https://github.com/google/gvisor",
+      "category": "execution_isolation",
+      "capabilities": [
+        "application-kernel isolation",
+        "container workload isolation"
+      ],
+      "intended_role": "Candidate isolation boundary for untrusted agent workloads.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_ON_SUPPORTED_REMOTE_HOSTS",
+      "risks": [
+        "Requires compatible host infrastructure and operational expertise.",
+        "Not assumed suitable for direct Android deployment."
+      ],
+      "sources": [
+        "https://github.com/google/gvisor"
+      ],
+      "source_register_ids": [
+        "UCA-SANDBOX-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-SANDBOX-002",
+      "name": "Wasmtime",
+      "repository": "https://github.com/bytecodealliance/wasmtime",
+      "category": "sandboxed_extension_runtime",
+      "capabilities": [
+        "WebAssembly execution",
+        "sandboxed component runtime",
+        "resource controls"
+      ],
+      "intended_role": "Candidate runtime for constrained, portable extensions and tools.",
+      "licence": {
+        "reported": "Apache-2.0 WITH LLVM-exception; verify current files",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_FOR_PORTABLE_TOOL_SANDBOXING",
+      "risks": [
+        "WASM sandboxing is not a complete substitute for host isolation or network policy."
+      ],
+      "sources": [
+        "https://github.com/bytecodealliance/wasmtime"
+      ],
+      "source_register_ids": [
+        "UCA-SANDBOX-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-EVAL-001",
+      "name": "Promptfoo",
+      "repository": "https://github.com/promptfoo/promptfoo",
+      "category": "agent_and_prompt_evaluation",
+      "capabilities": [
+        "prompt regression",
+        "model comparison",
+        "red-team testing"
+      ],
+      "intended_role": "Adversarial and comparative test harness for agent/model behavior.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE",
+      "risks": [
+        "Do not treat red-team coverage as proof of security.",
+        "Test tool-use and indirect prompt-injection scenarios."
+      ],
+      "sources": [
+        "https://github.com/promptfoo/promptfoo"
+      ],
+      "source_register_ids": [
+        "UCA-EVAL-001"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "promptfoo",
+          "proposed_role": "Black-box prompt/model regression, comparison and red-team evaluation",
+          "integration_mode": "development-and-ci-evaluation-tool",
+          "status": "candidate",
+          "required_evidence": [
+            "versioned suites",
+            "repeatable baselines",
+            "adversarial coverage",
+            "credential isolation",
+            "false-negative/positive analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-EVAL-002",
+      "name": "DeepEval",
+      "repository": "https://github.com/confident-ai/deepeval",
+      "category": "llm_and_rag_evaluation",
+      "capabilities": [
+        "metric-based LLM evaluation",
+        "RAG evaluation",
+        "test-driven model assessment"
+      ],
+      "intended_role": "Quality metrics and repeatable evaluation suites.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_AS_METRIC_EVALUATOR",
+      "risks": [
+        "LLM-as-judge metrics require calibration and human-labelled validation."
+      ],
+      "sources": [
+        "https://github.com/confident-ai/deepeval"
+      ],
+      "source_register_ids": [
+        "UCA-EVAL-002"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "deepeval",
+          "proposed_role": "Metric-based LLM, agent and RAG evaluation",
+          "integration_mode": "development-and-ci-evaluation-tool",
+          "status": "candidate",
+          "required_evidence": [
+            "metric and dataset pinning",
+            "judge calibration",
+            "human-reviewed samples",
+            "repeatability",
+            "cost and bias analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-OBS-001",
+      "name": "Langfuse",
+      "repository": "https://github.com/langfuse/langfuse",
+      "category": "observability_and_tracing",
+      "capabilities": [
+        "LLM/agent tracing",
+        "evaluation",
+        "prompt management",
+        "experiments"
+      ],
+      "intended_role": "Candidate trace and observability platform.",
+      "licence": {
+        "reported": "MIT core; enterprise modules commercially licensed",
+        "verification": "PATH_AND_FEATURE_LEVEL_REVIEW_REQUIRED"
+      },
+      "priority": "P1",
+      "initial_disposition": "EVALUATE_CORE_AND_ENTERPRISE_BOUNDARIES",
+      "risks": [
+        "Enterprise modules have separate terms.",
+        "Tracing may capture sensitive prompts, tool inputs and outputs; apply redaction and retention policies."
+      ],
+      "sources": [
+        "https://github.com/langfuse/langfuse",
+        "https://langfuse.com/handbook/chapters/open-source"
+      ],
+      "source_register_ids": [
+        "UCA-OBS-001"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-OBS-002",
+      "name": "Arize Phoenix",
+      "repository": "https://github.com/Arize-ai/phoenix",
+      "category": "observability_and_evaluation",
+      "capabilities": [
+        "agent tracing",
+        "LLM observability",
+        "evaluation",
+        "OpenInference support"
+      ],
+      "intended_role": "Alternative observability platform; compare with Langfuse.",
+      "licence": {
+        "reported": "Elastic License 2.0 for Phoenix; verify each package separately",
+        "verification": "LEGAL_REVIEW_REQUIRED_FOR_DISTRIBUTION"
+      },
+      "priority": "P2",
+      "initial_disposition": "DEFER_PENDING_LICENCE_AND_FEATURE_COMPARISON",
+      "risks": [
+        "ELv2 is not an OSI-approved open-source licence.",
+        "Different packages may have different licences."
+      ],
+      "sources": [
+        "https://github.com/Arize-ai/phoenix",
+        "https://github.com/Arize-ai/phoenix/blob/main/docs/phoenix/self-hosting/license.mdx"
+      ],
+      "source_register_ids": [
+        "UCA-OBS-002"
+      ],
+      "integration_records": []
+    },
+    {
+      "id": "UCA-ORIGINAL-001",
+      "name": "llama.cpp",
+      "repository": "https://github.com/ggml-org/llama.cpp",
+      "category": "local_inference_runtime",
+      "capabilities": [
+        "local model inference",
+        "quantized model execution",
+        "CPU/GPU backend support"
+      ],
+      "intended_role": "Optional local inference provider; model weights and model licences remain separate.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "BENCHMARK_BEFORE_TARGET_DEVICE_DECISION",
+      "risks": [
+        "4GB Android device is not assumed capable of useful workloads.",
+        "Model weights have independent licences and memory requirements."
+      ],
+      "sources": [
+        "https://github.com/ggml-org/llama.cpp"
+      ],
+      "source_register_ids": [
+        "UCA-ORIGINAL-001"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "llama-cpp",
+          "proposed_role": "Optional local inference runtime and constrained inference endpoint",
+          "integration_mode": "optional-inference-endpoint-adapter",
+          "status": "candidate",
+          "required_evidence": [
+            "runtime build and model hash",
+            "model-specific licence",
+            "quantization/context configuration",
+            "target-device RAM/latency/thermal/battery benchmark",
+            "API conformance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-002",
+      "name": "LlamaIndex",
+      "repository": "https://github.com/run-llama/llama_index",
+      "category": "data_ingestion_and_retrieval",
+      "capabilities": [
+        "document ingestion",
+        "parsing and indexing",
+        "retrieval and query workflows"
+      ],
+      "intended_role": "Candidate knowledge ingestion/retrieval framework; compare against Cognee's ingestion and graph features.",
+      "licence": {
+        "reported": "MIT",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_FOR_CLEAR_COMPLEMENTARY_ROLE",
+      "risks": [
+        "Potential overlap with Cognee; define whether it is an ingestion adapter or a separate retrieval layer."
+      ],
+      "sources": [
+        "https://github.com/run-llama/llama_index"
+      ],
+      "source_register_ids": [
+        "UCA-ORIGINAL-002"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "llama-index",
+          "proposed_role": "Document parsing, ingestion, indexing and retrieval",
+          "integration_mode": "optional-knowledge-adapter",
+          "status": "candidate",
+          "required_evidence": [
+            "package-boundary review",
+            "source-to-chunk provenance tests",
+            "parser accuracy corpus",
+            "access-filter and prompt-injection tests"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-ORIGINAL-003",
+      "name": "Qdrant",
+      "repository": "https://github.com/qdrant/qdrant",
+      "category": "vector_storage_and_retrieval",
+      "capabilities": [
+        "vector storage",
+        "similarity search",
+        "filtered retrieval"
+      ],
+      "intended_role": "Optional replaceable vector storage provider.",
+      "licence": {
+        "reported": "Apache-2.0",
+        "verification": "RECHECK_UPSTREAM_LICENSE_AND_DEPENDENCIES"
+      },
+      "priority": "P2",
+      "initial_disposition": "EVALUATE_AS_REMOTE_SERVICE_FIRST",
+      "risks": [
+        "Do not assume phone-resident deployment.",
+        "Review persistence, backup, access control and operational costs."
+      ],
+      "sources": [
+        "https://github.com/qdrant/qdrant"
+      ],
+      "source_register_ids": [
+        "UCA-ORIGINAL-003"
+      ],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "qdrant",
+          "proposed_role": "Optional vector database, similarity search and metadata filtering",
+          "integration_mode": "optional-vector-store-service-adapter",
+          "status": "candidate",
+          "required_evidence": [
+            "tenant isolation",
+            "filter correctness",
+            "recall/precision benchmark",
+            "backup/restore",
+            "deletion verification",
+            "service resource profile"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-STACK-OPENHANDS",
+      "name": "OpenHands",
+      "repository": "https://github.com/OpenHands/OpenHands",
+      "category": "technology_stack_provider",
+      "capabilities": [
+        "Delegated autonomous software engineering"
+      ],
+      "intended_role": "Delegated autonomous software engineering",
+      "initial_disposition": "EVALUATE",
+      "source_register_ids": [],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "openhands",
+          "proposed_role": "Delegated autonomous software engineering",
+          "integration_mode": "isolated-coding-agent-provider",
+          "status": "candidate",
+          "required_evidence": [
+            "runtime and sandbox review",
+            "tool permission boundary tests",
+            "isolated workspace tests",
+            "network/secret controls",
+            "patch-only trial",
+            "rollback"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "UCA-STACK-GOOSE",
+      "name": "Goose",
+      "repository": "https://github.com/aaif-goose/goose",
+      "category": "technology_stack_provider",
+      "capabilities": [
+        "Extensible local/CLI/API agent for coding and general tool workflows"
+      ],
+      "intended_role": "Extensible local/CLI/API agent for coding and general tool workflows",
+      "initial_disposition": "EVALUATE",
+      "source_register_ids": [],
+      "integration_records": [
+        {
+          "register": "NINE-SOURCE-REGISTER",
+          "id": "goose",
+          "proposed_role": "Extensible local/CLI/API agent for coding and general tool workflows",
+          "integration_mode": "optional-tool-agent-provider",
+          "status": "candidate",
+          "required_evidence": [
+            "extension/MCP permission review",
+            "tool allowlist tests",
+            "credential isolation",
+            "workspace isolation",
+            "network policy",
+            "rollback"
+          ]
+        }
+      ]
+    }
+  ],
+  "intrinsic_capabilities": [
+    {
+      "id": "INT-GENIUS-BRAINSTORM",
+      "name": "GENIUS BRAINSTORM",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Generate alternatives, hypotheses, designs and opportunity paths.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-GENIUS-CRITIC",
+      "name": "GENIUS CRITIC",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Challenge assumptions, detect contradictions and expose gaps.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-GENIUS-ENGINEER",
+      "name": "GENIUS ENGINEER",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Translate accepted requirements into architecture and engineering work.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-AFI-PRIME-COORDINATOR",
+      "name": "AFI PRIME GOVERNED MULTI-SPECIALIST COORDINATOR",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Coordinate explicit batches of lifecycle-integrated specialist providers through the canonical AFI PRIME function; enforce per-invocation policy, bounded parallel dispatch, preflight, failure isolation and preservation of distinct specialist outcomes.",
+      "lifecycle_state": "under_evaluation",
+      "maturity": "prototype_implemented_and_current_branch_ci_tested_not_merged_or_independently_verified",
+      "source_reference": "PR 35: src/universal_engine/fusion.py; tests/test_fusion.py",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-AFI-PRIME-FUSION-EVIDENCE",
+      "name": "AFI PRIME DIGEST-ONLY FUSION EVIDENCE LEDGER",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Persist per-specialist request/result digests, identity, status and timing in a local SQLite hash-chained evidence stream without storing raw prompt or provider-output content.",
+      "lifecycle_state": "under_evaluation",
+      "maturity": "prototype_implemented_and_current_branch_ci_tested_not_merged_or_independently_verified",
+      "source_reference": "PR 35: src/universal_engine/fusion_evidence.py; tests/test_fusion_evidence.py",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-GENIUS-ENGINEER-CRITIC-PRIME",
+      "name": "GENIUS ENGINEER CRITIC PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Combine engineering critique with architecture and implementation challenge.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNIVELOCITY-PRIME",
+      "name": "OMNIVELOCITY PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Optimise throughput, batching, parallelism and resource allocation.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-HYPERVELOCITY",
+      "name": "HYPERVELOCITY",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Shorten feedback cycles and optimise critical paths.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-DESIGNATED-DRIVER",
+      "name": "DESIGNATED DRIVER",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Coordinate authorised execution, sequencing and outcome reconciliation.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNISIGHT-PRIME",
+      "name": "OMNISIGHT PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Visual perception and evidence-linked visual intelligence.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-UNIVERSAL-PERCEPTION",
+      "name": "OMNI UNIVERSAL PERCEPTION INTELLIGENCE PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Coordinate authorised perception modalities while preserving specialist boundaries.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "conversation architecture",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-AUTONOMY",
+      "name": "OMNI VISUAL AUTONOMY PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Plan permission-gated acquisition of additional visual evidence.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-WORLD",
+      "name": "OMNI VISUAL WORLD INTELLIGENCE PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Maintain evidence-linked entities, states and relationships.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-CAUSAL-VISION",
+      "name": "OMNI CAUSAL VISION PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Investigate visual change and causal hypotheses.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-MULTIVERSAL-PERCEPTION",
+      "name": "OMNI MULTIVERSAL PERCEPTION PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Coordinate perception across heterogeneous sources.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-SIMULATION",
+      "name": "OMNI VISUAL SIMULATION PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Construct and compare visual or spatial simulation hypotheses.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-FORENSICS",
+      "name": "OMNI VISUAL FORENSICS PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Examine visual artefacts, transformations, integrity and provenance.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-KNOWLEDGE",
+      "name": "OMNI VISUAL KNOWLEDGE PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Extract and organise evidence-linked knowledge from visual sources.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-RESILIENCE",
+      "name": "OMNI VISUAL RESILIENCE PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Preserve perception under partial failure and degraded resources.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-OMNI-VISUAL-EVOLUTION",
+      "name": "OMNI VISUAL EVOLUTION PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Discover and evaluate improvements to visual capabilities.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 35",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-CHRONOS-VELOCITY",
+      "name": "CHRONOS VELOCITY PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Temporal reasoning, sequencing and velocity-aware coordination.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 31",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-STARWIRE",
+      "name": "STARWIRE",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Discover, inspect and preserve candidate capability sources.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 32",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-SYPHON",
+      "name": "SYPHON",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Governed source extraction, gateway handling and evidence checkpoints.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 2 and PR 3",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-UNIVERSAL-CAPABILITY-SYSTEM",
+      "name": "UNIVERSAL CAPABILITY SYSTEM",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Capability discovery, manifest validation, lifecycle registry and improvement assessment.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 2 and PR 7",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-CAPABILITY-ACQUISITION",
+      "name": "UNIVERSAL CAPABILITY ACQUISITION REGISTER",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Track reusable capability candidates, provenance and adoption decisions.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 9 and PR 14",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-UAIE",
+      "name": "UAIE",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Local-first capability intake, provider discovery and integration workflows.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 18 and PR 29",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-UPN-PRIME",
+      "name": "UPN PRIME",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Offline-first private digital infrastructure and governed network control plane.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 23 and PR 24",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-VISION-DD",
+      "name": "V.I.S.I.O.N. + D.D.",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Governed perception, evidence handling and designated-driver execution boundaries.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 25",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-PERFORMANCE-LAB",
+      "name": "PERFORMANCE LAB",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Reproducible performance benchmarking, evaluation and evidence generation.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 10 to PR 13",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-CAPABILITY-SCOUT",
+      "name": "REPOSITORY CAPABILITY SCOUT",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Repository discovery and source-backed candidate reporting.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 26 and PR 27",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-VERIFICATION-AGENT",
+      "name": "VERIFICATION AGENT",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Read-only evidence-claim evaluation; source remains quarantined pending trust hardening.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 4",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-EUPN",
+      "name": "EUPN",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Secure node identity, durable retries and transport verification.",
+      "lifecycle_state": "proposed",
+      "maturity": "declared_or_branch_prototype_not_yet_integrated",
+      "source_reference": "PR 33",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    }
+  ],
+  "visual_capability_domains": [
+    {
+      "id": "OMNISIGHT-DOMAIN-ACQUISITION",
+      "name": "ACQUISITION",
+      "responsibility": "Authorised screen, image, video, camera and connected visual-source acquisition.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-PROCESSING",
+      "name": "PROCESSING",
+      "responsibility": "Image normalisation, enhancement, segmentation, feature extraction and change detection.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-RECOGNITION",
+      "name": "RECOGNITION",
+      "responsibility": "OCR, object, icon, control, document, diagram, chart and anomaly recognition.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-SPATIAL-INTELLIGENCE",
+      "name": "SPATIAL-INTELLIGENCE",
+      "responsibility": "Geometry, layout, tracking, coordinate frames and evidence-supported spatial reconstruction.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-PERCEPTUAL-REASONING",
+      "name": "PERCEPTUAL-REASONING",
+      "responsibility": "Scene and interface understanding, comparative reasoning and ambiguity management.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-TEMPORAL-INTELLIGENCE",
+      "name": "TEMPORAL-INTELLIGENCE",
+      "responsibility": "Frame continuity, event sequences, movement tracks and state changes.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-CONTEXT-MEMORY",
+      "name": "CONTEXT-MEMORY",
+      "responsibility": "Evidence-linked entities, relationships, history, retrieval and retention controls.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-INTERACTION-AUTONOMY",
+      "name": "INTERACTION-AUTONOMY",
+      "responsibility": "Goal-directed acquisition planning, user guidance and permission-gated actions.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    },
+    {
+      "id": "OMNISIGHT-DOMAIN-ASSURANCE-EVOLUTION",
+      "name": "ASSURANCE-EVOLUTION",
+      "responsibility": "Independent verification, calibration, red-team challenge, lifecycle and rollback.",
+      "lifecycle_state": "proposed",
+      "maturity": "specified_in_PR35",
+      "lineage_mapping": null
+    }
+  ],
+  "cross_cutting_intrinsic_capabilities": [
+    {
+      "id": "CAP-UPSTREAM-001",
+      "name": "Continuous Upstream-Change Intelligence & Audit",
+      "category": "upstream_change_monitoring_and_dependency_governance",
+      "purpose": "Detect and assess upstream improvements, security advisories, breaking changes, deprecations, API/schema/protocol changes, CI changes and support lifecycle changes that may affect declared dependencies or planned technology choices.",
+      "status": "SPECIFIED_NOT_VERIFIED",
+      "cadence_target": "weekly",
+      "execution": "Scheduled through the existing weekly capability-discovery automation; not a repository-native CI workflow.",
+      "scope": {
+        "repository": "https://github.com/Jekylhyde82/universal-engine-engineer",
+        "inspect_default_branch_and_relevant_open_pull_request_branches": true,
+        "inspect_manifests_lockfiles_transitive_dependencies_ci_workflows_build_images_source_references_and_api_contracts": true,
+        "planned_only_watchlist": [
+          "LangGraph",
+          "llama.cpp",
+          "LlamaIndex",
+          "Qdrant",
+          "Promptfoo",
+          "DeepEval",
+          "OpenHands",
+          "SWE-agent",
+          "Goose"
+        ]
+      },
+      "outputs": [
+        "dated repository and branch/PR inventory",
+        "actual dependency inventory with exact versions and dependency paths",
+        "upstream improvements and release changes",
+        "security advisories, breaking changes, deprecations and support/licence changes",
+        "API/schema/protocol and CI compatibility impact",
+        "risk-ranked recommendations with authoritative evidence links",
+        "baseline comparison and explicit evidence gaps"
+      ],
+      "governance": {
+        "read_only": true,
+        "auto_upgrade": false,
+        "auto_install": false,
+        "auto_merge": false,
+        "auto_approve": false,
+        "production_mutation": false,
+        "approval_gates_required_for_adoption": true
+      },
+      "maturity": {
+        "declared": true,
+        "implemented": false,
+        "tested": false,
+        "independently_verified": false
+      },
+      "acceptance_criteria": [
+        "Inventory actual dependencies from repository manifests and lockfiles rather than architecture notes.",
+        "Inspect relevant open pull-request branches as well as the default branch.",
+        "Verify findings against authoritative upstream release, advisory, deprecation and support sources.",
+        "Detect beneficial improvements and breaking/security changes.",
+        "Distinguish installed dependencies from planned-only watchlist entries.",
+        "Compare each run with a dated prior baseline.",
+        "Report NO_CHANGE_FOUND separately from UNABLE_TO_VERIFY.",
+        "Produce repeatable reports without modifying dependencies or production state.",
+        "Pass independent review of audit scope, evidence and output integrity."
+      ],
+      "known_gaps": [
+        "Current default branch main exposes only README.md; active pull-request branches contain additional capability and engineering artefacts.",
+        "Actual dependency inventory must be assembled from the relevant working branches and manifests; no claim of installed status is made for the planned watchlist.",
+        "Weekly ChatGPT automation is configured, but the recurring audit has not yet completed its first run."
+      ],
+      "cross_references": [
+        "R05",
+        "R06",
+        "R07",
+        "R08",
+        "R09"
+      ]
+    },
+    {
+      "id": "INT-OMNIVELOCITY-PRIME",
+      "name": "OMNIVELOCITY PRIME",
+      "category": "cross_cutting_performance_capability",
+      "purpose": "Optimise intelligent throughput through dependency-aware batching, safe parallelism, workload scheduling, latency reduction and resource allocation.",
+      "status": "PROPOSED_CROSS_CUTTING_CAPABILITY",
+      "maturity": "catalogue_record_only_not_runtime_verified",
+      "governance": {
+        "no_new_dimension": true,
+        "no_new_umic": true,
+        "no_new_fusion_authority": true,
+        "resource_and_isolation_limits_required": true
+      }
+    },
+    {
+      "id": "INT-HYPERVELOCITY-PRIME",
+      "name": "HYPERVELOCITY PRIME",
+      "category": "cross_cutting_acceleration_capability",
+      "purpose": "Accelerate discovery, analysis, feedback cycles, simulation and approved execution through critical-path optimisation and bounded concurrent work.",
+      "status": "PROPOSED_CROSS_CUTTING_CAPABILITY",
+      "maturity": "catalogue_record_only_not_runtime_verified",
+      "governance": {
+        "no_new_dimension": true,
+        "no_new_umic": true,
+        "no_new_fusion_authority": true,
+        "resource_and_isolation_limits_required": true
+      }
+    }
+  ],
+  "repository_work_portfolio": [
+    {
+      "number": 2,
+      "title": "Universal Capability System source",
+      "head": "extraction/universal-capability-system",
+      "base": "foundation/master-repository-charter",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/2"
+    },
+    {
+      "number": 3,
+      "title": "SYPHON gateway and evidence checkpoints",
+      "head": "extraction/syphon-full-gateway-checkpoints",
+      "base": "extraction/universal-capability-system",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/3"
+    },
+    {
+      "number": 4,
+      "title": "Read-only Verification Agent",
+      "head": "extraction/verification-agent-foundation",
+      "base": "extraction/syphon-full-gateway-checkpoints",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/4"
+    },
+    {
+      "number": 7,
+      "title": "Capability registry validation remediation",
+      "head": "genius-engineer/capability-registry-remediation",
+      "base": "genius-engineer/quarantine-ci-baseline",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/7"
+    },
+    {
+      "number": 8,
+      "title": "Six AI capability integrations",
+      "head": "integration/six-ai-capability-sources",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/8"
+    },
+    {
+      "number": 9,
+      "title": "Universal Capability Acquisition Register",
+      "head": "research/universal-capability-acquisition-register",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/9"
+    },
+    {
+      "number": 10,
+      "title": "Performance Lab V1.0",
+      "head": "performance-lab-v1.0",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/10"
+    },
+    {
+      "number": 11,
+      "title": "Performance Lab runner and evidence",
+      "head": "performance-lab/runner-and-evidence-v1",
+      "base": "performance-lab-v1.0",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/11"
+    },
+    {
+      "number": 12,
+      "title": "GENESIS signed evidence provenance",
+      "head": "performance-lab/genesis-provenance-v1",
+      "base": "performance-lab/runner-and-evidence-v1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/12"
+    },
+    {
+      "number": 13,
+      "title": "Performance Lab evidence hardening",
+      "head": "integration/performance-lab-evidence-hardening-v1",
+      "base": "performance-lab/runner-and-evidence-v1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/13"
+    },
+    {
+      "number": 14,
+      "title": "Upstream-change audit",
+      "head": "research/upstream-change-audit-v1",
+      "base": "research/universal-capability-acquisition-register",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/14"
+    },
+    {
+      "number": 15,
+      "title": "Nine-technology integration plan",
+      "head": "integration/nine-capability-stack-v1",
+      "base": "integration/six-ai-capability-sources",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/15"
+    },
+    {
+      "number": 16,
+      "title": "Provider-neutral runtime and CI",
+      "head": "runtime/core-contracts-v0.1",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/16"
+    },
+    {
+      "number": 18,
+      "title": "UAIE local-first prototype",
+      "head": "uaie/working-prototype-v0.1",
+      "base": "runtime/core-contracts-v0.1",
+      "state": "open",
+      "review": "ready_for_review",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/18"
+    },
+    {
+      "number": 20,
+      "title": "UAIE Android intake alpha",
+      "head": "android/uaie-client-v0.1",
+      "base": "uaie/working-prototype-v0.1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/20"
+    },
+    {
+      "number": 21,
+      "title": "UAIE/UPN foundation v0.1",
+      "head": "uaie/upn-intrinsic-foundation-v0.1",
+      "base": "android/uaie-client-v0.1",
+      "state": "closed_unmerged",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/21"
+    },
+    {
+      "number": 22,
+      "title": "UAIE/UPN foundation v0.2",
+      "head": "uaie/upn-intrinsic-foundation-v0.2",
+      "base": "android/uaie-client-v0.1",
+      "state": "closed_unmerged",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/22"
+    },
+    {
+      "number": 23,
+      "title": "UPN control plane",
+      "head": "uaie/upn-control-plane-v0.1",
+      "base": "uaie/working-prototype-v0.1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/23"
+    },
+    {
+      "number": 24,
+      "title": "UPN offline-first architecture",
+      "head": "uaie/upn-offline-internet-architecture-v0.1",
+      "base": "uaie/upn-control-plane-v0.1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/24"
+    },
+    {
+      "number": 25,
+      "title": "V.I.S.I.O.N. + D.D. architecture",
+      "head": "architecture/vision-dd-production-spec",
+      "base": "extraction/syphon-full-gateway-checkpoints",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/25"
+    },
+    {
+      "number": 26,
+      "title": "Repository Capability Scout prototype",
+      "head": "prototype/repository-capability-scout-v0.1",
+      "base": "research/universal-capability-acquisition-register",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/26"
+    },
+    {
+      "number": 27,
+      "title": "Repository Capability Scout hardening",
+      "head": "production/repository-capability-scout-hardening-v0.2",
+      "base": "research/universal-capability-acquisition-register",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/27"
+    },
+    {
+      "number": 29,
+      "title": "LM Studio inventory and acquisition register",
+      "head": "uaie/lm-studio-catalog-integration-v0.1",
+      "base": "uaie/working-prototype-v0.1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/29"
+    },
+    {
+      "number": 30,
+      "title": "LM Studio adapter and AFI PRIME fusion",
+      "head": "uaie/lm-studio-catalog-adapter-v0.1",
+      "base": "uaie/upn-offline-internet-architecture-v0.1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/30"
+    },
+    {
+      "number": 31,
+      "title": "CHRONOS VELOCITY PRIME × AFI PRIME",
+      "head": "ninefold/chronos-velocity-afi-fusion-v0.1",
+      "base": "uaie/working-prototype-v0.1",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/31"
+    },
+    {
+      "number": 32,
+      "title": "STARWIRE discovery and SYPHON extraction",
+      "head": "starwire/ninefold-intrinsic-syphon-v0.1",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/32"
+    },
+    {
+      "number": 33,
+      "title": "EUPN node identity and TLS",
+      "head": "build/first-substantial-network-node",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/33"
+    },
+    {
+      "number": 34,
+      "title": "Production readiness master blueprint",
+      "head": "docs/production-readiness-master-blueprint-v1.0",
+      "base": "main",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/34"
+    },
+    {
+      "number": 35,
+      "title": "OMNISIGHT PRIME 9 FOLD OMNI foundation",
+      "head": "architecture/omnisight-ninefold-intrinsic-v0.1",
+      "base": "architecture/vision-dd-production-spec",
+      "state": "open",
+      "review": "draft",
+      "url": "https://github.com/Jekylhyde82/universal-engine-engineer/pull/35"
+    }
+  ],
+  "lineage_capacity": {
+    "total": 99,
+    "umic_domains": 9,
+    "master_core_slots": 9,
+    "engine_slots": 81,
+    "mapped_slots": 0,
+    "unmapped_slots": 99,
+    "mapping_status": "UNRESOLVED_PENDING_APPROVED_CANONICAL_REGISTER_EVIDENCE",
+    "instruction": "Do not invent lineage IDs, names, UMIC assignments or mappings."
+  },
+  "governance": {
+    "canonical_afi_instances": 9,
+    "additional_fusion_authorities": 0,
+    "additional_umic_instances": 0,
+    "default_candidate_state": "proposed",
+    "activation_requires": "approved identity, provenance, licence and security review, contract compatibility, resource evaluation, tests, permission review and independent verification",
+    "discovery_is_not_approval": true,
+    "implementation_is_not_verification": true
+  },
+  "known_gaps": [
+    "The 99 lineage slot names, responsibilities and source mappings remain unresolved.",
+    "Most workstreams are open draft PRs and are not automatically integrated into PR 35.",
+    "The UCA source register contains duplicate references; canonical providers are deduplicated while source IDs are retained.",
+    "Candidate providers are not thereby installed, licence-cleared at selected commits, tested or production-ready.",
+    "Preserved source snapshots remain quarantined pending adaptation and target-side validation.",
+    "The 12-dimension register and 99 complementary capability set are proposed architecture records, not implemented runtime capabilities.",
+    "The exact historical 99-name draft was not recoverable; UEE-9FO-UCC-099 is a new, explicitly versioned reconstruction.",
+    "The 99 lineage slots remain unmapped and must not be populated from the complementary capability set.",
+    "Capability ownership, dependency mapping, implementation, tests and independent verification remain required before activation."
+  ],
+  "intrinsic_dimension_register": {
+    "register_id": "UEE-9FO-DIM-012",
+    "path": "architecture/9_FOLD_OMNI_12_INTRINSIC_DIMENSIONS_v1.0.json",
+    "count": 12,
+    "status": "PROPOSED_ARCHITECTURE_REGISTER",
+    "clarifications": [
+      "CHRONOS is temporal reasoning; TEMPORAL is time-dependent operational governance.",
+      "AFI PRIME remains one canonical fusion function instantiated in nine governed UMIC contexts.",
+      "Dimensions are responsibility scopes, not additional UMICs, lineage slots, runtime processes or fusion authorities."
+    ]
+  },
+  "ninefold_complementary_capability_set": {
+    "register_id": "UEE-9FO-UCC-099",
+    "path": "architecture/9_FOLD_OMNI_99_COMPLEMENTARY_CAPABILITIES_v1.0.json",
+    "version": "1.0.0",
+    "status": "PROPOSED_ARCHITECTURE_SET",
+    "origin": "New, explicitly versioned reconstruction. The exact historical 99-name draft was not recoverable; this file does not claim verbatim recovery.",
+    "division_count": 9,
+    "capabilities_per_division": 11,
+    "total_capabilities": 99,
+    "division_summary": [
+      {
+        "id": "UCC-DIV-01",
+        "name": "Universal Intelligence & Cognition",
+        "capability_ids": [
+          "UCC-01-01",
+          "UCC-01-02",
+          "UCC-01-03",
+          "UCC-01-04",
+          "UCC-01-05",
+          "UCC-01-06",
+          "UCC-01-07",
+          "UCC-01-08",
+          "UCC-01-09",
+          "UCC-01-10",
+          "UCC-01-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-02",
+        "name": "Discovery & Knowledge Acquisition",
+        "capability_ids": [
+          "UCC-02-01",
+          "UCC-02-02",
+          "UCC-02-03",
+          "UCC-02-04",
+          "UCC-02-05",
+          "UCC-02-06",
+          "UCC-02-07",
+          "UCC-02-08",
+          "UCC-02-09",
+          "UCC-02-10",
+          "UCC-02-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-03",
+        "name": "Prediction, Simulation & Foresight",
+        "capability_ids": [
+          "UCC-03-01",
+          "UCC-03-02",
+          "UCC-03-03",
+          "UCC-03-04",
+          "UCC-03-05",
+          "UCC-03-06",
+          "UCC-03-07",
+          "UCC-03-08",
+          "UCC-03-09",
+          "UCC-03-10",
+          "UCC-03-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-04",
+        "name": "Engineering & Creation",
+        "capability_ids": [
+          "UCC-04-01",
+          "UCC-04-02",
+          "UCC-04-03",
+          "UCC-04-04",
+          "UCC-04-05",
+          "UCC-04-06",
+          "UCC-04-07",
+          "UCC-04-08",
+          "UCC-04-09",
+          "UCC-04-10",
+          "UCC-04-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-05",
+        "name": "Universal Perception & Situational Awareness",
+        "capability_ids": [
+          "UCC-05-01",
+          "UCC-05-02",
+          "UCC-05-03",
+          "UCC-05-04",
+          "UCC-05-05",
+          "UCC-05-06",
+          "UCC-05-07",
+          "UCC-05-08",
+          "UCC-05-09",
+          "UCC-05-10",
+          "UCC-05-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-06",
+        "name": "Autonomy, Coordination & Execution",
+        "capability_ids": [
+          "UCC-06-01",
+          "UCC-06-02",
+          "UCC-06-03",
+          "UCC-06-04",
+          "UCC-06-05",
+          "UCC-06-06",
+          "UCC-06-07",
+          "UCC-06-08",
+          "UCC-06-09",
+          "UCC-06-10",
+          "UCC-06-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-07",
+        "name": "Security, Integrity & Assurance",
+        "capability_ids": [
+          "UCC-07-01",
+          "UCC-07-02",
+          "UCC-07-03",
+          "UCC-07-04",
+          "UCC-07-05",
+          "UCC-07-06",
+          "UCC-07-07",
+          "UCC-07-08",
+          "UCC-07-09",
+          "UCC-07-10",
+          "UCC-07-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-08",
+        "name": "Memory, Continuity & Knowledge Organisation",
+        "capability_ids": [
+          "UCC-08-01",
+          "UCC-08-02",
+          "UCC-08-03",
+          "UCC-08-04",
+          "UCC-08-05",
+          "UCC-08-06",
+          "UCC-08-07",
+          "UCC-08-08",
+          "UCC-08-09",
+          "UCC-08-10",
+          "UCC-08-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-09",
+        "name": "Evolution, Adaptation & Universal Expansion",
+        "capability_ids": [
+          "UCC-09-01",
+          "UCC-09-02",
+          "UCC-09-03",
+          "UCC-09-04",
+          "UCC-09-05",
+          "UCC-09-06",
+          "UCC-09-07",
+          "UCC-09-08",
+          "UCC-09-09",
+          "UCC-09-10",
+          "UCC-09-11"
+        ]
+      }
+    ],
+    "integration_rules": [
+      "This 99-capability register is distinct from the 99 lineage slots. Do not map capabilities onto lineage placeholders automatically.",
+      "The 99 lineage slots remain unresolved until approved canonical identities, roles, provenance and mappings exist.",
+      "Existing systems including STARWIRE, SYPHON, OMNISIGHT PRIME, CHRONOS VELOCITY PRIME, UPN and EUPN retain independent identities; this register adds complementary responsibilities rather than absorbing or renaming them.",
+      "OMNIVELOCITY PRIME and HYPERVELOCITY PRIME are cross-cutting performance capabilities, not dimensions, divisions, UMICs or fusion authorities.",
+      "STARWIRE discovers and preserves candidate sources; discovery is not approval or integration.",
+      "AFI PRIME coordinates specialists while preserving separate outcomes. It cannot grant itself permissions, approve its own high-impact actions or independently certify its results.",
+      "No capability activates by being listed. Lifecycle: Discovered → Proposed → Under Evaluation → Approved → Integrated / Rejected / Retired.",
+      "Before activation each capability needs an owner, interfaces, dependencies, threat model, resource profile, acceptance tests, evidence and independent verification."
+    ],
+    "acceptance_criteria": [
+      "Exactly nine divisions, each with eleven unique capability records.",
+      "Each capability has a stable ID, responsibility, lifecycle and activation status.",
+      "No additional UMIC, lineage slot or fusion authority is created.",
+      "Cross-capability dependencies, overlap, conflicts and resource costs are evaluated before implementation.",
+      "Implementation and verification claims are tied to repository evidence and passing tests."
+    ]
+  }
+}

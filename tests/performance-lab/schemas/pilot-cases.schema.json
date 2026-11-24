@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/performance-lab/pilot-cases.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalog_id",
+    "version",
+    "status",
+    "cases"
+  ],
+  "properties": {
+    "catalog_id": {
+      "const": "UNIVERSAL-ENGINEER-PERFORMANCE-LAB"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "test_id",
+          "case_id",
+          "objective",
+          "input",
+          "reference_checks",
+          "critical_failures"
+        ],
+        "properties": {
+          "test_id": {
+            "type": "string",
+            "pattern": "^PL-00[1-5]$"
+          },
+          "case_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1
+          },
+          "input": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reference_checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "critical_failures": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

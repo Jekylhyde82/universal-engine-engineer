@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Repository Capability Candidate",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "url",
+    "category",
+    "disposition",
+    "retrieved_at",
+    "gates"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/?$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "language": {
+      "type": "string"
+    },
+    "stars": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "forks": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "license": {
+      "type": "string"
+    },
+    "archived": {
+      "type": "boolean"
+    },
+    "default_branch": {
+      "type": "string"
+    },
+    "pushed_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string"
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "disposition": {
+      "enum": [
+        "DISCOVERED",
+        "TRIAGE_REQUIRED",
+        "EVALUATION_IN_PROGRESS",
+        "PROOF_OF_CAPABILITY_REQUIRED",
+        "APPROVED_FOR_ADAPTER_DESIGN",
+        "DEFERRED",
+        "BLOCKED",
+        "REJECTED"
+      ]
+    },
+    "intended_capability": {
+      "type": "string"
+    },
+    "evidence_notes": {
+      "type": "string"
+    },
+    "risks": {
+      "type": "string"
+    },
+    "gates": {
+      "type": "object",
+      "required": [
+        "G0_SOURCE_IDENTITY",
+        "G1_LICENCE_AND_PROVENANCE",
+        "G2_MAINTENANCE_AND_COMPATIBILITY",
+        "G3_SECURITY_AND_GOVERNANCE",
+        "G4_RESOURCE_AND_DEPLOYMENT",
+        "G5_PROOF_OF_CAPABILITY",
+        "G6_INTEGRATION_APPROVAL",
+        "G7_OPERATIONAL_VERIFICATION"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "G0_SOURCE_IDENTITY": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G1_LICENCE_AND_PROVENANCE": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G2_MAINTENANCE_AND_COMPATIBILITY": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G3_SECURITY_AND_GOVERNANCE": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G4_RESOURCE_AND_DEPLOYMENT": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G5_PROOF_OF_CAPABILITY": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G6_INTEGRATION_APPROVAL": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        },
+        "G7_OPERATIONAL_VERIFICATION": {
+          "enum": [
+            "NOT_ASSESSED",
+            "PASS",
+            "FAIL",
+            "REQUIRES_REVIEW"
+          ]
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
