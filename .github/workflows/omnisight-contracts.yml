@@ -1,5 +1,7 @@
 name: OMNISIGHT PRIME contract validation
 
+# Validates schemas, the VEF ledger, envelope mapping and world-model integration.
+
 on:
   push:
     branches:
