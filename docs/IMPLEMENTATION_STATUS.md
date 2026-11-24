@@ -124,3 +124,16 @@ The tests cover valid examples, semantic-version syntax, prerelease/build versio
 - No application runtime, VEF persistence, UVWM implementation, Android capture pipeline, OCR engine, or production AFI intelligence was implemented by this batch.
 
 **Current OMNISIGHT status: DESIGN SPECIFIED + CONTRACT TESTS/CI GATE ADDED; CI RESULT PENDING; RUNTIME IMPLEMENTATION PENDING.**
+
+
+### Security and privacy design extension — 2026-11-25
+
+Added `architecture/OMNISIGHT_PRIME_SECURITY_PRIVACY_THREAT_MODEL_v0.1.md`:
+- Defines visual-content trust boundaries and a 15-item threat register.
+- Establishes consent, revocation, untrusted-content, evidence-integrity, specialist-isolation, retention, remote-processing and supply-chain requirements.
+- Specifies 12 abuse-case tests and eight security/privacy release gates.
+- Records unresolved platform and implementation decisions rather than assuming controls exist.
+
+Updated `architecture/OMNISIGHT_PRIME_BATCHED_IMPLEMENTATION_PLAN_v0.1.md` with WP-I and an evidence-based status table.
+
+**Verification snapshot:** latest observed branch head is recorded by the repository compare operation. No GitHub Actions run or combined status check was returned for the latest contract-validation commit; CI is **NOT VERIFIED**. The contract test source is committed but has not been executed in this environment. No Android runtime, capture permission flow, evidence store, world model, OCR adapter, or production security control is claimed as implemented.
