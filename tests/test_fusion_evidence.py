@@ -1,3 +1,5 @@
+import hashlib
+import json
 import tempfile
 from dataclasses import replace
 import unittest
@@ -14,17 +16,28 @@ from universal_engine.providers.registry import ProviderKind, ProviderRegistry
 
 def make_result(fusion_id=None, correlation_id=None):
     correlation_id = correlation_id or str(uuid4())
+    provider_result = ProviderResult(
+        correlation_id=correlation_id,
+        status=ResultStatus.SUCCEEDED,
+        output={"finding": "synthetic fixture"},
+    )
+    result_payload = {
+        "correlation_id": provider_result.correlation_id,
+        "status": provider_result.status.value,
+        "output": dict(provider_result.output),
+        "error_code": provider_result.error_code,
+        "error_message": provider_result.error_message,
+    }
+    result_digest = hashlib.sha256(
+        json.dumps(result_payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    ).hexdigest()
     outcome = SpecialistOutcome(
         provider_id="specialist.critic",
         capability_id="capability.critic",
         correlation_id=correlation_id,
         request_sha256="a" * 64,
-        result_sha256="b" * 64,
-        result=ProviderResult(
-            correlation_id=correlation_id,
-            status=ResultStatus.SUCCEEDED,
-            output={"finding": "synthetic fixture"},
-        ),
+        result_sha256=result_digest,
+        result=provider_result,
         elapsed_ms=1.25,
     )
     return FusionResult(
@@ -63,7 +76,7 @@ class SQLiteFusionEvidenceTests(unittest.TestCase):
             self.assertEqual(len(events), 1)
             self.assertEqual(events[0].fusion_id, result.fusion_id)
             self.assertEqual(events[0].request_sha256, "a" * 64)
-            self.assertEqual(events[0].result_sha256, "b" * 64)
+            self.assertEqual(events[0].result_sha256, result.outcomes[0].result_sha256)
             self.assertTrue(ledger.verify_chain())
             self.assertEqual(len(ledger.events(result.fusion_id)), 1)
             self.assertFalse(hasattr(events[0], "raw_output"))
@@ -94,6 +107,15 @@ class SQLiteFusionEvidenceTests(unittest.TestCase):
     def test_rejects_invalid_request_digest(self):
         result = make_result()
         outcome = replace(result.outcomes[0], request_sha256="not-a-digest")
+        invalid = replace(result, outcomes=(outcome,))
+        with SQLiteFusionEvidenceLedger(":memory:") as ledger:
+            with self.assertRaises(ContractViolation):
+                ledger.record(invalid)
+            self.assertEqual(ledger.events(), ())
+
+    def test_rejects_result_digest_that_does_not_match_provider_result(self):
+        result = make_result()
+        outcome = replace(result.outcomes[0], result_sha256="c" * 64)
         invalid = replace(result, outcomes=(outcome,))
         with SQLiteFusionEvidenceLedger(":memory:") as ledger:
             with self.assertRaises(ContractViolation):
