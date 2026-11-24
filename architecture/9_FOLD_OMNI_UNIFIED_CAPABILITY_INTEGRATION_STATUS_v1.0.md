@@ -6,7 +6,7 @@
 
 ## Reconciled inventory
 
-The source-backed Universal Capability Acquisition Register contains 30 records. Two are explicitly marked duplicate references, leaving 28 unique provider records. The nine-technology integration register adds Goose as a distinct provider and enriches providers already known in the acquisition register. The canonical provider catalogue therefore contains 29 unique external providers, deduplicated by repository URL while retaining source register IDs and integration metadata.
+The source-backed Universal Capability Acquisition Register contains 30 records. Two are explicitly marked duplicate references, leaving 28 unique provider records. The nine-technology integration register adds two distinct provider records not present in that acquisition register: the separate OpenHands/OpenHands repository and Goose. The canonical provider catalogue therefore contains 30 unique external providers, deduplicated by repository URL while retaining source register IDs and integration metadata.
 
 The catalogue also records known intrinsic capability identities, all nine OMNISIGHT visual domains, the upstream-change audit capability and the current repository engineering portfolio. These records preserve identity and provenance; they do not imply approval, installation, integration or operational readiness.
 
