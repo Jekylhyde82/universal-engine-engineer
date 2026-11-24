@@ -100,3 +100,27 @@ This is a deterministic orchestration/state-boundary proof, **not** an intellige
 - **Production release: NO-GO.**
 
 This addendum supersedes no historical snapshot. It records the prototype's tested capabilities without promoting them to production claims.
+
+
+## OMNISIGHT PRIME contract validation — 2026-11-25
+
+**Working branch:** `architecture/omnisight-ninefold-intrinsic-v0.1`  
+**Pull request:** [#35](https://github.com/Jekylhyde82/universal-engine-engineer/pull/35) — draft, not merged
+
+### Contract validation foundation
+
+Added:
+- `schemas/omnisight/requirements-test.txt` — pinned `jsonschema[format]==4.23.0` test dependency.
+- `schemas/omnisight/tests/test_contracts.py` — Draft 2020-12 schema meta-validation and positive/negative contract fixtures for capability manifests and observation envelopes.
+- `.github/workflows/omnisight-contracts.yml` — targeted GitHub Actions validation workflow.
+
+The tests cover valid examples, semantic-version syntax, prerelease/build versions, lifecycle enums, duplicate operations, unknown properties, date-time formats, confidence bounds, required evidence references and digest syntax.
+
+### Evidence and limitations
+
+- The three files were committed to the PR branch in separate commits.
+- A local regex spot-check confirmed the intended semantic-version examples match and malformed `1.2` is rejected. This is not a substitute for executing the committed test suite.
+- The workflow-run lookup available in this inspection returned no associated run. **Automated CI execution remains pending/unverified.**
+- No application runtime, VEF persistence, UVWM implementation, Android capture pipeline, OCR engine, or production AFI intelligence was implemented by this batch.
+
+**Current OMNISIGHT status: DESIGN SPECIFIED + CONTRACT TESTS/CI GATE ADDED; CI RESULT PENDING; RUNTIME IMPLEMENTATION PENDING.**
