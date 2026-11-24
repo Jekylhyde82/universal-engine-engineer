@@ -277,6 +277,14 @@ Discovery never automatically authorises acquisition, execution, fusion, install
 
 ---
 
+### 3.4 Fusion-function identity and lineage reconciliation
+
+PR #25 proposes one canonical, versioned UNIFIED FUSION SYNERGY — AFI PRIME function with nine scoped instances, one per UMIC domain. Each instance has its own execution context, state namespace, evidence stream and fault-containment domain; shared logic does not imply shared mutable state or inherited permissions.
+
+PR #25 also records 99 constituent lineage slots: nine UMIC-domain lineages, nine Master Core lineages and 81 Engine lineages. This is a lineage accounting model, not a replacement for the 90 Core Node count (nine Master Cores plus 81 Engines).
+
+**Disposition:** preserve this as a proposed architecture decision on the PR #25 branch. Before adoption, reconcile it explicitly against the existing nested UMIC / AFI / Fusion Synergy model, the 11-level Fusion Synergy structure, the Dual-Ninefold governance model, the nine registers and the 184-entry Architecture Register. Confirm whether the canonical Fusion Synergy function has nine scoped instances and how those instances map to the nested architecture. No source-to-slot identity, numbering or responsibility mapping may be invented. The design must retain per-instance isolation, permissions, evidence and fault boundaries even if one shared implementation is used.
+
 ## 4. Intelligence and specialist architecture
 
 ### 4.1 OGAP
