@@ -5,7 +5,8 @@ It provides tamper-evidence for internal records, not proof of visual truth.
 """
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from contextlib import closing
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -76,7 +77,7 @@ class EvidenceStore:
         return connection
 
     def _initialise(self) -> None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection:
             connection.execute("""
                 CREATE TABLE IF NOT EXISTS evidence_records (
                     sequence INTEGER PRIMARY KEY AUTOINCREMENT,
