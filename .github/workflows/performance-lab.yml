@@ -25,4 +25,4 @@ jobs:
           cache: "pip"
       - run: python -m pip install -e ".[performance-lab]"
       - run: performance-lab validate --records tests/performance-lab
-      - run: pytest -q
+      - run: pytest -q tests/performance-lab
