@@ -65,3 +65,12 @@ The current branch is a design-and-contract increment, not a runnable OMNISIGHT 
 - 15 tests passed, 0 failed, using Python 3.12.16 and `jsonschema[format]==4.23.0`.
 - PR head under test: `921c40fa0de2dab63afceaf1b40eb32122c661b1`; CI checked out merge ref `9a7f1adff742f2c262b2344c8b740a97b842b80d`.
 - This closes the initial schema-definition and fixture-validation gate only. It does not establish runtime, security, device, model-quality or production acceptance.
+
+
+### Contract hardening evidence
+
+Two trust-boundary rules are now encoded and tested:
+- `verified` observations require a non-empty `verification_ref`.
+- `approved` and `integrated` capability manifests require an artifact digest and complete source/licence/review provenance.
+
+GitHub Actions run [45480626855](https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/45480626855) passed **20 tests, 0 failures** on commit `f5b2d35b390a104d75afa6be6034c668d5ed931b`. Runtime verification of those references and lifecycle authority remains a downstream implementation requirement.
