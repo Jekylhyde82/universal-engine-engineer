@@ -193,3 +193,8 @@ Added:
 **Verification state:** CI run #35 passed the prior evidence-ledger batch. The envelope/world-model integration batch is committed after that run; a successful CI run for this newer head has not yet been observed. Do not mark this batch verified until its CI result is checked.
 
 **Remaining limitations:** The world model is a typed assertion store, not yet a full entity-resolution, temporal graph or causal model. Verifier identity is not cryptographically authenticated. Android capture, OCR, production AFI orchestration and target-device benchmarks remain unimplemented.
+
+
+### CI failure and correction — 2026-11-25
+
+The first CI execution of the envelope/world-model integration batch exposed two stale test constructor calls after the world model was strengthened to require an evidence-ledger path. The failing job log identified both errors precisely. Both test call sites have now been corrected to provide the ledger path. The schema tests and all other runtime tests passed in that failed run; the corrected integration batch is awaiting a fresh CI execution. The failed run is retained in the history and is not represented as a pass.
