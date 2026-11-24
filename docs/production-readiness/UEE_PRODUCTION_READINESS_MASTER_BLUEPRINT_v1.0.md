@@ -95,6 +95,130 @@ References:
 
 ---
 
+## 2.3 Existing production-readiness control record
+
+GitHub Issue #17 — **Production Readiness Master Gate — NINEFOLD INTRINSIC** — is the repository's pre-existing single production-readiness control record. This blueprint is a supporting controlled reference document; it does not replace Issue #17 or create a parallel authority. Update Issue #17 with material execution findings, blockers and evidence. Preserve its existing guardrails and the existing PR dependency graph.
+
+Control record: https://github.com/Jekylhyde82/universal-engine-engineer/issues/17
+
+The repository's other open work items must be reconciled against Issue #17 before merging or activating anything. Existing work is not to be discarded, force-pushed, flattened or merged indiscriminately.
+
+## 2.4 Pull-request inventory and dependency map
+
+The live repository inspection found open PRs #1–#34. They are separate workstreams, many intentionally stacked. PR status and base/head relationships below were read from GitHub on 2026-11-24.
+
+### A. Charter, source preservation and quarantine
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #1 | Master repository charter | main | Draft; source inventory and charter. No migration or full validation claimed. |
+| #2 | Preserve Universal Capability System source | #1 branch | Draft; 33 source files preserved under quarantine. Source contains confirmed semantic-version/timestamp regex defects. |
+| #3 | Preserve SYPHON gateway and evidence checkpoints | #2 branch | Draft; 18 source files quarantined. Product-specific gateway; source NO-GO decision and implementation mismatches recorded. |
+| #4 | Preserve read-only Verification Agent foundation | #3 branch | Draft; read-only evaluator trusts caller-supplied evidence flags; not an independent verifier. |
+| #5 | Preserve hardened SYPHON runtime adapter | #4 branch | Draft; 13 source contract tests reported passing; mocked tests only; provider response remains unverified. |
+| #6 | Quarantine CI baseline | #5 branch | Draft; 204 tests reported, 191 passed and 13 failed in preserved source registry suites. |
+| #7 | Separate registry remediation overlay | #6 branch | Draft; 10/10 overlay tests passed; original quarantined source remains unchanged. |
+
+Dependency chain: #1 → #2 → #3 → #4 → #5 → #6 → #7.
+
+**Disposition:** preserve source lineage and quarantine. Do not activate or import these snapshots into the runtime until target-specific review, defect remediation, compatibility testing, security review and independent acceptance are complete. The original failed source tests remain evidence and must not be erased by the overlay.
+
+### B. Capability acquisition, technology research and upstream audit
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #8 | Evaluate six AI capability integrations | main | Documentation/research only; no packages installed or adapters implemented. |
+| #9 | Universal Capability Acquisition Register and UCEE specification | main | Specification and preliminary OPA/gVisor evaluation; candidates not approved or installed. |
+| #14 | Upstream-change audit capability and nine-register index | #9 branch | Specification only; first recurring audit has not run. |
+| #15 | Extend integration plan to nine technology candidates | #8 branch | Documentation only; no provider installed or integrated. |
+| #26 | Repository Capability Scout prototype | #9 branch | Browser prototype; live browser, rate-limit and end-to-end testing outstanding. |
+| #27 | Repository Capability Scout hardening | #9 branch | Static smoke-test workflow passed 5/5 on observed head; not browser E2E, penetration testing or independent security verification. |
+
+Dependency relationships: #8 → #15; #9 → #14, #26 and #27. PR #26 and #27 are parallel branches from #9, not a verified sequential merge chain.
+
+**Disposition:** retain provider-neutral contracts, approval gates and source provenance. Treat OpenHands, SWE-agent, Goose and other candidate technologies as optional candidates, not mandatory simultaneous dependencies. Do not infer that a weekly automation is operational merely because its specification exists.
+
+### C. Performance Lab and GENESIS evidence
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #10 | Performance Lab V1.0 benchmark specification and pilot assets | main | Five benchmark definitions and pilot cases; pilot cases were not executed. |
+| #11 | Evidence-first Performance Lab runner | #10 branch | CI run passed on observed head; harness implementation, not benchmark outcome evidence. |
+| #12 | GENESIS-aligned signed evidence provenance | #11 branch | CI run passed on observed head; Ed25519 manifests and artifact/revision binding. |
+| #13 | Batch validation and GENESIS evidence-contract hardening | #11 branch | CI run passed on observed head; hardening tests and contract clarification. |
+
+Dependency relationships: #10 → #11 → (#12, #13).
+
+PR #13 explicitly distinguishes Python PL-005 (eleven arms; at least 33 records at three repetitions) from GENESIS Protocol 1.5 (five cases × two paired conditions × three repetitions = 30 planned trials). These protocols must not be conflated. No authentic PL-005 or GENESIS trial set, measured improvement, synergy result or independent calibration is established by passing harness tests.
+
+### D. Runtime, UAIE, Android, UPN and acquisition
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #16 | Provider-neutral runtime contracts and CI | main | Exact observed head has a successful Python CI run. Four adapter domains are implemented; identity/authentication, distributed authorization, external audit anchoring, evaluation harnesses and operations remain incomplete. |
+| #18 | UAIE local-first working prototype | #16 branch | Open, non-draft; no exact-head workflow run found in this inspection. Historical 76-test claim does not match the current head and is not accepted as current evidence. |
+| #20 | Offline-first UAIE Android intake alpha | #18 branch | Exact observed head has a successful debug-APK workflow. Test artifact only; no production signing, physical-device acceptance, remote sync or authentication. |
+| #23 | Intrinsic UAIE + UPN control-plane foundation | #18 branch | No exact-head CI run found; control-plane specification only, not a live network or VPN. |
+| #24 | UPN offline-first architecture specification | #23 branch | Documentation only; no network, routes, keys, infrastructure or deployment. |
+| #29 | LM Studio local model inventory and acquisition register | #18 branch | Code and tests described in PR; no exact-head workflow run found. Read-only local inventory, no model weights downloaded or executed. |
+| #30 | Governed model.yaml acquisition and AFI PRIME fusion | #24 branch | Code and tests described in PR; no exact-head workflow run found. Approval-gated acquisition path; no production deployment. |
+| #31 | CHRONOS VELOCITY PRIME × AFI PRIME fusion | #18 branch | Design/documentation only; no exact-head workflow run found and no runtime fusion implementation claimed. |
+
+Dependency relationships: #16 → #18 → (#20, #23, #29, #31); #23 → #24 → #30. PR #20 is a separate Android branch, not a replacement for the Python/service runtime.
+
+**Disposition:** preserve the Android client as an offline-capable control/intake client. The OPPO A6 is not the default host for heavyweight inference, vector databases, crawling or coding-agent sandboxes. Validate target-device performance before local execution expansion. Keep network profile configuration separate from proof of a live network.
+
+### E. V.I.S.I.O.N. and D.D. governed perception/execution
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #25 | V.I.S.I.O.N. + D.D. production architecture and prototype | #3 branch | Exact observed head has successful policy, CodeQL and nine-instance runtime workflows. 132 policy tests and 8 runtime isolation tests are reported for the implementation line. Prototype only; release decision NO-GO. |
+| #28 | Separate read-only V.I.S.I.O.N. evidence verifier | #25 branch | Exact observed head has a successful policy workflow. Adds 8 HTTP-level verifier tests; provider remains injected and must be independently operated. No production verifier deployment. |
+
+Dependency relationship: #3 → #25 → #28.
+
+The prototype separates governed D.D. orchestration, executor and verifier roles; uses signed short-lived action grants, nonce replay protection, hash-chained local audit, task/action claims, cancellation handling, supervised Playwright browser contexts and signed readback verification. The nine-process AFI PRIME proof demonstrates separate process-local state and fault containment in tests; it is not a hardened OS/container boundary or a complete intelligence runtime.
+
+**VISION limitations:** no calibrated visual AI/OCR, visual prompt-injection evaluation, screenshot redaction, spatial-grounding validation, Android MediaProjection/accessibility companion or target-device acceptance.
+
+**D.D. limitations:** no production identity provider, trusted approval UI, production key provisioning/rotation, hardened browser-host deployment, OS-level egress isolation, external audit anchoring, crash-orphan cleanup, production monitoring or independent penetration test.
+
+No live camera, screen or device access is enabled by these PRs. VISION remains a read-only evidence/perception role; D.D. remains a governed execution role. They are distinct capabilities and must not be coupled into unrestricted authority.
+
+### F. STARWIRE/SYPHON and EUPN transport
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #32 | STARWIRE ninefold discovery and SYPHON extraction foundation | main | Exact observed CI run passed 11 standard-library tests on Python 3.12. Prototype only; DNS rebinding/egress, robots/terms enforcement, source-payload evidence, operational controls and independent security review remain blockers. |
+| #33 | EUPN SAN identity, durable retries and two-node TLS | main | Exact observed CI run passed 8 tests on Python 3.11, 3.12 and 3.13, including a two-node mTLS retry scenario. Transport milestone only; certificate lifecycle, application authorization, limits, backup/recovery and operations remain blockers. |
+
+Both are draft PRs and must remain unmerged until their code review, security review, architecture integration and acceptance evidence are complete.
+
+### G. Production-readiness documentation
+
+| PR | Work | Base branch | Current evidence/disposition |
+|---|---|---|---|
+| #34 | This Production Readiness Master Blueprint | main | Draft documentation PR. Supports Issue #17; does not replace the master control record or declare production readiness. |
+
+### H. Evidence interpretation
+
+Successful CI runs were confirmed on the observed branch heads for PR #11, #12, #13, #16, #20, #25, #27, #28, #32 and #33. For PR #32, the logged suite ran 11 tests. For PR #33, the logged Python 3.11 job ran 8 tests; the workflow matrix also completed successfully on Python 3.12 and 3.13. PR #25's exact observed head had successful policy, CodeQL and nine-instance runtime workflows; PR #28's exact observed head had a successful policy workflow.
+
+No exact-head workflow run was found in this inspection for PR #18, #23, #29, #30 or #31. PR #14 and #15 are documentation/specification branches without a claimed implementation test. A CI pass proves only the tests and commit actually run. CodeQL workflow success does not establish an empty or reviewed alert inventory. A debug APK artifact is not a production-signed release. A prototype is not a deployment.
+
+### I. Required integration order
+
+Do not flatten the PR graph or merge by numerical order. The integration plan must:
+1. Preserve #1–#7 quarantined provenance and separately reviewed remediation.
+2. Establish the #1 master charter and reconcile it with the canonical NINEFOLD INTRINSIC decisions.
+3. Review #8/#9 and their dependent research/audit branches (#14/#15/#26/#27).
+4. Review Performance Lab #10–#13, keeping test-harness evidence distinct from actual benchmark trial evidence.
+5. Review #16 before #18; then evaluate Android #20, UPN #23/#24 and model-acquisition #29/#30 on their actual dependency bases.
+6. Review VISION/D.D. #25 and #28 on the preserved #3 lineage without promoting quarantined gateway code.
+7. Review #31 as a design item, not a deployed fusion.
+8. Review #32 and #33 as separate prototypes and integrate only after contracts, security controls and common operational standards are agreed.
+9. Maintain Issue #17 as the single release-control record; update it with every material decision, blocker and evidence reference.
+
 ## 3. Architecture invariants and target topology
 
 NINEFOLD INTRINSIC is the governing architecture focus. Intrinsic means foundational requirements are considered from inception, not attached later as disconnected bolt-ons. Inheritance is implemented through applicable contracts, interfaces, governance and evidence—not by duplicating every service in every component.
