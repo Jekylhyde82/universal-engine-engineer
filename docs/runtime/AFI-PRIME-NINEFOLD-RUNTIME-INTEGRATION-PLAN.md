@@ -95,7 +95,7 @@ The bridge must reject unknown protocol versions, identity mismatches, stale gra
 
 | Order | Work item | Acceptance evidence |
 |---:|---|---|
-| 1 | Define JSON Schema for request, response, error and evidence-reference envelopes | Schema validation and compatibility fixtures |
+| 1 | Define JSON Schema for request, response, error and evidence-reference envelopes | **Schema draft committed** at `packages/ninefold-fusion-runtime/schemas/afi-prime-ipc-v1.schema.json`; schema-validator and compatibility-fixture tests remain required |
 | 2 | Add typed IPC dispatch command to the Node worker and runtime | Unit tests for allowlist, validation, correlation and denial |
 | 3 | Add a Python bridge client with strict timeout and UNKNOWN semantics | Contract tests against a deterministic local fixture |
 | 4 | Bind provider registry entries to approved UMIC/capability assignments | Registry consistency tests; no inferred 99-lineage mappings |
@@ -104,7 +104,13 @@ The bridge must reject unknown protocol versions, identity mismatches, stale gra
 | 7 | Add OS-level sandbox, resource limits, egress policy, secret isolation and signed external checkpoints | Host-level security evidence and independent review |
 | 8 | Run target-device/offline and load/fault campaigns | Reproducible benchmark and recovery report |
 
-## 8. Explicit non-goals for this work package
+## 8. Implementation progress — 2026-11-25
+
+- **Completed as a contract artifact:** added the strict JSON Schema draft for AFI PRIME IPC protocol v1. It defines request/response identity binding, nine UMIC target IDs, correlation and fusion IDs, policy/grant references, deadlines, payload/result digests, idempotency classification, evidence-chain references and explicit UNKNOWN-after-start semantics.
+- **Not yet implemented:** transport-level byte limits, authenticated principal/grant verification, schema execution in the Node worker or Python bridge, duplicate-correlation storage, and end-to-end dispatch. JSON Schema is structural validation only; it does not establish identity, authority or network safety.
+- **Next acceptance gate:** add a pinned schema validator and positive/negative compatibility fixtures, then wire the same contract into both runtimes before enabling dispatch.
+
+## 9. Explicit non-goals for this work package
 
 - No new fusion function, fusion authority or tenth instance.
 - No inferred names or assignments for the 99 lineage placeholders.
