@@ -1,13 +1,11 @@
-import sqlite3
 import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from universal_engine.contracts import ProviderResult, ResultStatus
-from universal_engine.fusion import FusionResult, FusionStatus, FUSION_FUNCTION_ID, SpecialistOutcome
-from universal_engine.fusion_evidence import SQLiteFusionEvidenceLedger
+from universal_engine import ContractViolation, FusionResult, FusionStatus, ProviderResult, ResultStatus, SQLiteFusionEvidenceLedger, SpecialistOutcome
+from universal_engine.fusion import FUSION_FUNCTION_ID
 
 
 def make_result(fusion_id=None, correlation_id=None):
@@ -75,7 +73,7 @@ class SQLiteFusionEvidenceTests(unittest.TestCase):
         with SQLiteFusionEvidenceLedger(":memory:") as ledger:
             result = make_result()
             ledger.record(result)
-            with self.assertRaises(sqlite3.IntegrityError):
+            with self.assertRaises(ContractViolation):
                 ledger.record(result)
             self.assertEqual(len(ledger.events()), 1)
             self.assertTrue(ledger.verify_chain())
