@@ -4,6 +4,36 @@ from types import SimpleNamespace
 
 from performance_lab.runner import ROOT, SCHEMA, TEST_IDS, canonical_json_hash, command_report, command_run, command_validate, conditions_for_test, load_json, sha256, validate_assets, validate_record
 
+def _synthetic_evidence_fields():
+    """Schema-complete placeholders for unit tests only; never benchmark evidence."""
+    digest = sha256("synthetic-test-fixture")
+    evaluator = {
+        "evaluator_id": "synthetic-test-evaluator",
+        "provider": "test-fixture",
+        "model": "synthetic",
+        "version": "0",
+        "instruction_sha256": digest,
+        "calibration_status": "PASS",
+        "calibration_reference": "SYNTHETIC_TEST_ONLY",
+        "calibration_sha256": digest,
+    }
+    return {
+        "trial_execution": {
+            "trial_id": "TRIAL-001", "blind_label": "BLIND-001",
+            "unpersonalized_confirmed": True, "context_type": "Unpersonalized Temporary Chat",
+            "context_reference": "SYNTHETIC_TEST_ONLY", "captured_at": "2026-11-10T00:00:00Z",
+            "model_label": "synthetic-test-model", "settings": "synthetic fixture",
+            "tools_used": "none", "capture_reference": "SYNTHETIC_TEST_ONLY",
+            "canonical_prompt_sha256": digest, "raw_response_sha256": digest,
+        },
+        "assessor": {"assessor_id": "synthetic-test-assessor", "blinded_condition": True, "independent": True},
+        "adversarial_review": {
+            "reviewer_id": "synthetic-test-reviewer", "blinded_condition": True, "independent": True,
+            "checks": [{"check_id": "synthetic-check", "outcome": "not_assessed", "finding": "Synthetic unit-test fixture only."}],
+        },
+        "assessment": {"protocol_version": "1.0", "scorer": evaluator, "adversarial_reviewer": dict(evaluator), "rationales": {}},
+    }
+
 
 def test_assets_cover_exactly_five_tests_and_rubric_totals_100():
     assert validate_assets() == []
@@ -13,6 +43,7 @@ def test_assets_cover_exactly_five_tests_and_rubric_totals_100():
 def test_valid_record_passes_schema():
     schema = load_json(SCHEMA)
     record = {
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "unit-test-run", "test_id": "PL-001",
         "case_id": "PL-001-C01", "condition": "baseline", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -94,7 +125,7 @@ def test_invalid_multiarms_payload_writes_no_partial_records(tmp_path):
         payload[test_id] = {}
         for condition in conditions:
             payload[test_id][condition + "_configuration"] = {"model": "test"}
-            payload[test_id][condition] = [{"output": "one"}, {"output": "two"}, {"output": "three"}]
+            payload[test_id][condition] = [{"output": "one", **_synthetic_evidence_fields()}, {"output": "two", **_synthetic_evidence_fields()}, {"output": "three", **_synthetic_evidence_fields()}]
     # Remove one required PL-005 arm; preflight must fail before creating records.
     del payload["PL-005"]["specialist_9"]
     response_path = tmp_path / "responses.json"
