@@ -2,7 +2,7 @@ import json
 import unittest
 from pathlib import Path
 
-CATALOG = Path(__file__).resolve().parents[1] / '9_FOLD_OMNI_UNIFIED_CAPABILITY_CATALOG_v1.0.json'
+CATALOG = Path(__file__).resolve().parents[2] / '9_FOLD_OMNI_UNIFIED_CAPABILITY_CATALOG_v1.0.json'
 
 class UnifiedCapabilityCatalogTests(unittest.TestCase):
     @classmethod
