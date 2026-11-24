@@ -1,0 +1,2 @@
+# Direct evaluation dependency pin; transitive hash lock is still required before production.
+deepeval==4.3.4
