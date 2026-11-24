@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://universal-engine.invalid/schemas/afi-prime-ipc-v1.schema.json",
+  "title": "AFI PRIME Nine-Instance IPC Protocol v1",
+  "description": "Strict request/response envelope contract. Schema validation does not authenticate principals or grants and does not enforce transport byte limits.",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/response" }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version", "fusion_id", "correlation_id",
+        "fusion_function_id", "fusion_function_version",
+        "target_umic_id", "provider_id", "capability_id", "operation",
+        "principal_ref", "policy_version", "grant_ref",
+        "deadline", "payload_sha256", "idempotency", "payload"
+      ],
+      "properties": {
+        "protocol_version": { "const": "1.0" },
+        "fusion_id": { "type": "string", "format": "uuid" },
+        "correlation_id": { "type": "string", "format": "uuid" },
+        "fusion_function_id": { "const": "UNIFIED FUSION SYNERGY — AFI PRIME" },
+        "fusion_function_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "target_umic_id": { "type": "string", "pattern": "^UMIC-0[1-9]$" },
+        "provider_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "capability_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "operation": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "principal_ref": { "type": "string", "pattern": "^[A-Za-z0-9._:-]{1,160}$" },
+        "policy_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "grant_ref": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "deadline": { "type": "string", "format": "date-time" },
+        "payload_sha256": { "$ref": "#/$defs/sha256" },
+        "idempotency": { "enum": ["read_only", "idempotent", "non_idempotent"] },
+        "payload": { "type": "object", "maxProperties": 64 }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version", "fusion_id", "correlation_id",
+        "fusion_function_id", "fusion_function_version",
+        "target_umic_id", "provider_id", "capability_id",
+        "status", "elapsed_ms", "request_sha256", "result_sha256",
+        "instance_evidence_sequence", "instance_evidence_head_sha256",
+        "execution_outcome"
+      ],
+      "properties": {
+        "protocol_version": { "const": "1.0" },
+        "fusion_id": { "type": "string", "format": "uuid" },
+        "correlation_id": { "type": "string", "format": "uuid" },
+        "fusion_function_id": { "const": "UNIFIED FUSION SYNERGY — AFI PRIME" },
+        "fusion_function_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "target_umic_id": { "type": "string", "pattern": "^UMIC-0[1-9]$" },
+        "provider_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "capability_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "status": { "enum": ["succeeded", "denied", "failed", "unknown"] },
+        "output": { "type": "object", "maxProperties": 64 },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": { "type": "string", "minLength": 1, "maxLength": 96 },
+            "message": { "type": "string", "maxLength": 1024 }
+          }
+        },
+        "elapsed_ms": { "type": "number", "minimum": 0 },
+        "request_sha256": { "$ref": "#/$defs/sha256" },
+        "result_sha256": { "$ref": "#/$defs/sha256" },
+        "instance_evidence_sequence": { "type": "integer", "minimum": 1 },
+        "instance_evidence_head_sha256": { "$ref": "#/$defs/sha256" },
+        "execution_outcome": {
+          "enum": ["completed", "denied", "failed_before_start", "unknown_after_start"]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "succeeded" } }, "required": ["status"] },
+          "then": { "required": ["output"], "not": { "required": ["error"] } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "denied" } }, "required": ["status"] },
+          "then": { "required": ["error"], "not": { "required": ["output"] } }
+        },
+        {
+          "if": { "properties": { "status": { "const": "failed" } }, "required": ["status"] },
+          "then": { "required": ["error"] }
+        },
+        {
+          "if": { "properties": { "status": { "const": "unknown" } }, "required": ["status"] },
+          "then": {
+            "properties": { "execution_outcome": { "const": "unknown_after_start" } },
+            "required": ["error"]
+          }
+        }
+      ]
+    }
+  }
+}
