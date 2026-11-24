@@ -207,6 +207,10 @@ def verify_ledger(database: str | Path) -> LedgerVerification:
         ).fetchall()
         previous = GENESIS_HASH
         for index, row in enumerate(rows, start=1):
+            if row["sequence"] != index:
+                return LedgerVerification(
+                    False, index, row["record_id"], "sequence discontinuity"
+                )
             if row["previous_hash"] != previous:
                 return LedgerVerification(False, index, row["record_id"], "previous-hash link mismatch")
             expected = hashlib.sha256(_canonical(_record_body(row))).hexdigest()
