@@ -14,11 +14,24 @@ import re
 import sqlite3
 import threading
 
-from .contracts import ContractViolation
+from .contracts import ContractViolation, ProviderResult
 from .fusion import FUSION_FUNCTION_ID, FusionResult
 
 
 _HEX_256 = re.compile(r"^[a-f0-9]{64}$")
+
+
+def _expected_result_hash(result: ProviderResult) -> str:
+    payload = {
+        "correlation_id": result.correlation_id,
+        "status": result.status.value,
+        "output": dict(result.output),
+        "error_code": result.error_code,
+        "error_message": result.error_message,
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    ).hexdigest()
 
 
 @dataclass(frozen=True, slots=True)
@@ -103,6 +116,8 @@ class SQLiteFusionEvidenceLedger:
             raise ContractViolation("fusion outcome correlation IDs must be unique")
 
         for outcome in result.outcomes:
+            if not isinstance(outcome.result, ProviderResult):
+                raise ContractViolation("every specialist outcome must contain a ProviderResult")
             if not isinstance(outcome.elapsed_ms, (int, float)) or isinstance(outcome.elapsed_ms, bool):
                 raise ContractViolation("elapsed_ms must be a finite non-negative number")
             if not math.isfinite(outcome.elapsed_ms) or outcome.elapsed_ms < 0:
@@ -111,6 +126,8 @@ class SQLiteFusionEvidenceLedger:
                 raise ContractViolation("request_sha256 must be a lowercase SHA-256 digest")
             if not _HEX_256.fullmatch(outcome.result_sha256):
                 raise ContractViolation("result_sha256 must be a lowercase SHA-256 digest")
+            if outcome.result_sha256 != _expected_result_hash(outcome.result):
+                raise ContractViolation("result_sha256 does not match the specialist ProviderResult")
             if outcome.result.correlation_id != outcome.correlation_id:
                 raise ContractViolation("outcome correlation ID does not match provider result")
 
