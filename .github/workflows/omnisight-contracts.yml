@@ -1,0 +1,38 @@
+name: OMNISIGHT PRIME contract validation
+
+on:
+  push:
+    branches:
+      - "architecture/omnisight-ninefold-intrinsic-v0.1"
+  pull_request:
+    branches:
+      - "architecture/vision-dd-production-spec"
+    paths:
+      - "schemas/omnisight/**"
+      - ".github/workflows/omnisight-contracts.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: omnisight-contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  json-schema-contracts:
+    name: JSON Schema and contract fixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: schemas/omnisight/requirements-test.txt
+      - name: Install pinned test validator
+        run: python -m pip install -r schemas/omnisight/requirements-test.txt
+      - name: Validate schema definitions and fixtures
+        run: python -m unittest discover -s schemas/omnisight/tests -v
