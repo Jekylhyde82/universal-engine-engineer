@@ -132,6 +132,17 @@ class CapabilityManifestContractTests(unittest.TestCase):
         instance["artifact_digest"] = "sha256:" + ("b" * 64)
         self.checker.validate(instance)
 
+    def test_integrated_manifest_requires_artifact_and_review_provenance(self):
+        instance = valid_capability()
+        instance["lifecycle_state"] = "integrated"
+        self.assertFalse(self.checker.is_valid(instance))
+
+    def test_integrated_manifest_with_complete_provenance_is_accepted(self):
+        instance = valid_capability()
+        instance["lifecycle_state"] = "integrated"
+        instance["artifact_digest"] = "sha256:" + ("c" * 64)
+        self.checker.validate(instance)
+
 
 class ObservationEnvelopeContractTests(unittest.TestCase):
     def setUp(self):
