@@ -4,7 +4,7 @@
   "title": "9 FOLD OMNI Unified Capability and Integration Inventory",
   "canonical_architecture": "NINEFOLD INTRINSIC — OMNI AFI PRIME",
   "canonical_fusion_function": "UNIFIED FUSION SYNERGY — AFI PRIME",
-  "inventory_status": "SOURCE_BACKED_PARTIAL_INVENTORY_RECONCILED",
+  "inventory_status": "SOURCE_BACKED_INVENTORY_WITH_PROPOSED_12_DIMENSIONS_AND_99_COMPLEMENTARY_CAPABILITIES",
   "source_registers": [
     {
       "register": "Universal Capability Acquisition Register",
@@ -1521,6 +1521,34 @@
         "R08",
         "R09"
       ]
+    },
+    {
+      "id": "INT-OMNIVELOCITY-PRIME",
+      "name": "OMNIVELOCITY PRIME",
+      "category": "cross_cutting_performance_capability",
+      "purpose": "Optimise intelligent throughput through dependency-aware batching, safe parallelism, workload scheduling, latency reduction and resource allocation.",
+      "status": "PROPOSED_CROSS_CUTTING_CAPABILITY",
+      "maturity": "catalogue_record_only_not_runtime_verified",
+      "governance": {
+        "no_new_dimension": true,
+        "no_new_umic": true,
+        "no_new_fusion_authority": true,
+        "resource_and_isolation_limits_required": true
+      }
+    },
+    {
+      "id": "INT-HYPERVELOCITY-PRIME",
+      "name": "HYPERVELOCITY PRIME",
+      "category": "cross_cutting_acceleration_capability",
+      "purpose": "Accelerate discovery, analysis, feedback cycles, simulation and approved execution through critical-path optimisation and bounded concurrent work.",
+      "status": "PROPOSED_CROSS_CUTTING_CAPABILITY",
+      "maturity": "catalogue_record_only_not_runtime_verified",
+      "governance": {
+        "no_new_dimension": true,
+        "no_new_umic": true,
+        "no_new_fusion_authority": true,
+        "resource_and_isolation_limits_required": true
+      }
     }
   ],
   "repository_work_portfolio": [
@@ -1810,6 +1838,203 @@
     "Most workstreams are open draft PRs and are not automatically integrated into PR 35.",
     "The UCA source register contains duplicate references; canonical providers are deduplicated while source IDs are retained.",
     "Candidate providers are not thereby installed, licence-cleared at selected commits, tested or production-ready.",
-    "Preserved source snapshots remain quarantined pending adaptation and target-side validation."
-  ]
+    "Preserved source snapshots remain quarantined pending adaptation and target-side validation.",
+    "The 12-dimension register and 99 complementary capability set are proposed architecture records, not implemented runtime capabilities.",
+    "The exact historical 99-name draft was not recoverable; UEE-9FO-UCC-099 is a new, explicitly versioned reconstruction.",
+    "The 99 lineage slots remain unmapped and must not be populated from the complementary capability set.",
+    "Capability ownership, dependency mapping, implementation, tests and independent verification remain required before activation."
+  ],
+  "intrinsic_dimension_register": {
+    "register_id": "UEE-9FO-DIM-012",
+    "path": "architecture/9_FOLD_OMNI_12_INTRINSIC_DIMENSIONS_v1.0.json",
+    "count": 12,
+    "status": "PROPOSED_ARCHITECTURE_REGISTER",
+    "clarifications": [
+      "CHRONOS is temporal reasoning; TEMPORAL is time-dependent operational governance.",
+      "AFI PRIME remains one canonical fusion function instantiated in nine governed UMIC contexts.",
+      "Dimensions are responsibility scopes, not additional UMICs, lineage slots, runtime processes or fusion authorities."
+    ]
+  },
+  "ninefold_complementary_capability_set": {
+    "register_id": "UEE-9FO-UCC-099",
+    "path": "architecture/9_FOLD_OMNI_99_COMPLEMENTARY_CAPABILITIES_v1.0.json",
+    "version": "1.0.0",
+    "status": "PROPOSED_ARCHITECTURE_SET",
+    "origin": "New, explicitly versioned reconstruction. The exact historical 99-name draft was not recoverable; this file does not claim verbatim recovery.",
+    "division_count": 9,
+    "capabilities_per_division": 11,
+    "total_capabilities": 99,
+    "division_summary": [
+      {
+        "id": "UCC-DIV-01",
+        "name": "Universal Intelligence & Cognition",
+        "capability_ids": [
+          "UCC-01-01",
+          "UCC-01-02",
+          "UCC-01-03",
+          "UCC-01-04",
+          "UCC-01-05",
+          "UCC-01-06",
+          "UCC-01-07",
+          "UCC-01-08",
+          "UCC-01-09",
+          "UCC-01-10",
+          "UCC-01-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-02",
+        "name": "Discovery & Knowledge Acquisition",
+        "capability_ids": [
+          "UCC-02-01",
+          "UCC-02-02",
+          "UCC-02-03",
+          "UCC-02-04",
+          "UCC-02-05",
+          "UCC-02-06",
+          "UCC-02-07",
+          "UCC-02-08",
+          "UCC-02-09",
+          "UCC-02-10",
+          "UCC-02-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-03",
+        "name": "Prediction, Simulation & Foresight",
+        "capability_ids": [
+          "UCC-03-01",
+          "UCC-03-02",
+          "UCC-03-03",
+          "UCC-03-04",
+          "UCC-03-05",
+          "UCC-03-06",
+          "UCC-03-07",
+          "UCC-03-08",
+          "UCC-03-09",
+          "UCC-03-10",
+          "UCC-03-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-04",
+        "name": "Engineering & Creation",
+        "capability_ids": [
+          "UCC-04-01",
+          "UCC-04-02",
+          "UCC-04-03",
+          "UCC-04-04",
+          "UCC-04-05",
+          "UCC-04-06",
+          "UCC-04-07",
+          "UCC-04-08",
+          "UCC-04-09",
+          "UCC-04-10",
+          "UCC-04-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-05",
+        "name": "Universal Perception & Situational Awareness",
+        "capability_ids": [
+          "UCC-05-01",
+          "UCC-05-02",
+          "UCC-05-03",
+          "UCC-05-04",
+          "UCC-05-05",
+          "UCC-05-06",
+          "UCC-05-07",
+          "UCC-05-08",
+          "UCC-05-09",
+          "UCC-05-10",
+          "UCC-05-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-06",
+        "name": "Autonomy, Coordination & Execution",
+        "capability_ids": [
+          "UCC-06-01",
+          "UCC-06-02",
+          "UCC-06-03",
+          "UCC-06-04",
+          "UCC-06-05",
+          "UCC-06-06",
+          "UCC-06-07",
+          "UCC-06-08",
+          "UCC-06-09",
+          "UCC-06-10",
+          "UCC-06-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-07",
+        "name": "Security, Integrity & Assurance",
+        "capability_ids": [
+          "UCC-07-01",
+          "UCC-07-02",
+          "UCC-07-03",
+          "UCC-07-04",
+          "UCC-07-05",
+          "UCC-07-06",
+          "UCC-07-07",
+          "UCC-07-08",
+          "UCC-07-09",
+          "UCC-07-10",
+          "UCC-07-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-08",
+        "name": "Memory, Continuity & Knowledge Organisation",
+        "capability_ids": [
+          "UCC-08-01",
+          "UCC-08-02",
+          "UCC-08-03",
+          "UCC-08-04",
+          "UCC-08-05",
+          "UCC-08-06",
+          "UCC-08-07",
+          "UCC-08-08",
+          "UCC-08-09",
+          "UCC-08-10",
+          "UCC-08-11"
+        ]
+      },
+      {
+        "id": "UCC-DIV-09",
+        "name": "Evolution, Adaptation & Universal Expansion",
+        "capability_ids": [
+          "UCC-09-01",
+          "UCC-09-02",
+          "UCC-09-03",
+          "UCC-09-04",
+          "UCC-09-05",
+          "UCC-09-06",
+          "UCC-09-07",
+          "UCC-09-08",
+          "UCC-09-09",
+          "UCC-09-10",
+          "UCC-09-11"
+        ]
+      }
+    ],
+    "integration_rules": [
+      "This 99-capability register is distinct from the 99 lineage slots. Do not map capabilities onto lineage placeholders automatically.",
+      "The 99 lineage slots remain unresolved until approved canonical identities, roles, provenance and mappings exist.",
+      "Existing systems including STARWIRE, SYPHON, OMNISIGHT PRIME, CHRONOS VELOCITY PRIME, UPN and EUPN retain independent identities; this register adds complementary responsibilities rather than absorbing or renaming them.",
+      "OMNIVELOCITY PRIME and HYPERVELOCITY PRIME are cross-cutting performance capabilities, not dimensions, divisions, UMICs or fusion authorities.",
+      "STARWIRE discovers and preserves candidate sources; discovery is not approval or integration.",
+      "AFI PRIME coordinates specialists while preserving separate outcomes. It cannot grant itself permissions, approve its own high-impact actions or independently certify its results.",
+      "No capability activates by being listed. Lifecycle: Discovered → Proposed → Under Evaluation → Approved → Integrated / Rejected / Retired.",
+      "Before activation each capability needs an owner, interfaces, dependencies, threat model, resource profile, acceptance tests, evidence and independent verification."
+    ],
+    "acceptance_criteria": [
+      "Exactly nine divisions, each with eleven unique capability records.",
+      "Each capability has a stable ID, responsibility, lifecycle and activation status.",
+      "No additional UMIC, lineage slot or fusion authority is created.",
+      "Cross-capability dependencies, overlap, conflicts and resource costs are evaluated before implementation.",
+      "Implementation and verification claims are tied to repository evidence and passing tests."
+    ]
+  }
 }
