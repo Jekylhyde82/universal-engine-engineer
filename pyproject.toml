@@ -7,6 +7,9 @@ version = "0.1.0"
 description = "Universal Engine core with governed acquisition, AFI fusion and provider-neutral lifecycle primitives"
 requires-python = ">=3.11"
 dependencies = ["PyYAML==6.0.2"]
+
+[project.optional-dependencies]
+performance-lab = ["jsonschema>=4.23,<5", "cryptography>=43,<47", "pytest>=8,<9"]
 [project.scripts]
 starwire = "starwire.cli:main"
 uaie = "universal_engine.uaie:main"
@@ -14,7 +17,9 @@ uaie-lmstudio-catalog = "universal_engine.lmstudio_catalog:main"
 uaie-lmstudio-status = "universal_engine.lmstudio_catalog:status_main"
 uaie-lmstudio-inventory = "universal_engine.lmstudio:main"
 uaie-lmstudio-model-yaml = "universal_engine.lmstudio_catalog:model_yaml_main"
+performance-lab = "performance_lab.runner:main"
+performance-lab-provenance = "performance_lab.provenance.evidence_manifest:main"
 
 [tool.setuptools.packages.find]
 where = ["src", "."]
-include = ["universal_engine*", "starwire*"]
+include = ["universal_engine*", "starwire*", "performance_lab*"]
