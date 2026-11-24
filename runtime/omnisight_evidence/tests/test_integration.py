@@ -50,7 +50,7 @@ class EnvelopeAndWorldModelTests(unittest.TestCase):
         self.assertEqual(len(model.list_assertions("entity:button-1")), 1)
 
     def test_verified_world_assertion_requires_verification_reference(self):
-        model = WorldModel(self.root / "world.sqlite3")
+        model = WorldModel(self.root / "world.sqlite3", self.root / "evidence.sqlite3")
         with self.assertRaisesRegex(ValueError, "verification_ref"):
             model.add_assertion(
                 subject_id="entity:button-1", predicate="has_label",
@@ -66,7 +66,7 @@ class EnvelopeAndWorldModelTests(unittest.TestCase):
                 evidence_record_id="missing-record")
 
     def test_world_model_preserves_conflicting_assertions(self):
-        model = WorldModel(self.root / "world.sqlite3")
+        model = WorldModel(self.root / "world.sqlite3", self.root / "evidence.sqlite3")
         model.add_assertion(subject_id="entity:1", predicate="colour",
             object_value="red", epistemic_status="interpreted",
             evidence_record_id=self.record.record_id)
