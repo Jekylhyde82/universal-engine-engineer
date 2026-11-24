@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from .store import EvidenceStore, verify_ledger
+from .store import verify_ledger
 
 
 @dataclass(frozen=True)
@@ -27,8 +27,11 @@ class WorldAssertion:
 
 
 class WorldModel:
-    def __init__(self, database: str | Path):
+    def __init__(self, database: str | Path, evidence_database: str | Path):
         self.database = str(database)
+        self.evidence_database = str(evidence_database)
+        if not Path(self.evidence_database).is_file():
+            raise FileNotFoundError("evidence_database must point to an existing VEF ledger")
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(self.database) as db:
             db.execute("PRAGMA foreign_keys=ON")
@@ -61,6 +64,15 @@ class WorldModel:
             raise ValueError("invalid epistemic status")
         if epistemic_status == "verified" and not (verification_ref and verification_ref.strip()):
             raise ValueError("verified assertions require verification_ref")
+        health = verify_ledger(self.evidence_database)
+        if not health.valid:
+            raise ValueError(f"evidence ledger failed integrity verification: {health.reason}")
+        with sqlite3.connect(f"file:{Path(self.evidence_database).resolve().as_posix()}?mode=ro", uri=True) as evidence_db:
+            exists = evidence_db.execute(
+                "SELECT 1 FROM evidence_records WHERE record_id=?", (evidence_record_id,)
+            ).fetchone()
+        if not exists:
+            raise ValueError("evidence_record_id does not exist in the verified VEF ledger")
         object_json = json.dumps(object_value, sort_keys=True, separators=(",", ":"), allow_nan=False)
         assertion_id = str(uuid4())
         with sqlite3.connect(self.database) as db:
