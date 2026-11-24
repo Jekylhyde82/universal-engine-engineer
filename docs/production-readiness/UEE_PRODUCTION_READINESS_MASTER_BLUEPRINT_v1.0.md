@@ -219,6 +219,14 @@ Do not flatten the PR graph or merge by numerical order. The integration plan mu
 8. Review #32 and #33 as separate prototypes and integrate only after contracts, security controls and common operational standards are agreed.
 9. Maintain Issue #17 as the single release-control record; update it with every material decision, blocker and evidence reference.
 
+## 2.5 Deployment-target discovery
+
+A read-only inventory of the two connected Supabase account links was performed. No project explicitly identified as the UEE/UAIE production environment was found. Existing projects have other names and must not be presumed to belong to UEE. No existing project was modified, no database was inspected or changed, and no new project or paid resource was provisioned.
+
+**Disposition:** production infrastructure remains UNASSIGNED / NOT VERIFIED. Before deployment, the owner must select or approve the intended project/organisation, region, cost envelope, data residency, security boundary and environment separation. A new project or billable resource must not be created until the actual quoted cost and target are explicitly accepted. Do not repurpose an unrelated project by inference.
+
+The same rule applies to any future hosting, storage, model, vector database, network, signing or observability service: connector availability is not deployment authority, and a connected account is not proof of a suitable production target.
+
 ## 3. Architecture invariants and target topology
 
 NINEFOLD INTRINSIC is the governing architecture focus. Intrinsic means foundational requirements are considered from inception, not attached later as disconnected bolt-ons. Inheritance is implemented through applicable contracts, interfaces, governance and evidence—not by duplicating every service in every component.
