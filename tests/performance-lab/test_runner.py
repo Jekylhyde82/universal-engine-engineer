@@ -44,6 +44,7 @@ def test_valid_record_passes_schema():
     schema = load_json(SCHEMA)
     record = {
         **_synthetic_evidence_fields(),
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "unit-test-run", "test_id": "PL-001",
         "case_id": "PL-001-C01", "condition": "baseline", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -60,6 +61,7 @@ def test_valid_record_passes_schema():
 def test_schema_rejects_unknown_test_id():
     schema = load_json(SCHEMA)
     record = {
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "bad", "test_id": "PL-999",
         "case_id": "bad", "condition": "baseline", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -74,6 +76,7 @@ def test_schema_rejects_tampered_raw_output_hash():
     schema = load_json(SCHEMA)
     case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]
     record = {
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "tampered", "test_id": "PL-001",
         "case_id": "PL-001-C01", "condition": "baseline", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -89,6 +92,7 @@ def test_schema_rejects_tampered_configuration_hash():
     schema = load_json(SCHEMA)
     case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]
     record = {
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "bad-config", "test_id": "PL-001",
         "case_id": "PL-001-C01", "condition": "baseline", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -105,6 +109,7 @@ def test_pl005_supports_fused_and_nine_specialist_arms():
     schema = load_json(SCHEMA)
     case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][4]
     record = {
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "specialist-arm", "test_id": "PL-005",
         "case_id": case["case_id"], "condition": "specialist_9", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -165,6 +170,7 @@ def test_pass_decision_requires_review_reference_and_all_gates_pass():
     schema = load_json(SCHEMA)
     case = load_json(ROOT / "tests/performance-lab/pilot-cases.v1.0.json")["cases"][0]
     record = {
+        **_synthetic_evidence_fields(),
         "schema_version": "1.0.0", "run_id": "unsupported-pass", "test_id": "PL-001",
         "case_id": case["case_id"], "condition": "baseline", "status": "captured",
         "timestamp_utc": "2026-11-10T00:00:00Z", "operator": "test",
@@ -193,6 +199,7 @@ def _write_pl005_records(directory, repetitions_by_condition=None, dimensions_by
             output = f"{condition}-{record_index}-{repetition}"
             configuration = {"condition": condition}
             record = {
+        **_synthetic_evidence_fields(),
                 "schema_version": "1.0.0", "run_id": f"{condition}-{repetition}",
                 "test_id": "PL-005", "case_id": case["case_id"],
                 "condition": condition, "status": "captured",
