@@ -164,3 +164,19 @@ Verification:
 - Tested commit: `f5b2d35b390a104d75afa6be6034c668d5ed931b`.
 
 These are contract-level safeguards. They do not prove the referenced verifier is actually independent or that a reviewer genuinely performed the approval; those controls require runtime identity, authorization and audit evidence.
+
+
+### Evidence-ledger vertical slice — 2026-11-25
+
+Added `runtime/omnisight_evidence/`, a standard-library Python reference implementation containing:
+- Atomic SQLite append operations with source metadata, timestamp, producer/version, epistemic state, limitations and SHA-256 digest of input bytes.
+- Canonical JSON record hashing and a previous-record hash chain.
+- SQLite update/delete triggers as accidental-mutation guards.
+- A separate read-only verifier that recomputes record digests and chain links.
+- Unit tests for valid writes, multi-record continuity, digest correctness, required verification references, timezone-aware timestamps, blocked mutation and tamper detection.
+
+The CI workflow now includes the runtime test suite and its pull-request path filter includes the runtime directory.
+
+**Verification state:** Runtime tests are committed but no CI run for this runtime increment has yet been observed. Do not claim runtime tests passed until a successful run for the updated branch is inspected.
+
+**Scope boundary:** This is an executable evidence-ledger prototype, not full VEF integration. It does not capture screen/camera data, store raw media, implement OCR, authenticate verifier identity, provide external anti-truncation checkpoints, encrypt storage, or provide Android integration. A `verification_ref` is currently a reference string, not cryptographic proof that an independent verifier acted.
