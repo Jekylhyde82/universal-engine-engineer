@@ -74,3 +74,10 @@ Two trust-boundary rules are now encoded and tested:
 - `approved` and `integrated` capability manifests require an artifact digest and complete source/licence/review provenance.
 
 GitHub Actions run [45480626855](https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/45480626855) passed **20 tests, 0 failures** on commit `f5b2d35b390a104d75afa6be6034c668d5ed931b`. Runtime verification of those references and lifecycle authority remains a downstream implementation requirement.
+
+
+## WP-B/WP-C integration increment — observation envelope and world assertions
+
+Added a runtime adapter that maps VEF records to observation-envelope schema v0.1.0 and a first typed world-assertion store. Assertions must reference a record that exists in an integrity-verified VEF ledger. Conflicting assertions are retained rather than silently reconciled; epistemic status is preserved and verified assertions require a verification reference.
+
+The adapter has a direct schema-validation test. The world-model prototype is not yet a full temporal/entity-resolution/causal graph. This increment awaits CI verification on its current branch head.
