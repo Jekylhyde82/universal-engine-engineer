@@ -137,3 +137,15 @@ Added `architecture/OMNISIGHT_PRIME_SECURITY_PRIVACY_THREAT_MODEL_v0.1.md`:
 Updated `architecture/OMNISIGHT_PRIME_BATCHED_IMPLEMENTATION_PLAN_v0.1.md` with WP-I and an evidence-based status table.
 
 **Verification snapshot:** latest observed branch head is recorded by the repository compare operation. No GitHub Actions run or combined status check was returned for the latest contract-validation commit; CI is **NOT VERIFIED**. The contract test source is committed but has not been executed in this environment. No Android runtime, capture permission flow, evidence store, world model, OCR adapter, or production security control is claimed as implemented.
+
+
+### Contract CI verification — 2026-11-25
+
+- **PR head tested:** `921c40fa0de2dab63afceaf1b40eb32122c661b1`
+- **GitHub Actions run:** [45480218880](https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/45480218880) — **SUCCESS**
+- The PR validation job checked out merge ref `9a7f1adff742f2c262b2344c8b740a97b842b80d`, which includes the stated PR head.
+- Python 3.12.16; pinned `jsonschema[format]==4.23.0`.
+- **15 contract tests passed; 0 failed.**
+- Both JSON Schema Draft 2020-12 definitions passed meta-schema validation; valid and invalid fixtures behaved as expected, including semantic-version, lifecycle, duplicate-operation, timestamp, confidence-bound, evidence-reference, digest and unknown-property cases.
+
+This is verified contract/schema CI evidence. It does not verify a runtime, Android capture, OCR quality, VEF persistence, UVWM, AFI reasoning, security controls or production readiness.
