@@ -121,6 +121,17 @@ class CapabilityManifestContractTests(unittest.TestCase):
         instance["operations"] = ["ocr", "ocr"]
         self.assertFalse(self.checker.is_valid(instance))
 
+    def test_approved_manifest_requires_artifact_and_review_provenance(self):
+        instance = valid_capability()
+        instance["lifecycle_state"] = "approved"
+        self.assertFalse(self.checker.is_valid(instance))
+
+    def test_approved_manifest_with_complete_provenance_is_accepted(self):
+        instance = valid_capability()
+        instance["lifecycle_state"] = "approved"
+        instance["artifact_digest"] = "sha256:" + ("b" * 64)
+        self.checker.validate(instance)
+
 
 class ObservationEnvelopeContractTests(unittest.TestCase):
     def setUp(self):
@@ -148,9 +159,15 @@ class ObservationEnvelopeContractTests(unittest.TestCase):
         instance["evidence_refs"] = []
         self.assertFalse(self.checker.is_valid(instance))
 
-    def test_verified_status_is_a_valid_enum_value(self):
+    def test_verified_status_requires_independent_verification_reference(self):
         instance = valid_observation()
         instance["epistemic_status"] = "verified"
+        self.assertFalse(self.checker.is_valid(instance))
+
+    def test_verified_status_with_reference_is_accepted(self):
+        instance = valid_observation()
+        instance["epistemic_status"] = "verified"
+        instance["verification_ref"] = "verification:independent:0001"
         self.checker.validate(instance)
 
     def test_unknown_top_level_property_is_rejected(self):
