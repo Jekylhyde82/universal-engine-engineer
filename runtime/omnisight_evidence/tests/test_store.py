@@ -85,6 +85,17 @@ class EvidenceStoreTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.append_one(epistemic_status="certain")
 
+    def test_sequence_gap_is_detected(self):
+        self.append_one()
+        self.append_one(source_id="second-source")
+        with sqlite3.connect(self.db) as connection:
+            connection.execute("DROP TRIGGER evidence_no_delete")
+            connection.execute("DELETE FROM evidence_records WHERE sequence=1")
+        result = verify_ledger(self.db)
+        self.assertFalse(result.valid)
+        self.assertEqual(result.records_checked, 1)
+        self.assertEqual(result.reason, "sequence discontinuity")
+
     def test_empty_ledger_verifies(self):
         result = verify_ledger(self.db)
         self.assertTrue(result.valid)
