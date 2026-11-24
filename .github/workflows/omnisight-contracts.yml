@@ -15,6 +15,11 @@ on:
       - "architecture/9_FOLD_OMNI_*"
       - "architecture/9-fold-omni/**"
       - ".github/workflows/omnisight-contracts.yml"
+      - ".github/workflows/python-core.yml"
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "docs/runtime/**"
 
 permissions:
   contents: read
@@ -41,6 +46,14 @@ jobs:
         run: python -m pip install -r schemas/omnisight/requirements-test.txt
       - name: Validate schema definitions and fixtures
         run: python -m unittest discover -s schemas/omnisight/tests -v
+      - name: Install provider-neutral runtime package
+        run: python -m pip install --no-deps --no-build-isolation .
+      - name: Compile provider-neutral runtime
+        run: python -m compileall -q src tests
+      - name: Validate provider-neutral runtime tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest discover -s tests -v
       - name: Validate unified capability catalogue
         run: python -m unittest discover -s architecture/9-fold-omni/tests -v
       - name: Validate evidence-ledger runtime
