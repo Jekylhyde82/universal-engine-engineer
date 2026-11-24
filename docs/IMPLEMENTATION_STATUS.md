@@ -149,3 +149,18 @@ Updated `architecture/OMNISIGHT_PRIME_BATCHED_IMPLEMENTATION_PLAN_v0.1.md` with 
 - Both JSON Schema Draft 2020-12 definitions passed meta-schema validation; valid and invalid fixtures behaved as expected, including semantic-version, lifecycle, duplicate-operation, timestamp, confidence-bound, evidence-reference, digest and unknown-property cases.
 
 This is verified contract/schema CI evidence. It does not verify a runtime, Android capture, OCR quality, VEF persistence, UVWM, AFI reasoning, security controls or production readiness.
+
+
+### Contract hardening and second CI pass — 2026-11-25
+
+A GENIUS CRITIC review identified two contract-level trust gaps and they were closed in the schemas:
+
+- An observation may not claim `epistemic_status: verified` without a `verification_ref`.
+- A capability may not enter `approved` or `integrated` lifecycle state without an artifact SHA-256 digest and complete provenance/review fields.
+
+Verification:
+- GitHub Actions run [45480626855](https://github.com/Jekylhyde82/universal-engine-engineer/actions/runs/45480626855): **SUCCESS**.
+- **20 tests passed; 0 failed**, including positive and negative fixtures for both new lifecycle/verification requirements.
+- Tested commit: `f5b2d35b390a104d75afa6be6034c668d5ed931b`.
+
+These are contract-level safeguards. They do not prove the referenced verifier is actually independent or that a reviewer genuinely performed the approval; those controls require runtime identity, authorization and audit evidence.
