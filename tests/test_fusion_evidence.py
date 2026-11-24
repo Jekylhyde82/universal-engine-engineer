@@ -1,4 +1,5 @@
 import tempfile
+from dataclasses import replace
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -89,6 +90,31 @@ class SQLiteFusionEvidenceTests(unittest.TestCase):
             self.assertTrue(reopened.verify_chain())
             self.assertEqual(len(reopened.events()), 1)
             reopened.close()
+
+    def test_rejects_invalid_request_digest(self):
+        result = make_result()
+        outcome = replace(result.outcomes[0], request_sha256="not-a-digest")
+        invalid = replace(result, outcomes=(outcome,))
+        with SQLiteFusionEvidenceLedger(":memory:") as ledger:
+            with self.assertRaises(ContractViolation):
+                ledger.record(invalid)
+            self.assertEqual(ledger.events(), ())
+
+    def test_rejects_naive_fusion_timestamp(self):
+        result = replace(make_result(), created_at=datetime.now())
+        with SQLiteFusionEvidenceLedger(":memory:") as ledger:
+            with self.assertRaises(ContractViolation):
+                ledger.record(result)
+            self.assertEqual(ledger.events(), ())
+
+    def test_rejects_negative_elapsed_time(self):
+        result = make_result()
+        outcome = replace(result.outcomes[0], elapsed_ms=-1.0)
+        invalid = replace(result, outcomes=(outcome,))
+        with SQLiteFusionEvidenceLedger(":memory:") as ledger:
+            with self.assertRaises(ContractViolation):
+                ledger.record(invalid)
+            self.assertEqual(ledger.events(), ())
 
     def test_duplicate_fusion_event_is_rejected_atomically(self):
         with SQLiteFusionEvidenceLedger(":memory:") as ledger:
