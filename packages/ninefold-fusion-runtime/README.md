@@ -18,7 +18,7 @@ This package demonstrates one shared canonical UNIFIED FUSION SYNERGY — AFI PR
 
 ## CI validation
 
-The nine-instance runtime suite passed **8 tests, 0 failures** in policy workflow `44474605496` at code commit `887e15bb85bd33f99e5c2f765aea17323e8b6e99`. The same workflow also passed the 132-test V.I.S.I.O.N./D.D. suite, registry validation, JavaScript syntax checks and real Chromium integration setup. CodeQL workflow `44474605505` completed successfully on that code commit. Later commits changed documentation only; this package source is unchanged. CodeQL success does not establish that the alert inventory is empty or reviewed.
+The nine-instance runtime suite passed **13 tests, 0 failures** in NINEFOLD runtime proof workflow [45493688482](https://github.com/Jekyllhyde82/universal-engine-engineer/actions/runs/45493688482) at integration commit `77758075023fbdd159d8c451179868ffd48f1921`. The same workflow passed canonical registry validation and JavaScript syntax checks. Earlier policy workflow `44474605496` passed the 132-test V.I.S.I.O.N./D.D. suite, registry validation, JavaScript syntax checks and real Chromium integration setup; CodeQL workflow `44474605505` also completed successfully on its code commit. CodeQL success does not establish that the alert inventory is empty or reviewed.
 
 ## What it does not demonstrate
 
