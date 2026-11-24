@@ -20,6 +20,7 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "docs/runtime/**"
+      - "starwire/**"
 
 permissions:
   contents: read
@@ -54,6 +55,8 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m unittest discover -s tests -v
+      - name: Validate STARWIRE discovery and extraction
+        run: python -m unittest discover -s starwire/tests -v
       - name: Validate unified capability catalogue
         run: python -m unittest discover -s architecture/9-fold-omni/tests -v
       - name: Validate evidence-ledger runtime
