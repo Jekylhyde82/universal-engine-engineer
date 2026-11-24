@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import re
 import sqlite3
 import threading
@@ -95,8 +96,17 @@ class SQLiteFusionEvidenceLedger:
             raise ContractViolation("fusion function identity mismatch")
         if not result.fusion_id or not result.principal_id or not result.outcomes:
             raise ContractViolation("fusion result identity and specialist outcomes are required")
+        if result.created_at.tzinfo is None or result.created_at.utcoffset() is None:
+            raise ContractViolation("fusion result created_at must be timezone-aware")
+        correlations = [outcome.correlation_id for outcome in result.outcomes]
+        if len(correlations) != len(set(correlations)):
+            raise ContractViolation("fusion outcome correlation IDs must be unique")
 
         for outcome in result.outcomes:
+            if not isinstance(outcome.elapsed_ms, (int, float)) or isinstance(outcome.elapsed_ms, bool):
+                raise ContractViolation("elapsed_ms must be a finite non-negative number")
+            if not math.isfinite(outcome.elapsed_ms) or outcome.elapsed_ms < 0:
+                raise ContractViolation("elapsed_ms must be a finite non-negative number")
             if not _HEX_256.fullmatch(outcome.request_sha256):
                 raise ContractViolation("request_sha256 must be a lowercase SHA-256 digest")
             if not _HEX_256.fullmatch(outcome.result_sha256):
@@ -153,6 +163,9 @@ class SQLiteFusionEvidenceLedger:
                     appended.append(FusionEvidenceEvent(**payload, event_hash=event_hash))
                     previous_hash = event_hash
                     sequence += 1
+            except sqlite3.IntegrityError as exc:
+                connection.rollback()
+                raise ContractViolation("duplicate or conflicting fusion evidence event") from exc
             except Exception:
                 connection.rollback()
                 raise
