@@ -4,8 +4,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
-from universal_engine import ContractViolation, FusionResult, FusionStatus, ProviderResult, ResultStatus, SQLiteFusionEvidenceLedger, SpecialistOutcome
+from universal_engine import AFIPrimeFusionCoordinator, ContractViolation, FusionEvidencePersistenceError, FusionResult, FusionStatus, ProviderRequest, ProviderResult, ResultStatus, SQLiteFusionEvidenceLedger, SpecialistInvocation, SpecialistOutcome
 from universal_engine.fusion import FUSION_FUNCTION_ID
+from universal_engine.lifecycle import LifecycleState
+from universal_engine.policy import PolicyEngine, PolicyRule
+from universal_engine.providers.registry import ProviderKind, ProviderRegistry
 
 
 def make_result(fusion_id=None, correlation_id=None):
@@ -31,6 +34,24 @@ def make_result(fusion_id=None, correlation_id=None):
         status=FusionStatus.SUCCEEDED,
         outcomes=(outcome,),
     )
+
+
+
+class IntegratedLifecycle:
+    def state_of(self, capability_id):
+        return LifecycleState.INTEGRATED
+
+
+class TestProvider:
+    def execute(self, request):
+        return ProviderResult(request.correlation_id, ResultStatus.SUCCEEDED, {"answer": "synthetic"})
+    def generate(self, request):
+        return self.execute(request)
+
+
+class FailingSink:
+    def record(self, result):
+        raise OSError("synthetic storage failure")
 
 
 class SQLiteFusionEvidenceTests(unittest.TestCase):
@@ -77,6 +98,55 @@ class SQLiteFusionEvidenceTests(unittest.TestCase):
                 ledger.record(result)
             self.assertEqual(len(ledger.events()), 1)
             self.assertTrue(ledger.verify_chain())
+
+
+    def test_coordinator_writes_fusion_result_to_configured_ledger(self):
+        registry = ProviderRegistry()
+        provider = TestProvider()
+        registry.register("provider.one", "cap.one", ProviderKind.INFERENCE, provider, IntegratedLifecycle())
+        policy = PolicyEngine([
+            PolicyRule("allow-one", "operator", "cap.one", "generate", True, "test grant")
+        ])
+        with SQLiteFusionEvidenceLedger(":memory:") as ledger:
+            coordinator = AFIPrimeFusionCoordinator(registry, policy, evidence_sink=ledger)
+            request = ProviderRequest(
+                correlation_id=str(uuid4()),
+                capability_id="cap.one",
+                operation="generate",
+                payload={"input": "synthetic"},
+            )
+            result = coordinator.fuse(
+                [SpecialistInvocation("provider.one", request)],
+                principal_id="operator",
+            )
+            events = ledger.events(result.fusion_id)
+            self.assertEqual(len(events), 1)
+            self.assertEqual(events[0].request_sha256, result.outcomes[0].request_sha256)
+            self.assertEqual(events[0].result_sha256, result.outcomes[0].result_sha256)
+            self.assertTrue(ledger.verify_chain())
+
+    def test_evidence_sink_failure_returns_completed_result_on_exception(self):
+        registry = ProviderRegistry()
+        provider = TestProvider()
+        registry.register("provider.one", "cap.one", ProviderKind.INFERENCE, provider, IntegratedLifecycle())
+        policy = PolicyEngine([
+            PolicyRule("allow-one", "operator", "cap.one", "generate", True, "test grant")
+        ])
+        coordinator = AFIPrimeFusionCoordinator(registry, policy, evidence_sink=FailingSink())
+        request = ProviderRequest(
+            correlation_id=str(uuid4()),
+            capability_id="cap.one",
+            operation="generate",
+            payload={"input": "synthetic"},
+        )
+        with self.assertRaises(FusionEvidencePersistenceError) as raised:
+            coordinator.fuse(
+                [SpecialistInvocation("provider.one", request)],
+                principal_id="operator",
+            )
+        self.assertEqual(raised.exception.result.status, FusionStatus.SUCCEEDED)
+        self.assertEqual(raised.exception.result.outcomes[0].result.status, ResultStatus.SUCCEEDED)
+
 
 
 if __name__ == "__main__":
