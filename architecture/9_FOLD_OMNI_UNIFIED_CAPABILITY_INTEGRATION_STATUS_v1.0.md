@@ -46,7 +46,7 @@ The complete branch names, base relationships and source URLs are recorded in th
 
 ## Verification evidence observed
 
-- PR 35 exact head `66f181be7737fbce9ce611e52fb7bb7dc50ff612`: OMNISIGHT workflow run `45484828306` passed schema fixtures and evidence-ledger runtime tests.
+- PR 35 exact head `253655cc8103a8db86e530f577a5d3b7391e280b`: all four current-head PR workflows passed — Python Core `45493282320`, OMNISIGHT PRIME contract validation `45493282287` (including schema, 147 provider-neutral tests, 11 STARWIRE tests, 21 Performance Lab tests, unified capability catalogue and evidence-ledger runtime), Performance Lab validation `45493282399`, and Repository Capability Scout `45493282334`.
 - PR 16 source commit `b203fe639b154d7337e37be450a5f62ca16cced6`: Python Core workflow `44291437259` passed.
 - PR 27 source commit `ca87a08e020d71ea7e191a645542d67ea113c7c2`: Repository Capability Scout checks `44460118557` passed.
 - PR 32 source commit `53809085703e9f0d96b20f848334d8aec96c3e09`: STARWIRE CI `44619132868` passed.
