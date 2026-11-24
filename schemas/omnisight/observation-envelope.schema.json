@@ -185,6 +185,29 @@
       "items": {
         "type": "string"
       }
+    },
+    "verification_ref": {
+      "type": "string",
+      "minLength": 1
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "epistemic_status": {
+            "const": "verified"
+          }
+        },
+        "required": [
+          "epistemic_status"
+        ]
+      },
+      "then": {
+        "required": [
+          "verification_ref"
+        ]
+      }
+    }
+  ]
 }
