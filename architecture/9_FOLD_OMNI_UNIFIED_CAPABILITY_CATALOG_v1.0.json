@@ -1056,6 +1056,28 @@
       "activation": "not_claimed"
     },
     {
+      "id": "INT-AFI-PRIME-COORDINATOR",
+      "name": "AFI PRIME GOVERNED MULTI-SPECIALIST COORDINATOR",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Coordinate explicit batches of lifecycle-integrated specialist providers through the canonical AFI PRIME function; enforce per-invocation policy, bounded parallel dispatch, preflight, failure isolation and preservation of distinct specialist outcomes.",
+      "lifecycle_state": "under_evaluation",
+      "maturity": "prototype_implemented_and_current_branch_ci_tested_not_merged_or_independently_verified",
+      "source_reference": "PR 35: src/universal_engine/fusion.py; tests/test_fusion.py",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
+      "id": "INT-AFI-PRIME-FUSION-EVIDENCE",
+      "name": "AFI PRIME DIGEST-ONLY FUSION EVIDENCE LEDGER",
+      "kind": "intrinsic_capability_or_system",
+      "responsibility": "Persist per-specialist request/result digests, identity, status and timing in a local SQLite hash-chained evidence stream without storing raw prompt or provider-output content.",
+      "lifecycle_state": "under_evaluation",
+      "maturity": "prototype_implemented_and_current_branch_ci_tested_not_merged_or_independently_verified",
+      "source_reference": "PR 35: src/universal_engine/fusion_evidence.py; tests/test_fusion_evidence.py",
+      "lineage_mapping": null,
+      "activation": "not_claimed"
+    },
+    {
       "id": "INT-GENIUS-ENGINEER-CRITIC-PRIME",
       "name": "GENIUS ENGINEER CRITIC PRIME",
       "kind": "intrinsic_capability_or_system",
