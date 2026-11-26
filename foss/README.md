@@ -28,7 +28,7 @@ The first collection records the three upstream projects previously identified b
 
 See [SOURCE REGISTER](SOURCES.md) for provenance and current review status.
 
-## Intake lifecycle
+## Intrinsic AFI OM + EVO PRIME integration\n\nThis FOSS workspace is not a detached collection. It is governed by the intrinsic AFI OM + EVO PRIME architecture of Engineer:\n\n- **AFI OM** fuses source intelligence, technical findings, provenance, licensing facts, dependency relationships and capability knowledge.\n- **EVO PRIME** identifies capability gaps, designs approved adaptations, engineers tests, evaluates outcomes and drives governed improvement.\n- Both responsibilities operate across discovery, capture, assessment, approval, integration, verification and lifecycle management.\n- Their authority remains bounded by licence, security, permission and evidence gates.\n\nThe complete system-wide contract is documented in [AFI OM + EVO PRIME intrinsic integration](../docs/AFI-OM-EVO-PRIME-INTRINSIC-INTEGRATION.md).\n\n## Intake lifecycle
 
 Every candidate follows explicit gates:
 
